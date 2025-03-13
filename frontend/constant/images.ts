@@ -1,5 +1,7 @@
-import heroImage from '@/assets/murenzi-hero.png'
+import heroImage from '@/assets/images/murenzi-hero.png'
+import apartmentTest from '@/assets/images/apartmentTest.png'
 
 export const images={
-    heroImage
+    heroImage,
+    apartmentTest
 }
