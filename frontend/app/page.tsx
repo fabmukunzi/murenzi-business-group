@@ -1,9 +1,11 @@
+import HeroSection from "@/components/hero-section/HeroSection";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <div className="flex justify-center items-center h-[70vh]">
-      <Button className="h-11">Frontend setup is done 😜</Button>
+    <div className="flex mt-24 min-h-[70vh]">
+      <HeroSection />
+      {/* <Button className="h-11">Frontend setup is done 😜</Button> */}
     </div>
   );
 }
