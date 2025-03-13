@@ -6,22 +6,22 @@ import { icons } from '@/constant/icons'
 
 const HeroSection = () => {
   return (
-    <div className='flex justify-between w-full px-20 bg-gradient-to-r from-white to-primary rounded-br-4xl '>
-      <div className='h-full w-1/2 flex flex-col justify-between'>
-        <div className='pt-30 flex flex-col gap-4'>
-          <h1 className='font-bold text-3xl'>Discover Your Ideal Apartment, Dining booth, and Wellness Experience – Comfort and Affordability Combined.</h1>
+    <div className='flex justify-between max-sm:flex-col-reverse w-full px-20 bg-gradient-to-r from-white to-primary rounded-br-4xl max-sm:px-4 max-sm:mt-20'>
+      <div className='h-full w-1/2 max-sm:w-full flex flex-col justify-between gap-6'>
+        <div className='pt-30 max-sm:pt-0 flex flex-col gap-4'>
+          <h1 className='font-bold text-3xl max-sm:text-2xl'>Discover Your Ideal Apartment, Dining booth, and Wellness Experience – Comfort and Affordability Combined.</h1>
           <p>Looking for a place to live or a relaxing break? Explore a variety of verified apartments, tasty restaurants, and soothing sauna massages. Whether you need a cozy studio, a nice place to eat, or a peaceful retreat, we make it easy and fast. Start your journey with us today!</p>
         </div>
-        <div className='flex flex-col gap-3 pb-10'>
+        <div className='flex flex-col gap-3 pb-10 max-sm:pb-4'>
           <h3 className='font-semibold text-lg text-gray-700'>Book apartment with</h3>
-          <div className='flex gap-4'>
+          <div className='flex gap-4 justify-between'>
             <Button variant={'outline'} className="h-11 px-8 border-2 border-pink-600"><Image src={icons.airbnb} alt='' /></Button>
             <Button className="h-11 px-10 bg-[#003680]">Booking</Button>
           </div>
         </div>
       </div>
       <div className=''>
-        <Image src={images.heroImage} height={550} width={0} alt='' />
+        <Image className='max-sm:' src={images.heroImage} height={550} width={550} alt='' />
       </div>
     </div>
   )
