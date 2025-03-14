@@ -6,9 +6,9 @@ import { icons } from '@/constant/icons'
 
 const HeroSection = () => {
   return (
-    <div className='flex justify-between max-sm:flex-col-reverse w-full px-20 bg-gradient-to-r from-white to-primary rounded-br-4xl max-sm:px-4 max-sm:mt-20'>
-      <div className='h-full w-1/2 max-sm:w-full flex flex-col justify-between gap-6'>
-        <div className='pt-30 max-sm:pt-0 flex flex-col gap-4'>
+    <div className='flex justify-between max-sm:flex-col-reverse w-full px-20 max-md:p-10 bg-gradient-to-r from-white to-primary rounded-br-4xl max-sm:px-4 max-sm:mt-20 max-md:flex-col-reverse'>
+      <div className='h-full w-1/2 max-md:w-full max-sm:w-full flex flex-col justify-between gap-6'>
+        <div className='pt-30 max-md:pt-10 max-sm:pt-0 flex flex-col gap-4'>
           <h1 className='font-bold text-3xl max-sm:text-2xl'>Discover Your Ideal Apartment, Dining booth, and Wellness Experience – Comfort and Affordability Combined.</h1>
           <p>Looking for a place to live or a relaxing break? Explore a variety of verified apartments, tasty restaurants, and soothing sauna massages. Whether you need a cozy studio, a nice place to eat, or a peaceful retreat, we make it easy and fast. Start your journey with us today!</p>
         </div>
@@ -20,7 +20,7 @@ const HeroSection = () => {
           </div>
         </div>
       </div>
-      <div className=''>
+      <div className='max-md:w-full max-md:flex max-md:justify-center'>
         <Image className='max-sm:' src={images.heroImage} height={550} width={550} alt='' />
       </div>
     </div>

@@ -11,37 +11,35 @@ const CardApartment = () => {
         "https://plutproperties.com/wp-content/uploads/2021/09/apartment-in-kigali-plut-properties-3.jpg";
 
     return (
-        <Card className="w-full md:w-[400px] sm:w-[350px] p-2">
+        <Card className="w-full sm:max-w-[360px] p-2">
             <Dialog>
-                <DialogTrigger asChild>
-                    <CardContent
-                        className="p-0 h-56 rounded-lg rounded-bl-none bg-cover bg-center relative"
-                        style={{ backgroundImage: `url(${imageUrl})` }}
-                    >
-                        {/* Eye Icon */}
-                        <div className="bg-white/50 rounded-md p-1 flex justify-center items-center w-fit h-fit absolute right-2 top-2">
-                            <ScanEye
-                                width={30}
-                                height={30}
-                                className="bg-primary p-1 text-white rounded-md cursor-pointer"
-                            />
+                <CardContent
+                    className="p-0 h-56 rounded-lg bg-cover bg-center relative"
+                    style={{ backgroundImage: `url(${imageUrl})` }}
+                >
+                    <DialogTrigger asChild>
+                        <div className="relative cursor-pointer">
+                            <div className="bg-white/50 rounded-md p-1 flex justify-center items-center w-fit h-fit absolute right-2 top-2">
+                                <ScanEye
+                                    width={30}
+                                    height={30}
+                                    className="bg-primary p-1 text-white rounded-md cursor-pointer"
+                                />
+                            </div>
                         </div>
-                    </CardContent>
-                </DialogTrigger>
-                {/* Modal Preview */}
-                <DialogContent className="max-w-lg w-full">
-                    <img
-                        src={imageUrl}
-                        alt="Apartment Preview"
-                        className="w-full rounded-lg"
-                    />
-                </DialogContent>
+                    </DialogTrigger>
+                    <DialogContent title="" className="max-w-lg w-full">
+                        <img
+                            src={imageUrl}
+                            alt="Apartment Preview"
+                            className="w-full rounded-lg"
+                        />
+                    </DialogContent>
+                </CardContent>
             </Dialog>
 
-            {/* Card Footer */}
             <CardFooter className="p-2">
                 <div className="w-full space-y-2">
-                    {/* Price & Location */}
                     <div className="flex justify-between w-full flex-wrap gap-2">
                         <div>
                             <p className="text-primary font-bold text-lg">
@@ -55,7 +53,6 @@ const CardApartment = () => {
                         </div>
                     </div>
 
-                    {/* Features Section */}
                     <div className="flex justify-between w-full flex-wrap gap-2">
                         <div className="flex items-center gap-1">
                             <Image src={icons.bed} alt="" width={16} height={16} />
