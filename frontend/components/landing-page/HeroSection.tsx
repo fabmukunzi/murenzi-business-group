@@ -14,7 +14,7 @@ const HeroSection = () => {
         </div>
         <div className='flex flex-col gap-3 pb-10 max-sm:pb-4'>
           <h3 className='font-semibold text-lg text-gray-700'>Book apartment with</h3>
-          <div className='flex gap-4 justify-between'>
+          <div className='flex gap-16 max-md:justify-between md:justify-start'>
             <Button variant={'outline'} className="h-11 px-8 border-2 border-pink-600"><Image src={icons.airbnb} alt='' /></Button>
             <Button className="h-11 px-10 bg-[#003680]">Booking</Button>
           </div>

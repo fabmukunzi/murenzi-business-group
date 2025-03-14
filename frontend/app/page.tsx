@@ -1,4 +1,5 @@
 import BestApartment from "@/components/landing-page/BestApartment";
+import Explore from "@/components/landing-page/Explore";
 import HeroSection from "@/components/landing-page/HeroSection";
 import WhyChooseUs from "@/components/landing-page/WhyChooseUs";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ export default function Home() {
       <HeroSection />
       <BestApartment />
       <WhyChooseUs />
+      <Explore />
       {/* <Button className="h-11">Frontend setup is done 😜</Button> */}
     </div>
   );
