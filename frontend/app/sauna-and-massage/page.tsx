@@ -57,7 +57,7 @@ const SaunaMassage = () => {
 
         <div className="mt-6">
           <h2 className="text-xl md:text-2xl font-semibold">
-            A Peaceful and Comfortable Space 
+            A Peaceful and Comfortable Space
           </h2>
           <p className="text-gray-700 mt-2">
             Step into a calm and cozy environment designed for your relaxation.
