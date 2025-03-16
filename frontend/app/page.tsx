@@ -13,7 +13,6 @@ export default function Home() {
       <ApartmentGallery />
       <WhyChooseUs />
       <Explore />
-      <ContactUs />
     </div>
   );
 }
