@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 
 const ContactUs = () => {
     return (
-        <div className='mx-4 sm:mx-10 md:mx-20 mt-10 bg-primary/20 rounded-2xl p-6 sm:p-8 md:p-10 flex flex-col md:flex-row gap-8'>
+        <div id="contact" className='mx-4 sm:mx-10 md:mx-14 mt-10 bg-primary/20 rounded-2xl p-6 sm:p-8 md:p-10 flex flex-col md:flex-row gap-8'>
             <div className='w-full md:w-1/2 flex flex-col justify-between'>
                 <div className='flex flex-col gap-4'>
                     <h1 className='font-bold text-2xl sm:text-3xl md:text-4xl'>Get in touch</h1>
@@ -16,10 +16,10 @@ const ContactUs = () => {
                             <Mail width={20} className='text-primary' />
                             <span className='text-gray-500 text-sm break-words'>murenziguesthouse@gmail.com</span>
                         </div>
-                        <div className='flex px-4 gap-2 items-center border border-primary py-1 rounded-md bg-primary/20'>
+                        <Button className='ml-4 px-0 w-52 gap-2 border border-primary py-1 rounded-md bg-primary/20'>
                             <Phone width={20} className='text-primary' />
-                            <span className='text-gray-500 text-sm'>+2507978789</span>
-                        </div>
+                            <span className='text-gray-500 text-sm pr-14'>+2507978789</span>
+                        </Button>
                         <div className='flex px-4 gap-2 items-center py-1 rounded-md'>
                             <MapPin width={20} className='text-primary' />
                             <span className='text-gray-500 text-sm'>123 Street 567 House</span>
@@ -42,10 +42,10 @@ const ContactUs = () => {
                 <h3 className='text-lg sm:text-xl font-semibold'>Reach out to us</h3>
                 <div className='flex flex-col gap-4'>
                     <div className='flex flex-col sm:flex-row gap-4'>
-                        <Input type="text" placeholder="Name" className='w-full' />
-                        <Input type="email" placeholder="Email" className='w-full' />
+                        <Input type="text" placeholder="Name" className='w-full h-10' />
+                        <Input type="email" placeholder="Email" className='w-full h-10' />
                     </div>
-                    <Input type="text" placeholder="Subject" className='w-full' />
+                    <Input type="text" placeholder="Subject" className='w-full h-10' />
                     <Textarea placeholder="Type your message here." className='w-full' />
                     <Button className='flex items-center gap-2'>
                         <Send size={16} /> Send Message

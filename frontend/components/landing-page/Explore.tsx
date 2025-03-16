@@ -1,3 +1,4 @@
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { exterior2 } from '@/lib/images';
 import Image from 'next/image';

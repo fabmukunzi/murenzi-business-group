@@ -1,6 +1,5 @@
 import ApartmentGallery from "@/components/landing-page/ApartmentGallery";
 import BestApartment from "@/components/landing-page/BestApartment";
-import ContactUs from "@/components/landing-page/ContactUs";
 import Explore from "@/components/landing-page/Explore";
 import HeroSection from "@/components/landing-page/HeroSection";
 import WhyChooseUs from "@/components/landing-page/WhyChooseUs";
@@ -13,7 +12,6 @@ export default function Home() {
       <ApartmentGallery />
       <WhyChooseUs />
       <Explore />
-      <ContactUs />
     </div>
   );
 }
