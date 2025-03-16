@@ -11,7 +11,6 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { SaunaImg1 } from '@/lib/images';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Calendar } from '@/components/ui/calendar';
@@ -21,6 +20,7 @@ import {
   PopoverContent,
 } from '@/components/ui/popover';
 import { format } from 'date-fns';
+import { SaunaImg1 } from '@/lib/images';
 
 const SaunaMassage = () => {
   const [isOpen, setIsOpen] = useState(false);
