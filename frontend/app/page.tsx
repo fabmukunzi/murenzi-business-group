@@ -14,7 +14,6 @@ export default function Home() {
       <WhyChooseUs />
       <Explore />
       <ContactUs />
-      {/* <Button className="h-11">Frontend setup is done 😜</Button> */}
     </div>
   );
 }
