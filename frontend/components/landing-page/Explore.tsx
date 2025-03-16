@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
+import { images } from '@/lib/images';
 import Image from 'next/image';
-import { images } from '@/constant/images';
 
 const Explore = () => {
     const imageUrl = "https://plutproperties.com/wp-content/uploads/2021/09/apartment-in-kigali-plut-properties-3.jpg";

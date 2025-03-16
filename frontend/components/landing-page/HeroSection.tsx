@@ -1,8 +1,8 @@
-import { images } from '@/constant/images'
 import Image from 'next/image'
 import React from 'react'
 import { Button } from '@/components/ui/button'
 import { icons } from '@/lib/icons'
+import { images } from '@/lib/images'
 
 const HeroSection = () => {
   return (

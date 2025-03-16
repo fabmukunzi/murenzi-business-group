@@ -1,5 +1,5 @@
 import { icons } from '@/lib/icons'
-import { images } from '@/constant/images'
+import { images } from '@/lib/images'
 import Image from 'next/image'
 
 const WhyChooseUs = () => {

@@ -11,7 +11,6 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { SaunaImg1 } from '@/lib/images';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Calendar } from '@/components/ui/calendar';
@@ -21,6 +20,7 @@ import {
   PopoverContent,
 } from '@/components/ui/popover';
 import { format } from 'date-fns';
+import { images } from '@/lib/images';
 
 const SaunaMassage = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -93,23 +93,23 @@ const SaunaMassage = () => {
         className="w-full md:w-[50%]"
       >
         <Image
-          src={SaunaImg1}
+          src={images.SaunaImg1}
           alt="Sauna massage Image"
           className="object-cover h-80 w-full rounded-2xl"
         />
         <div className="flex gap-3 flex-wrap mt-5 justify-center">
           <Image
-            src={SaunaImg1}
+            src={images.SaunaImg1}
             alt="Sauna massage Image"
             className="object-cover md:h-40 h-20 md:w-44 w-24 rounded-2xl"
           />
           <Image
-            src={SaunaImg1}
+            src={images.SaunaImg1}
             alt="Sauna massage Image"
             className="object-cover md:h-40 h-20 md:w-44 w-24 rounded-2xl"
           />
           <Image
-            src={SaunaImg1}
+            src={images.SaunaImg1}
             alt="Sauna massage Image"
             className="object-cover md:h-40 h-20 md:w-44 w-24 rounded-2xl"
           />
