@@ -1,7 +1,6 @@
 import { icons } from '@/constant/icons'
 import { images } from '@/constant/images'
 import Image from 'next/image'
-import React from 'react'
 
 const WhyChooseUs = () => {
     return (

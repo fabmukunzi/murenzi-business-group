@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Home, Bed, Bath, Utensils, Building, Sofa } from 'lucide-react'; // Import the icons from lucide-react
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel';
+import { Home, Bed, Bath, Utensils, Building, Sofa } from 'lucide-react';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 
 const categories = [
     { name: 'Living room', icon: Sofa, images: ["livingRoom1.avif", 'livingRoom2.avif', 'livingRoom3.avif', 'livingRoom4.avif'] },

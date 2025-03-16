@@ -1,9 +1,9 @@
 import { Facebook, Instagram, Mail, MapPin, Phone, Send, Twitter } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
-import { Input } from '../ui/input';
-import { Textarea } from '../ui/textarea';
-import { Button } from '../ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 
 const ContactUs = () => {
     return (

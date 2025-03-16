@@ -1,7 +1,7 @@
 import { images } from '@/constant/images'
 import Image from 'next/image'
 import React from 'react'
-import { Button } from '../ui/button'
+import { Button } from '@/components/ui/button'
 import { icons } from '@/constant/icons'
 
 const HeroSection = () => {

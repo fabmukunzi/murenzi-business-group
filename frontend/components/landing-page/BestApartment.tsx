@@ -1,6 +1,6 @@
 import React from 'react'
 import CardApartment from '../apartment/CardApartment'
-import { Button } from '../ui/button';
+import { Button } from '@/components/ui/button';
 
 const BestApartment = () => {
     return (

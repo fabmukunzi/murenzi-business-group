@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
-import { Card, CardContent, CardFooter } from "../ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { ScanEye } from "lucide-react";
-import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import Image from "next/image";
 import { icons } from "@/constant/icons";
 
