@@ -4,7 +4,6 @@ import ContactUs from "@/components/landing-page/ContactUs";
 import Explore from "@/components/landing-page/Explore";
 import HeroSection from "@/components/landing-page/HeroSection";
 import WhyChooseUs from "@/components/landing-page/WhyChooseUs";
-import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (

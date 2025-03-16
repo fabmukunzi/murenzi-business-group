@@ -29,7 +29,7 @@ const CardApartment = () => {
                         </div>
                     </DialogTrigger>
                     <DialogContent title="" className="max-w-lg w-full">
-                        <img
+                        <Image
                             src={imageUrl}
                             alt="Apartment Preview"
                             className="w-full rounded-lg"

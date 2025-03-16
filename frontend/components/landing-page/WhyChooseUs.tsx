@@ -1,6 +1,5 @@
 import { icons } from '@/constant/icons'
 import { images } from '@/constant/images'
-import { div } from 'framer-motion/client'
 import Image from 'next/image'
 import React from 'react'
 
