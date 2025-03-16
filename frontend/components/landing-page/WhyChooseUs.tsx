@@ -1,4 +1,4 @@
-import { icons } from '@/constant/icons'
+import { icons } from '@/lib/icons'
 import { images } from '@/constant/images'
 import Image from 'next/image'
 

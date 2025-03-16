@@ -59,7 +59,7 @@ const FooterComponent = () => {
       </div>
       
     </div>
-    <div className='px-14 text-black/70 my-'>&copy; {new Date().getFullYear()} Murenzi Apartment. All rights reserved</div>
+    <div className='md:px-14 px-5 text-black/70 my-'>&copy; {new Date().getFullYear()} Murenzi Apartment. All rights reserved</div>
     </footer>
   );
 };

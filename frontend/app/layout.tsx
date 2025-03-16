@@ -25,7 +25,9 @@ export default function RootLayout({
         className={`${rubik.className} antialiased`}
       >
         <HeaderComponent />
-        {children}
+        <main className='my-10'>
+         {children} 
+        </main>
         <FooterComponent />
       </body>
     </html>
