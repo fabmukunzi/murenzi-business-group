@@ -1,6 +1,5 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-# Format staged files before committing
-git diff --cached --name-only --diff-filter=ACMR | xargs prettier --write --ignore-unknown
-git diff --cached --name-only --diff-filter=ACMR | xargs git add
+npm run type-check
+npm run lint:fix
