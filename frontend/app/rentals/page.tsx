@@ -54,8 +54,6 @@ const RentalsPage = () => {
                                     ))}
                                 </SelectContent>
                             </Select>
-
-                            {/* Bedrooms Select */}
                             <Select onValueChange={(value: string) => setSelectedBedrooms(Number(value))}>
                                 <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select bedrooms" />
@@ -68,8 +66,6 @@ const RentalsPage = () => {
                                     ))}
                                 </SelectContent>
                             </Select>
-
-                            {/* Price Range Slider */}
                             <div className="flex flex-col gap-2">
                                 <span className="text-sm text-gray-500">Price Range: ${priceRange[0]} - ${priceRange[1]}</span>
                                 <Slider
@@ -79,8 +75,6 @@ const RentalsPage = () => {
                                     onValueChange={(value: number[]) => setPriceRange(value)}
                                 />
                             </div>
-
-                            {/* Amenities Checkboxes */}
                             <div className="flex flex-col gap-2">
                                 <span className="text-sm text-gray-500">Amenities</span>
                                 {amenities.map((amenity) => (
@@ -97,7 +91,6 @@ const RentalsPage = () => {
                                     </label>
                                 ))}
                             </div>
-
                             <Button className="w-full mt-4" onClick={handleApplyFilters}>
                                 Apply Filters
                             </Button>
