@@ -8,9 +8,7 @@ import { DialogTitle } from "@radix-ui/react-dialog";
 import { Filter } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox"; // Import Checkbox
-
-const locations: string[] = ['Kigali', 'Musanze', 'Rubavu', 'Huye'];
+import { Checkbox } from "@/components/ui/checkbox"; 
 const bedrooms: number[] = [1, 2, 3, 4, 5];
 const amenities: string[] = ['Balcony', 'Pool', 'Gym', 'Parking', 'Furnished'];
 
@@ -42,18 +40,6 @@ const RentalsPage = () => {
                     </DialogHeader>
                     <Card className="p-2 w-full">
                         <CardContent className="flex flex-col gap-4 py-4">
-                            <Select onValueChange={(value: string) => setLocation(value)}>
-                                <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="Select location" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {locations.map((loc) => (
-                                        <SelectItem key={loc} value={loc}>
-                                            {loc}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
                             <Select onValueChange={(value: string) => setSelectedBedrooms(Number(value))}>
                                 <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select bedrooms" />
