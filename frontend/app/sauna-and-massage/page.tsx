@@ -21,6 +21,99 @@ import {
 } from '@/components/ui/popover';
 import { format } from 'date-fns';
 import { SaunaImg1 } from '@/lib/images';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+
+const massageServices = [
+  {
+    id: 1,
+    title: 'Deep Tissue Massage',
+    description: 'Massage technique using firm pressure to relieve tension, reduce pain, and improve flexibility.',
+    price: 'RWF 20,000',
+    image: 'bed1.avif',
+  },
+  {
+    id: 2,
+    title: 'Swedish Massage',
+    description: 'A gentle massage to promote relaxation and improve circulation.',
+    price: 'RWF 15,000',
+    image: 'bed2.avif',
+  },
+  {
+    id: 3,
+    title: 'Swedish Massage',
+    description: 'A gentle massage to promote relaxation and improve circulation.',
+    price: 'RWF 15,000',
+    image: 'bed2.avif',
+  },
+  {
+    id: 4,
+    title: 'Swedish Massage',
+    description: 'A gentle massage to promote relaxation and improve circulation.',
+    price: 'RWF 15,000',
+    image: 'bed2.avif',
+  },
+  {
+    id: 5,
+    title: 'Swedish Massage',
+    description: 'A gentle massage to promote relaxation and improve circulation.',
+    price: 'RWF 15,000',
+    image: 'bed2.avif',
+  },
+  {
+    id: 6,
+    title: 'Swedish Massage',
+    description: 'A gentle massage to promote relaxation and improve circulation.',
+    price: 'RWF 15,000',
+    image: 'bed2.avif',
+  },
+
+];
+
+const saunaBenefits = [
+  {
+    id: 1,
+    title: 'Improves Sleep',
+    description: 'Regular sauna use promotes relaxation and improves sleep quality by reducing stress and muscle tension.',
+    image: 'bed1.avif',
+    imagePosition: 'right',
+  },
+  {
+    id: 2,
+    title: 'Enhances Immune Function',
+    description: 'The heat from a sauna stimulates the production of white blood cells, helping the body fight infections more effectively.',
+    image: 'bed1.avif',
+    imagePosition: 'left',
+  },
+  {
+    id: 3,
+    title: 'Detoxifies',
+    description: 'Saunas induce sweating, which helps the body eliminate toxins and heavy metals.',
+    image: 'bed1.avif',
+    imagePosition: 'right',
+  },
+  {
+    id: 4,
+    title: 'Reduces Stress',
+    description: 'The soothing heat of a sauna helps relax muscles and releases endorphins, reducing stress and anxiety.',
+    image: 'bed1.avif',
+    imagePosition: 'left',
+  },
+  {
+    id: 5,
+    title: 'Slows Signs of Aging',
+    description: 'Improved circulation and detoxification from saunas promote healthier skin, reducing signs of aging.',
+    image: 'bed1.avif',
+    imagePosition: 'right',
+  },
+  {
+    id: 6,
+    title: 'Lowers Risk of Heart Problems',
+    description: 'Regular sauna use has been linked to improved heart health and lower risks of cardiovascular diseases.',
+    image: 'bed1.avif',
+    imagePosition: 'left',
+  },
+];
+
 
 const SaunaMassage = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,190 +128,62 @@ const SaunaMassage = () => {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className="flex flex-col md:flex-row justify-center gap-10 mx-6 md:mx-14 items-center my-16 md:my-32"
+      className="flex flex-col justify-center gap-20 mx-6 md:mx-14 items-center my-16 md:my-24"
     >
-      <div className="w-full md:w-[55%]">
-        <p className="text-primary">Sauna massage</p>
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold mb-6 mt-2">
-          Book a <span className="text-primary">sauna massage</span> session
-        </h2>
-
-        <div>
-          <h2 className="text-lg sm:text-xl md:text-2xl font-semibold">
-            Relax Your Body and Mind
+      <div className='flex flex-col justify-center gap-4 items-center'>
+        <div className='w-full'>
+          <p className="text-primary">Sauna massage</p>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold mb-4 mt-2">
+            Explore <span className="text-primary">massage</span> options
           </h2>
-          <p className="text-gray-700 mt-2 text-sm sm:text-base">
-            Take a break from your busy day and enjoy a soothing sauna massage.
-            The warm steam helps relax your muscles, improve blood flow, and
-            release stress. Our trained therapists ensure your comfort and
-            relaxation.
-          </p>
+          <p className="text-lg mt-4 text-gray-700">If you have any questions or need assistance, feel free to reach out to us through the contact section.</p>
         </div>
-
-        <div className="mt-6">
-          <h2 className="text-lg sm:text-xl md:text-2xl font-semibold">
-            A Peaceful and Comfortable Space
-          </h2>
-          <p className="text-gray-700 mt-2 text-sm sm:text-base">
-            Step into a calm and cozy environment designed for your relaxation.
-            The soft music, gentle lighting, and natural oils create the perfect
-            setting for deep relaxation. Whether you want a quick massage or a
-            full sauna session, we have the right option for you.
-          </p>
+        <div className="grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mx-6 md:mx-14">
+          {massageServices.map((service) => (
+            <Card key={service.id} className='flex flex-row max-sm:flex-col p-2 gap-0 max-sm:gap-4'>
+              <CardContent
+                className="h-32 w-32 max-sm:w-full flex items-end p-1 justify-end text-white rounded-lg"
+                style={{
+                  backgroundImage: `url(${service.image})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+              >
+                <p className="bg-primary py-1 px-2 text-xs rounded-full">{service.price}</p>
+              </CardContent>
+              <CardFooter className='flex pr-2 max-sm:px-0 pl-4 flex-col items-start w-72 max-sm:w-full max-h-32 overflow-auto gap-2'>
+                <CardTitle>{service.title}</CardTitle>
+                <CardDescription>{service.description}</CardDescription>
+              </CardFooter>
+            </Card>
+          ))}
         </div>
-
-        <div className="mt-6">
-          <h2 className="text-lg sm:text-xl md:text-2xl font-semibold">
-            Book Your Session Today
-          </h2>
-          <p className="text-gray-700 mt-2 text-sm sm:text-base">
-            Give yourself the care you deserve! Booking a session is easy, and
-            our friendly team is ready to help. Reserve your spot now and enjoy
-            a moment of pure comfort and peace.
-          </p>
-        </div>
-
-        <Button
-          className="mt-8 h-12 w-full sm:w-auto"
-          onClick={() => setIsOpen(true)}
-        >
-          Book session now
-        </Button>
       </div>
-
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6 }}
-        className="w-full md:w-[50%]"
-      >
-        <Image
-          src={SaunaImg1}
-          alt="Sauna massage Image"
-          className="object-cover h-80 w-full rounded-2xl"
-        />
-        <div className="flex gap-3 flex-wrap mt-5 justify-center">
-          <Image
-            src={SaunaImg1}
-            alt="Sauna massage Image"
-            className="object-cover md:h-40 h-20 md:w-44 w-24 rounded-2xl"
-          />
-          <Image
-            src={SaunaImg1}
-            alt="Sauna massage Image"
-            className="object-cover md:h-40 h-20 md:w-44 w-24 rounded-2xl"
-          />
-          <Image
-            src={SaunaImg1}
-            alt="Sauna massage Image"
-            className="object-cover md:h-40 h-20 md:w-44 w-24 rounded-2xl"
-          />
+      <div className='w-full'>
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold mb-4 mt-2">
+          Benefits Of<span className="text-primary"> Sauna </span>
+        </h2>
+        <div className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-6">
+          {saunaBenefits.map((benefit) => (
+            <div
+              key={benefit.id}
+              className="flex flex-col md:flex-row p-4 sm:p-2 overflow-auto max-md-p-2 rounded-lg shadow-md"
+            >
+              <Image
+                src={SaunaImg1}
+                alt={benefit.title}
+                width={200} height={200}
+                className="w-full max-md:w-full sm:w-60 h-40 object-cover rounded-lg"
+              />
+              <div className="text-left max-w-md mt-4 md:mt-0 md:ml-6">
+                <h3 className="text-xl font-semibold mb-2">{benefit.title}</h3>
+                <p className="text-gray-700">{benefit.description}</p>
+              </div>
+            </div>
+          ))}
         </div>
-      </motion.div>
 
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-md w-full">
-          <DialogHeader>
-            <DialogTitle>Book Your Sauna Session</DialogTitle>
-            <DialogDescription>
-              Fill in your details to reserve your session.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="name">Full Name</Label>
-              <Input id="name" placeholder="Enter your name" />
-            </div>
-
-            <div>
-              <Label htmlFor="email">Email Address</Label>
-              <Input id="email" type="email" placeholder="Enter your email" />
-            </div>
-
-            <div>
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="Enter your phone number"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="guests">Number of Guests</Label>
-              <Input
-                id="guests"
-                type="number"
-                min="1"
-                value={guests}
-                onChange={(e) => setGuests(Number(e.target.value))}
-              />
-            </div>
-
-            <div>
-              <Label>Preferred Date</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full font-normal">
-                    {date ? format(date, 'PPP') : 'Select Date'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent>
-                  <Calendar mode="single" selected={date} onSelect={setDate} />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            <div>
-              <Label>Preferred Time</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full font-normal">
-                    {time || 'Select Time'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent>
-                  <div className="grid grid-cols-3 gap-2 p-2">
-                    {[
-                      '10:00 AM',
-                      '11:00 AM',
-                      '12:00 PM',
-                      '1:00 PM',
-                      '2:00 PM',
-                      '3:00 PM',
-                      '4:00 PM',
-                      '5:00 PM',
-                    ].map((t) => (
-                      <Button
-                        key={t}
-                        variant="ghost"
-                        onClick={() => setTime(t)}
-                        className="text-sm"
-                      >
-                        {t}
-                      </Button>
-                    ))}
-                  </div>
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
-
-          <div className="flex justify-between items-center mt-4">
-            <p className="text-lg font-semibold">Total Price:</p>
-            <p className="text-xl font-bold text-primary">${totalPrice}</p>
-          </div>
-          <p className="text-gray-600 text-sm">($20 per person)</p>
-
-          <div className="flex justify-end gap-3 mt-4">
-            <Button variant="outline" onClick={() => setIsOpen(false)}>
-              Cancel
-            </Button>
-            <Button>Confirm Booking</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      </div>
     </motion.div>
   );
 };
