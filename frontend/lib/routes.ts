@@ -10,9 +10,9 @@ export const routes = {
       name: 'rentals',
     },
     booth: {
-      label: 'Booth',
-      path: '/booth',
-      name: 'booth',
+      label: 'Restaurant',
+      path: '/restaurant',
+      name: 'restaurant',
     },
     saunaMassage: {
       label: 'Sauna & Massage',
