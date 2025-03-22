@@ -1,4 +1,3 @@
-'use client'
 import { routes } from '@/lib/routes';
 import Link from 'next/link';
 
