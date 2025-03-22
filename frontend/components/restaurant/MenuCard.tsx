@@ -1,7 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
-import { SaunaImg1 } from "@/lib/images";
 
 interface MenuItemProps {
     image: string;

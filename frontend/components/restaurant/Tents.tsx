@@ -1,15 +1,6 @@
-import React, { useState } from "react";
-import Tents from "./Tents";
-import { Tent, Mountain, Sun } from "lucide-react";
+import React from "react";
 import TentsCard from "./TentsCard";
 import { tentsItems } from "@/lib/data";
-
-const categories = [
-    { id: "all", name: "All", icon: <Tent /> },
-    { id: "luxury", name: "Luxury", icon: <Tent /> },
-    { id: "mountain", name: "Mountain", icon: <Mountain /> },
-    { id: "beach", name: "Beach", icon: <Sun /> },
-];
 
 const TentsMenu = () => {
     return (
