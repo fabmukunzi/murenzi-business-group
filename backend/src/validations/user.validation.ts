@@ -33,7 +33,7 @@ const usersValidation = Joi.object({
     'any.required': 'Last name is required',
   }),
   role: Joi.string()
-    .valid('SUPERADMIN', 'ADMIN', 'SECRETARY', 'TEACHER', 'USER')
+    .valid('ADMIN')
     .messages({
       'any.only': 'Role must be one of the predefined roles.',
       'any.required': 'Role is required',

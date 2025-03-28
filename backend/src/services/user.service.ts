@@ -1,11 +1,19 @@
 import { PrismaClient } from '@prisma/client';
 import { decodeToken } from '../utils/tokenGenerator.utils';
+import { User } from '../types/user.types';
 
 const prisma = new PrismaClient();
 
 export class UserService {
     static async getUserByEmail(email: string) {
-        return prisma.user.findUnique({ where: { email } });
+        const user = await prisma.user.findUnique({
+            where: { email },
+            include: {
+                role: true,
+            },
+        });
+
+        return user;
     }
     static async verifyUser(token: string) {
         const decodedToken = decodeToken(token);

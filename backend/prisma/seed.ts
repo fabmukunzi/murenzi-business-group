@@ -5,7 +5,6 @@ const prisma = new PrismaClient();
 async function seedRoles() {
     const roles: RoleData[] = [
         RoleData.ADMIN,
-        RoleData.SECRETARY,
     ];
 
     for (const role of roles) {

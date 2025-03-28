@@ -30,11 +30,10 @@ model User {
 
 model Role {
   id    String   @id @default(uuid())
-  name  RoleData @unique @default(SECRETARY)
+  name  RoleData @unique @default(ADMIN)
   users User[]
 }
 
 enum RoleData {
   ADMIN
-  SECRETARY
 }

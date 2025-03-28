@@ -6,6 +6,8 @@ import { generateToken } from '../utils/tokenGenerator.utils';
 import { sendEmail } from '../utils/email.util';
 import { signupEmail } from '../utils/emailTemplate/signup';
 import { PrismaClient } from '@prisma/client';
+import { sendVerificationEmail } from '../utils/emailTemplate/verification.template';
+import { resendVerificationEmail } from '../utils/resendVerificationEmail.util';
 
 const prisma = new PrismaClient();
 
@@ -36,12 +38,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         if (!user.verified) {
             const token = await generateToken(user, '1h');
             const verificationLink = `${process.env.FRONTEND_URL}api/auth/verify?token=${token}`;
-            await sendEmail(user.email, 'Email Verification', `Verify your email: ${verificationLink}`, `<p>Verify your email: <a href="${verificationLink}">Verify</a></p>`);
-            res.status(403).json({
-                status: 'fail',
-                message: 'User not verified. Check your email for verification link.',
-            });
-            return;
+           await sendVerificationEmail(user.email, verificationLink);
         }
 
         const token = await generateToken(user);
@@ -62,6 +59,13 @@ export const signup = async (req: Request, res: Response) => {
 
     try {
         const role = await prisma.role.findUnique({ where: { name: 'ADMIN' } });
+        if (!role) {
+            res.status(500).json({
+                status: 'fail',
+                message: 'Role not found',
+            });
+            return;
+        }
         const hashedPassword = await hashPassword(password);
         const newUser = await prisma.user.create({
             data: {
@@ -83,7 +87,7 @@ export const signup = async (req: Request, res: Response) => {
             },
         });
     } catch (error) {
-        console.error(error);
+        console.error('Error creating user:', error);
         res.status(500).json({
             status: 'fail',
             message: 'Error creating user',
@@ -126,3 +130,35 @@ export const verifyUser =async (req: Request, res: Response) => {
     }
 
 }
+
+
+export const resendVerification = async (req: Request, res: Response) => {
+  const { email } = req.body;
+
+  try {
+    const result = await resendVerificationEmail(email);
+    res.status(200).json({
+      status: result.status,
+      message: result.message,
+      data: result.data,
+    });
+  } catch (error:any) {
+    console.error('Error:', error.message);
+    if (error.message === 'User not found') {
+      res.status(404).json({
+        status: 'error',
+        message: 'User not found',
+      });
+    } else if (error.message === 'User is already verified') {
+      res.status(400).json({
+        status: 'error',
+        message: 'User is already verified',
+      });
+    } else {
+      res.status(500).json({
+        status: 'error',
+        message: 'Error resending verification email',
+      });
+    }
+  }
+};
