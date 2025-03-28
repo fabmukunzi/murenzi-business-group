@@ -8,41 +8,42 @@ import { signupEmail } from '../utils/emailTemplate/signup';
 import { PrismaClient } from '@prisma/client';
 import { sendVerificationEmail } from '../utils/emailTemplate/verification.template';
 import { resendVerificationEmail } from '../utils/resendVerificationEmail.util';
+import { User } from '../types/user.types';
 
 const prisma = new PrismaClient();
+interface UserRequest extends Request {
+    user?: User;
+}
 
-export const login = async (req: Request, res: Response): Promise<void> => {
+export const login = async (req: UserRequest, res: Response): Promise<void> => {
     try {
         const { email, password } = req.body;
         if (!email || !password) {
             res.status(400).json({ status: 'fail', message: 'Email and password are required' });
             return;
         }
-        const user = await UserService.getUserByEmail(email);
-        console.log(user);
-        
 
-        if (!user) {
+        if (!req.user) {
             res.status(401).json({ status: 'fail', message: 'Invalid email or password' });
             return;
         }
 
-        const role = await RoleService.getRoleById(user.roleId);
-        const isPasswordValid = await comparePassword(password, user.password);
+        const role = await RoleService.getRoleById(req.user?.roleId);
+        const isPasswordValid = await comparePassword(password, req.user?.password);
 
         if (!isPasswordValid) {
             res.status(401).json({ status: 'fail', message: 'Invalid email or password' });
             return;
         }
 
-        if (!user.verified) {
-            const token = await generateToken(user, '1h');
+        if (!req.user.verified) {
+            const token = await generateToken(req.user, '1h');
             const verificationLink = `${process.env.FRONTEND_URL}api/auth/verify?token=${token}`;
-           await sendVerificationEmail(user.email, verificationLink);
+           await sendVerificationEmail(req.user.email, verificationLink);
         }
 
-        const token = await generateToken(user);
-        const { password: _, ...userWithoutPassword } = user;
+        const token = await generateToken(req.user);
+        const { password: _, ...userWithoutPassword } = req.user;
 
         res.status(200).json({
             status: 'success',
@@ -78,7 +79,7 @@ export const signup = async (req: Request, res: Response) => {
             },
         });
         const { password: _, ...userWithoutPassword } = newUser;
-        signupEmail(email);
+        await signupEmail(email);
         res.status(201).json({
             status: 'success',
             message: `User created successfully`,

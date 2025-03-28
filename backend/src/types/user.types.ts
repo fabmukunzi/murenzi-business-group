@@ -1,5 +1,3 @@
-// types/userTypes.ts
-
 export interface User {
     id: string;
     firstName: string;
