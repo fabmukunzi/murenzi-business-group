@@ -1,14 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import { UserService } from '../services/user.service';
+import { User } from '../types/user.types';
 interface UserRequest extends Request {
-  user?: { id: string; roleId?: string };
+  user?: User;
 }
 export const checkUserExistence = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
   const { email } = req.body;
 
   if (!email) {
-    res.status(400).json({ status: 'error', message: 'Email is required' });
-    return;
+    return 
   }
 
   try {
@@ -18,7 +18,6 @@ export const checkUserExistence = async (req: UserRequest, res: Response, next: 
       return;
     }
     req.user = user;
-    res.locals.user = user;
     next();
   } catch (error) {
     console.error('Error fetching user:', error);
