@@ -1,16 +1,18 @@
-import express, { Request, Response } from 'express';
+import express, { Express, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import morgan from 'morgan';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import authRoutes from './routes/auth.routes';
 
-const app = express();
+const app: Express = express();
 const prisma = new PrismaClient();
-
-app.use(express.json());
-
+app.use(morgan('dev'));
+app.use(bodyParser.json());
+app.use(cors());
 app.get('/', (req: Request, res: Response) => {
-  res.send('Hello, Prisma with Express!');
+  res.send('Express + TypeScript Server');
 });
+app.use('/api/auth', authRoutes);
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-})
+export default app;
