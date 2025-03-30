@@ -5,24 +5,27 @@ import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Menu, X } from 'lucide-react';
 import clsx from 'clsx';
-import { routes } from '@/lib/routes';
+import { homepageRoutes } from '@/lib/routes';
 import LogoComponent from './logo';
 
 const HeaderComponent = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
   const navbarItems = [
-    { name: routes.home.label, path: routes.home.path },
+    { name: homepageRoutes.home.label, path: homepageRoutes.home.path },
     {
-      name: routes.rentals.label,
-      path: routes.rentals.path,
+      name: homepageRoutes.rentals.label,
+      path: homepageRoutes.rentals.path,
     },
     {
-      name: routes.booth.label,
-      path: routes.booth.path,
+      name: homepageRoutes.booth.label,
+      path: homepageRoutes.booth.path,
     },
-    { name: routes.saunaMassage.label, path: routes.saunaMassage.path },
-    { name: routes.contact.label, path: routes.contact.path },
+    {
+      name: homepageRoutes.saunaMassage.label,
+      path: homepageRoutes.saunaMassage.path,
+    },
+    { name: homepageRoutes.contact.label, path: homepageRoutes.contact.path },
   ];
 
   return (
@@ -41,7 +44,9 @@ const HeaderComponent = () => {
                   key={index}
                   href={item.path}
                   className={`transition-colors ${
-                    isActive ? 'text-primary underline underline-offset-8' : 'text-black hover:text-primary'
+                    isActive
+                      ? 'text-primary underline underline-offset-8'
+                      : 'text-black hover:text-primary'
                   }`}
                 >
                   {item.name}
@@ -51,9 +56,7 @@ const HeaderComponent = () => {
           </nav>
 
           <div className="hidden lg:block">
-            <Button>
-              Book Now
-            </Button>
+            <Button>Book Now</Button>
           </div>
 
           <div className="block lg:hidden">
