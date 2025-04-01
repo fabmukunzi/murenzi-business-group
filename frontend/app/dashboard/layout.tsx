@@ -1,7 +1,5 @@
 import { AppSidebar } from '@/components/dashboard/sidebar';
-import { Button } from '@/components/ui/button';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
-import { Bell } from 'lucide-react';
 import Image from 'next/image';
 import type { Metadata } from 'next';
 import { Rubik } from 'next/font/google';
@@ -25,13 +23,10 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             <SidebarProvider>
               <AppSidebar />
               <div className="flex flex-col flex-1">
-                <header className="flex items-center justify-end bg-white px-6 py-4 shadow-sm">
+                <header className="flex items-center justify-between md:justify-end bg-white px-6 py-4 shadow-sm">
                   <SidebarTrigger className="lg:hidden" />
 
                   <div className="flex justify-end items-end space-x-6">
-                    <Button className="w-5 h-5 bg-secondary_bg hover:bg-slate-100 transition-all relative p-5 rounded-full">
-                      <Bell className="text-gray-500 hover:text-primary" />
-                    </Button>
 
                     <div className="flex items-center space-x-3">
                       <Image
