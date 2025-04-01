@@ -1,10 +1,10 @@
-import { routes } from '@/lib/routes';
+import { homepageRoutes } from '@/lib/routes';
 import Link from 'next/link';
 
 const LogoComponent = ({ className }: { className?: string }) => {
   return (
     <Link
-      href={routes.home.path}
+      href={homepageRoutes.home.path}
       style={{ wordSpacing: '3px' }}
       className={`${className} text-xl font-bold text-black`}
     >
