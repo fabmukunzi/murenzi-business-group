@@ -11,6 +11,7 @@ const app: Express = express();
 const prisma = new PrismaClient();
 app.use(morgan('dev'));
 app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.get('/', (req: Request, res: Response) => {
   res.send('Express + TypeScript Server');
