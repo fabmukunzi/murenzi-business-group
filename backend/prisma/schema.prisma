@@ -32,12 +32,12 @@ model Room {
   id            String   @id @default(uuid())
   name          String   @unique
   description   String?
-  images        Json     @default("[]")
-  video         Json?
+  images        String[]     @default([])
+  video         String?
   available     Boolean  @default(true)
   price         Float    @default(0.0)
-  numberOfBeds  Int?
-  numberOfBaths Int?
+  sizeOfBeds  Int?
+  sizeOfBaths Int?
   parkingSpace  Int?
   meters        Int?
   createdAt     DateTime @default(now())

@@ -6,7 +6,7 @@ import { uploadImage, uploadVideo } from '../config/cloudinary';
 const roomService = new RoomService();
 export const createRoom = async (req: Request, res: Response) => {
     try {
-        const { name, description, price, numberOfBeds, numberOfBaths, parkingSpace, meters } = req.body;
+        const { name, description, price, sizeOfBeds, sizeOfBaths, parkingSpace, meters } = req.body;
         const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
         const roomExist = await roomService.getRoomByName(name);
@@ -36,12 +36,12 @@ export const createRoom = async (req: Request, res: Response) => {
         }
 
         const parsedPrice = parseFloat(price);
-        const parsedNumberOfBeds = parseInt(numberOfBeds, 10);
-        const parsedNumberOfBaths = parseInt(numberOfBaths, 10);
+        const parsedSizeOfBeds = parseInt(sizeOfBeds, 10);
+        const parsedSizeOfBaths = parseInt(sizeOfBaths, 10);
         const parsedParkingSpace = parseInt(parkingSpace, 10);
         const parsedMeters = parseFloat(meters);
 
-        if ([parsedPrice, parsedNumberOfBeds, parsedNumberOfBaths, parsedParkingSpace, parsedMeters].some(value => isNaN(value) || value < 0)) {
+        if ([parsedPrice, parsedSizeOfBeds, parsedSizeOfBaths, parsedParkingSpace, parsedMeters].some(value => isNaN(value) || value < 0)) {
             res.status(400).json({
                 status: 'fail',
                 message: 'Invalid numerical values provided',
@@ -55,8 +55,8 @@ export const createRoom = async (req: Request, res: Response) => {
             images: uploadedImageUrls,
             video: uploadedVideoUrl,
             price: parsedPrice,
-            numberOfBeds: parsedNumberOfBeds,
-            numberOfBaths: parsedNumberOfBaths,
+            sizeOfBeds: parsedSizeOfBeds,
+            sizeOfBaths: parsedSizeOfBaths,
             parkingSpace: parsedParkingSpace,
             meters: parsedMeters,
         });
@@ -112,17 +112,12 @@ export const updateRoom = async (req: Request, res: Response) => {
             return
         }
 
-        const { name, description, price, numberOfBeds, numberOfBaths, parkingSpace, meters } = req.body;
+        const { name, description, price, sizeOfBeds, sizeOfBaths, parkingSpace, meters } = req.body;
         const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-
-        console.log(name);
-        
         let updatedData: Record<string, any> = {};
 
         if (name && name !== existingRoom.name) updatedData.name = name;
         if (description && description !== existingRoom.description) updatedData.description = description;
-
-        console.log(req.body);
         
         if (price !== undefined) {
             const parsedPrice = parseFloat(price);
@@ -131,17 +126,17 @@ export const updateRoom = async (req: Request, res: Response) => {
             }
         }
 
-        if (numberOfBeds !== undefined) {
-            const parsedNumberOfBeds = parseInt(numberOfBeds, 10);
-            if (!isNaN(parsedNumberOfBeds) && parsedNumberOfBeds >= 0 && parsedNumberOfBeds !== existingRoom.numberOfBeds) {
-                updatedData.numberOfBeds = parsedNumberOfBeds;
+        if (sizeOfBeds !== undefined) {
+            const parsedSizeOfBeds = parseInt(sizeOfBeds, 10);
+            if (!isNaN(parsedSizeOfBeds) && parsedSizeOfBeds >= 0 && parsedSizeOfBeds !== existingRoom.sizeOfBeds) {
+                updatedData.sizeOfBeds = parsedSizeOfBeds;
             }
         }
 
-        if (numberOfBaths !== undefined) {
-            const parsedNumberOfBaths = parseInt(numberOfBaths, 10);
-            if (!isNaN(parsedNumberOfBaths) && parsedNumberOfBaths >= 0 && parsedNumberOfBaths !== existingRoom.numberOfBaths) {
-                updatedData.numberOfBaths = parsedNumberOfBaths;
+        if (sizeOfBaths !== undefined) {
+            const parsedSizeOfBaths = parseInt(sizeOfBaths, 10);
+            if (!isNaN(parsedSizeOfBaths) && parsedSizeOfBaths >= 0 && parsedSizeOfBaths !== existingRoom.sizeOfBaths) {
+                updatedData.sizeOfBaths = parsedSizeOfBaths;
             }
         }
 
@@ -171,8 +166,6 @@ export const updateRoom = async (req: Request, res: Response) => {
             updatedData.video = await uploadVideo(files.video[0].buffer);
         }
 
-        console.log(name);
-
         const updatedRoom = await roomService.updateRoom(req.params.id, updatedData);
 
         res.status(200).json({
@@ -193,66 +186,6 @@ export const deleteRoom = async (req: Request, res: Response) => {
         res.status(200).json({
             status: 'success',
             message: 'Room deleted successfully',
-        });
-    } catch (error: any) {
-        res.status(500).json({ status: 'error', message: error.message });
-    }
-};
-import { JsonArray } from '@prisma/client/runtime/library';
-
-export const deleteRoomImage = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        const { imageUrl } = req.body; 
-        if (!imageUrl) {
-             res.status(400).json({ status: 'fail', message: 'Image URL is required' });
-            return
-        }
-        const room = await roomService.getRoomById(id);
-        if (!room) {
-             res.status(404).json({ status: 'fail', message: 'Room not found' });
-            return
-        }
-        const imagesArray: string[] = (room.images as JsonArray)?.map(String) || [];
-
-        if (!imagesArray.includes(imageUrl)) {
-             res.status(400).json({ status: 'fail', message: 'Image not found in room' });
-            return
-        }
-        const updatedImages = imagesArray.filter((img) => img !== imageUrl);
-        await roomService.updateRoom(id, { images: updatedImages });
-
-        res.status(200).json({
-            status: 'success',
-            message: 'Image deleted successfully',
-            data: { images: updatedImages },
-        });
-    } catch (error: any) {
-        res.status(500).json({ status: 'error', message: error.message });
-    }
-};
-
-
-
-export const deleteRoomVideo = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-
-        const room = await roomService.getRoomById(id);
-        if (!room) {
-             res.status(404).json({ status: 'fail', message: 'Room not found' });
-             return
-        }
-
-        if (!room.video) {
-             res.status(400).json({ status: 'fail', message: 'No video found in room' });
-             return
-        }
-        await roomService.updateRoom(id, { video: null });
-
-        res.status(200).json({
-            status: 'success',
-            message: 'Video deleted successfully'
         });
     } catch (error: any) {
         res.status(500).json({ status: 'error', message: error.message });
