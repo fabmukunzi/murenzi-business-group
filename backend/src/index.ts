@@ -6,6 +6,7 @@ import bodyParser from 'body-parser';
 import multer from 'multer';
 import authRoutes from './routes/auth.routes';
 import roomRouter from './routes/room.routes';
+import muneItemRouter from './routes/menu.routes';
 
 const app: Express = express();
 const prisma = new PrismaClient();
@@ -18,5 +19,6 @@ app.get('/', (req: Request, res: Response) => {
 });
 app.use('/api/auth', authRoutes);
 app.use('/api', roomRouter);
+app.use('/api/menu', muneItemRouter);
 
 export default app;

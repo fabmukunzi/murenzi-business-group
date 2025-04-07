@@ -3,9 +3,7 @@ import { PrismaClient, RoleData } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function seedRoles() {
-    const roles: RoleData[] = [
-        RoleData.ADMIN,
-    ];
+    const roles: RoleData[] = [RoleData.ADMIN];
 
     for (const role of roles) {
         const existingRole = await prisma.role.findUnique({
@@ -23,9 +21,32 @@ async function seedRoles() {
     }
 }
 
+async function seedMenuCategories() {
+    const categories = [
+        { name: 'Food', description: 'Delicious food items' },
+        { name: 'Drinks', description: 'Refreshing beverages' },
+        { name: 'Main Course', description: 'Hearty main meals' },
+    ];
+
+    for (const category of categories) {
+        const existingCategory = await prisma.menuCategory.findUnique({
+            where: { name: category.name },
+        });
+
+        if (!existingCategory) {
+            await prisma.menuCategory.create({
+                data: category,
+            });
+            console.log(`Category '${category.name}' created.`);
+        } else {
+            console.log(`Category '${category.name}' already exists.`);
+        }
+    }
+}
 
 async function main() {
     await seedRoles();
+    await seedMenuCategories();
     console.log('Seeding completed.');
 }
 
