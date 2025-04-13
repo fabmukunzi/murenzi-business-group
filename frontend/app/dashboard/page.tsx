@@ -11,10 +11,7 @@ export default function DashboardPage() {
             This is a development version of the dashboard.
           </p>
         </div>
-        <div className="rounded-lg border p-4 shadow-sm">
-          <h2 className="text-xl font-semibold">Status</h2>
-          <p className="text-gray-600">Development Mode Active</p>
-        </div>
+     
       </div>
     </div>
   );
