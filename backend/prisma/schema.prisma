@@ -29,19 +29,20 @@ model User {
 }
 
 model Room {
-  id           String   @id @default(uuid())
-  name         String   @unique
+  id           String    @id @default(uuid())
+  name         String    @unique
   description  String?
-  images       String[] @default([])
+  images       String[]  @default([])
   video        String?
-  available    Boolean  @default(true)
-  price        Float    @default(0.0)
+  available    Boolean   @default(true)
+  price        Float     @default(0.0)
   sizeOfBeds   Int?
   sizeOfBaths  Int?
   parkingSpace Int?
   meters       Int?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  Booking      Booking[]
 }
 
 model menuCategory {
@@ -66,6 +67,32 @@ model Role {
   id    String   @id @default(uuid())
   name  RoleData @unique @default(ADMIN)
   users User[]
+}
+
+model Booking {
+  id            String      @id @default(uuid())
+  name          String
+  email         String
+  roomId        String
+  room          Room        @relation(fields: [roomId], references: [id])
+  checkIn       DateTime
+  checkOut      DateTime
+  transactionId String
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  totalPrice    Float       @default(0.0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model Transaction {
+  id                   String    @id @default(uuid())
+  amount               Float     @default(0.0)
+  transactionid        String    @unique
+  requesttransactionid String    @unique
+  status               String    @default("pending")
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  Booking              Booking[]
 }
 
 enum RoleData {
