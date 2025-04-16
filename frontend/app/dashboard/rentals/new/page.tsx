@@ -27,7 +27,7 @@ const rentalSchema = z.object({
   location: z.string().min(1, "Location is required"),
   bedrooms: z.number().min(0, "Number of bedrooms must be positive"),
   parkingSlots: z.number().min(0, "Number of parking slots must be positive"),
-  area: z.string().min(1, "Area is required"),
+  size: z.string().min(1, "Size is required"),
   description: z.string().min(1, "Description is required"),
   images: z.any(),
 });
@@ -55,7 +55,7 @@ export default function NewRentalPage() {
       location: "",
       bedrooms: 1,
       parkingSlots: 1,
-      area: "",
+      size: "",
       description: "",
     },
   });
@@ -248,18 +248,18 @@ export default function NewRentalPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="area" className="text-gray-700 font-medium">
-                  Area (e.g., 6x7)
+                  <Label htmlFor="size" className="text-gray-700 font-medium">
+                  Size (e.g., 6x7)
                 </Label>
                 <Input
-                  id="area"
-                  {...register("area")}
-                  placeholder="Enter area (e.g., 6x7)"
+                  id="size"
+                  {...register("size")}
+                  placeholder="Enter size (e.g., 6x7)"
                   className="border-gray-300 focus:border-primary focus:ring focus:ring-primary/20 transition-all duration-200"
                 />
-                {errors.area && (
+                {errors.size && (
                   <p className="text-sm text-red-500 mt-1">
-                    {errors.area.message}
+                    {errors.size.message}
                   </p>
                 )}
               </div>
