@@ -1,40 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { icons } from "@/lib/icons";
-
-const rentalSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  pricePerNight: z.number().min(0, "Price must be positive"),
-  location: z.string().min(1, "Location is required"),
-  bedrooms: z.number().min(0, "Number of bedrooms must be positive"),
-  parkingSlots: z.number().min(0, "Number of parking slots must be positive"),
-  area: z.number().min(0, "Area must be positive"),
-  description: z.string().min(1, "Description is required"),
-  image: z.any(),
-});
-
-type RentalFormData = z.infer<typeof rentalSchema>;
 
 // Temporary mock data - replace with actual data from your backend
 const mockRentals = [

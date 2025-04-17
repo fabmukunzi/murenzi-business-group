@@ -1,190 +1,220 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Image from 'next/image';
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Calendar } from '@/components/ui/calendar';
-import { Card } from '@/components/ui/card';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { format } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
-import Player from 'next-video/player';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-const RoomTour =
-  'https://res.cloudinary.com/dagurahkl/video/upload/v1742072373/room-tour_fmfdnt.mp4';
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
+import { icons } from "@/lib/icons";
+import { motion } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Card, CardContent } from "@/components/ui/card";
 
-const images = [
-  'https://a0.muscache.com/im/pictures/hosting/Hosting-1358734658884634267/original/d0e79b2c-5078-40f1-a98c-7c376c7001f6.jpeg?im_w=1200',
-  'https://images.pexels.com/photos/28464720/pexels-photo-28464720/free-photo-of-modern-luxury-bedroom-interior-in-saligao-villa.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-  'https://a0.muscache.com/im/pictures/hosting/Hosting-1358734658884634267/original/a7a5b09c-5650-498d-8357-7b2612e0079b.jpeg?im_w=1200',
-  'https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6MTM1ODczNDY1ODg4NDYzNDI2Nw==/original/89c745ba-b49e-48bb-9379-2fef1ad9d416.jpeg?im_w=1200',
-  'https://a0.muscache.com/im/pictures/hosting/Hosting-1358734658884634267/original/e999afce-5cf5-4801-be4f-ebf7f37bddfa.jpeg?im_w=1200',
+interface Rental {
+  id: number;
+  name: string;
+  pricePerNight: number;
+  location: string;
+  bedrooms: number;
+  parkingSlots: number;
+  area: string;
+  description: string;
+  images: string[];
+}
+
+// Mock data for testing - replace with API call
+const mockRentals: Rental[] = [
+  {
+    id: 1,
+    name: "Luxury Apartment",
+    pricePerNight: 150,
+    location: "Kacyiru, Kigali, Rwanda",
+    bedrooms: 2,
+    parkingSlots: 1,
+    area: "6x7",
+    description:
+      "Beautiful apartment in the heart of the city. This luxurious apartment offers modern amenities, stunning views, and a convenient location. Perfect for both short and long stays, with easy access to restaurants, shopping centers, and tourist attractions.",
+    images: [
+      "https://plutproperties.com/wp-content/uploads/2021/09/apartment-in-kigali-plut-properties-3.jpg",
+      "https://plutproperties.com/wp-content/uploads/2021/09/apartment-in-kigali-plut-properties-3.jpg",
+      "https://plutproperties.com/wp-content/uploads/2021/09/apartment-in-kigali-plut-properties-3.jpg",
+    ],
+  },
+  {
+    id: 2,
+    name: "Modern Studio",
+    pricePerNight: 100,
+    location: "Kimihurura, Kigali, Rwanda",
+    bedrooms: 1,
+    parkingSlots: 1,
+    area: "5x6",
+    description:
+      "Cozy studio with modern amenities. Ideal for solo travelers or couples, this studio offers a comfortable and convenient stay in a prime location.",
+    images: [
+      "https://plutproperties.com/wp-content/uploads/2021/09/apartment-in-kigali-plut-properties-3.jpg",
+      "https://plutproperties.com/wp-content/uploads/2021/09/apartment-in-kigali-plut-properties-3.jpg",
+      "https://plutproperties.com/wp-content/uploads/2021/09/apartment-in-kigali-plut-properties-3.jpg",
+    ],
+  },
 ];
 
-export default function RentalPage() {
-  const [mainImage, setMainImage] = useState(images[0]);
-  const [checkIn, setCheckIn] = useState<Date | undefined>(undefined);
-  const [checkOut, setCheckOut] = useState<Date | undefined>(undefined);
-  const [extras, setExtras] = useState({ kitchen: false, toilet: false });
-  const basePrice = 40;
-  const extraCost = (extras.kitchen ? 10 : 0) + (extras.toilet ? 10 : 0);
-  const totalPrice = basePrice + extraCost;
+export default function RentalDetailPage() {
+  const params = useParams();
+  const router = useRouter();
+  const [rental, setRental] = useState<Rental | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState(0);
+
+  useEffect(() => {
+    // In a real app, you would fetch the rental details from an API
+    // For now, we'll use mock data
+    const rentalId = Number(params.rentalId);
+    const foundRental = mockRentals.find((r) => r.id === rentalId);
+
+    if (foundRental) {
+      setRental(foundRental);
+    }
+
+    setLoading(false);
+  }, [params.rentalId]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        Loading...
+      </div>
+    );
+  }
+
+  if (!rental) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-screen">
+        <h1 className="text-2xl font-bold mb-4">Rental Not Found</h1>
+        <Button onClick={() => router.push("/rentals")}>Back to Rentals</Button>
+      </div>
+    );
+  }
 
   return (
-    <div className="md:mx-14 mx-4 py-20">
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-10">
-        <div className="md:col-span-3">
-          <motion.div animate={{ opacity: 1 }} initial={{ opacity: 0 }}>
-            <Image
-              src={mainImage}
-              alt="Main Room"
-              width={800}
-              height={500}
-              className="w-full h-[25rem] object-cover rounded-lg"
-            />
+    <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="mb-6"
+      >
+        <Button
+          variant="ghost"
+          className="mb-4 pl-0"
+          onClick={() => router.push("/rentals")}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Rentals
+        </Button>
+        <h1 className="text-3xl font-bold">{rental.name}</h1>
+        <p className="text-gray-600 flex items-center mt-1">
+          <Image
+            src={icons.locationPin}
+            alt=""
+            width={14}
+            height={14}
+            className="mr-1"
+          />
+          {rental.location}
+        </p>
+      </motion.div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="relative aspect-video overflow-hidden rounded-lg mb-4">
+              <Image
+                src={rental.images[selectedImage]}
+                alt={rental.name}
+                fill
+                className="object-cover"
+              />
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              {rental.images.map((image: string, index: number) => (
+                <div
+                  key={index}
+                  className={`relative aspect-video cursor-pointer rounded-md overflow-hidden border-2 ${
+                    selectedImage === index
+                      ? "border-primary"
+                      : "border-transparent"
+                  }`}
+                  onClick={() => setSelectedImage(index)}
+                >
+                  <Image
+                    src={image}
+                    alt={`${rental.name} ${index + 1}`}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ))}
+            </div>
           </motion.div>
-          <div className="flex gap-2 mt-2 overflow-x-auto">
-            {images.map((img, index) => (
-              <motion.div key={index} whileTap={{ scale: 0.9 }}>
-                <Image
-                  src={img}
-                  alt="Thumbnail"
-                  width={80}
-                  height={80}
-                  className="w-16 h-16 object-cover cursor-pointer border rounded-md"
-                  onClick={() => setMainImage(img)}
-                />
-              </motion.div>
-            ))}
-          </div>
         </div>
 
-        <Card className="md:col-span-2 p-5">
-          <h2 className="md:text-2xl text-xl font-bold">
-            Luxury Room ({basePrice}$/per night)
-          </h2>
+        <div>
+          <Card className="sticky top-8">
+            <CardContent className="p-6">
+              <div className="mb-6">
+                <p className="text-3xl font-bold text-primary">
+                  ${rental.pricePerNight}
+                  <span className="text-sm font-normal text-gray-500">
+                    /night
+                  </span>
+                </p>
+              </div>
 
-          <div className="flex gap-2">
-            <Input
-              type="text"
-              placeholder="Your Name"
-              className="w-full border p-2 rounded mt-3"
-            />
-            <Input
-              type="text"
-              placeholder="Your Email"
-              className="w-full border p-2 rounded mt-3"
-            />
-          </div>
-          <div className="flex gap-2">
-            <div className="w-full">
-              <Label>Check-in</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full flex justify-between"
-                  >
-                    {checkIn ? format(checkIn, 'PPP') : 'Pick a date'}
-                    <CalendarIcon />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent>
-                  <Calendar
-                    mode="single"
-                    selected={checkIn}
-                    onSelect={(date) => {
-                      setCheckIn(date);
-                    }}
+              <Separator className="my-6" />
+
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <Image src={icons.bed} alt="" width={20} height={20} />
+                    <span>{rental.bedrooms} Bedroom</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Image src={icons.parkSlot} alt="" width={20} height={20} />
+                    <span>{rental.parkingSlots} Parking</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Image
+                    src={icons.squareMeter}
+                    alt=""
+                    width={20}
+                    height={20}
                   />
-                </PopoverContent>
-              </Popover>
-            </div>
-            <div className="w-full">
-              <Label>Check-out</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full flex justify-between"
-                  >
-                    {checkOut ? format(checkOut, 'PPP') : 'Pick a date'}
-                    <CalendarIcon />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent>
-                  <Calendar
-                    mode="single"
-                    selected={checkOut}
-                    onSelect={(date) => {
-                      setCheckOut(date);
-                    }}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
+                  <span className="flex items-center">
+                    {rental.area} m<span className="text-[10px]">2</span>
+                  </span>
+                </div>
+              </div>
 
-          <div className="mt-1">
-            <Checkbox
-              checked={extras.kitchen}
-              onCheckedChange={() =>
-                setExtras({ ...extras, kitchen: !extras.kitchen })
-              }
-            />{' '}
-            Private Kitchen (+$10)
-          </div>
-          <div className="mt-1">
-            <Checkbox
-              checked={extras.toilet}
-              onCheckedChange={() =>
-                setExtras({ ...extras, toilet: !extras.toilet })
-              }
-            />{' '}
-            Private Toilet (+$10)
-          </div>
+              <Separator className="my-6" />
 
-          <motion.div
-            className="mt-3 p-3 border rounded-lg leading-10 bg-primary/20"
-            animate={{ scale: 1 }}
-            initial={{ scale: 0.9 }}
-          >
-            <p>Per Night: ${basePrice}</p>
-            <p>Extras: ${extraCost}</p>
-            <p className="font-bold">Total Price: ${totalPrice}</p>
-          </motion.div>
-          <Button className="mt-5 w-full">Pay Now</Button>
-        </Card>
+              <Button className="w-full bg-primary hover:bg-primary/90">
+                Book Now
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
-      <div className="mt-5">
-        <h3 className="text-xl font-semibold">Description</h3>
-        <p>
-          Located in the heart of Kigali, this modern apartment offers a perfect
-          blend of comfort, style, and convenience. Designed with a contemporary
-          touch, it features spacious living areas, high-end finishes, and
-          stunning views of the city. Ideal for both short-term and long-term
-          stays, this apartment caters to digital nomads, professionals, or
-          anyone seeking a stylish yet affordable living space. With easy access
-          to key amenities and vibrant neighborhoods, it’s the perfect place to
-          call home while enjoying the best that Kigali has to offer.
-        </p>
-      </div>
-
-      <div className="mt-5">
-        <Player
-          src={RoomTour}
-          controls
-          className="w-full rounded-lg object-cover bg-none"
-          style={{ clipPath: 'inset(0 round 15px)' }}
-        />
+      <div className="mt-8">
+        <h2 className="text-2xl font-semibold mb-4">About this rental</h2>
+        <p className="text-gray-700 leading-relaxed">{rental.description}</p>
       </div>
     </div>
   );
