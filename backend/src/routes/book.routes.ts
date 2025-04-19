@@ -1,9 +1,18 @@
-// routes/intouchMockRoutes.ts
-import express from 'express';
-import { requestDeposit } from '../controllers/book.controller';
+import { Router } from 'express';
+import {
+    createBooking,
+    getAllBookings,
+    getBookingById,
+    updateBooking,
+    deleteBooking,
+} from '../controllers/book.controller';
 
-const bookRouter = express.Router();
+const bookRouter = Router();
 
-bookRouter.post('/', requestDeposit);
+bookRouter.post('/', createBooking);
+bookRouter.get('/', getAllBookings);
+bookRouter.get('/:id', getBookingById);
+bookRouter.put('/:id', updateBooking);
+bookRouter.delete('/:id', deleteBooking);
 
 export default bookRouter;
