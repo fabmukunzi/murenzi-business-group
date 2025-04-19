@@ -22,6 +22,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api', roomRouter);
 app.use('/api/menu', muneItemRouter);
 app.use('/api/requestdeposit',bookRouter);
+app.use('/api/bookings', bookRouter);
 app.post("/api/pay", async (req, res) => {
   const response = await fetch("https://www.intouchpay.co.rw/api/requestpayment/", {
     method: "POST",

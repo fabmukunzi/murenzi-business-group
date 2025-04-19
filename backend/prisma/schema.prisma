@@ -71,26 +71,27 @@ model Booking {
   id            String      @id @default(uuid())
   name          String
   email         String
+  phoneNumber   String
   roomId        String
   room          Room        @relation(fields: [roomId], references: [id])
   checkIn       DateTime
   checkOut      DateTime
-  transactionId String
   transaction   Transaction @relation(fields: [transactionId], references: [id])
+  transactionId String      @unique
   totalPrice    Float       @default(0.0)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 }
 
 model Transaction {
-  id                   String    @id @default(uuid())
-  amount               Float     @default(0.0)
-  transactionid        String    @unique
-  requesttransactionid String    @unique
-  status               String    @default("pending")
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
-  Booking              Booking[]
+  id                   String   @id @default(uuid())
+  amount               Float    @default(0.0)
+  transactionid        String   @unique
+  requesttransactionid String   @unique
+  status               String   @default("pending")
+  booking              Booking? @relation()
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 }
 
 enum RoleData {
