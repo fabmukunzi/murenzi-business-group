@@ -23,13 +23,14 @@ import Image from "next/image";
 
 const rentalSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  pricePerNight: z.number().min(0, "Price must be positive"),
+  pricePerNight: z.number().min(1, "Price must be at least $1"),
   location: z.string().min(1, "Location is required"),
-  bedrooms: z.number().min(0, "Number of bedrooms must be positive"),
   parkingSlots: z.number().min(0, "Number of parking slots must be positive"),
   size: z.string().min(1, "Size is required"),
   description: z.string().min(1, "Description is required"),
-  images: z.any(),
+  images: z.any().refine((val) => val?.length >= 3, {
+    message: "At least 3 images are required",
+  }),
 });
 
 type RentalFormData = z.infer<typeof rentalSchema>;
@@ -51,10 +52,9 @@ export default function NewRentalPage() {
     resolver: zodResolver(rentalSchema),
     defaultValues: {
       name: "",
-      pricePerNight: 0,
+      pricePerNight: 1,
       location: "",
-      bedrooms: 1,
-      parkingSlots: 1,
+      parkingSlots: 0,
       size: "",
       description: "",
     },
@@ -180,6 +180,7 @@ export default function NewRentalPage() {
                 <Input
                   id="pricePerNight"
                   type="number"
+                  min="1"
                   {...register("pricePerNight", { valueAsNumber: true })}
                   placeholder="Enter price per night"
                   className="border-gray-300 focus:border-primary focus:ring focus:ring-primary/20 transition-all duration-200"
@@ -209,24 +210,6 @@ export default function NewRentalPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="bedrooms" className="text-gray-700 font-medium">
-                  Number of Bedrooms
-                </Label>
-                <Input
-                  id="bedrooms"
-                  type="number"
-                  {...register("bedrooms", { valueAsNumber: true })}
-                  placeholder="Enter number of bedrooms"
-                  className="border-gray-300 focus:border-primary focus:ring focus:ring-primary/20 transition-all duration-200"
-                />
-                {errors.bedrooms && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {errors.bedrooms.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
                 <Label
                   htmlFor="parkingSlots"
                   className="text-gray-700 font-medium"
@@ -236,6 +219,7 @@ export default function NewRentalPage() {
                 <Input
                   id="parkingSlots"
                   type="number"
+                  min="0"
                   {...register("parkingSlots", { valueAsNumber: true })}
                   placeholder="Enter number of parking slots"
                   className="border-gray-300 focus:border-primary focus:ring focus:ring-primary/20 transition-all duration-200"
@@ -248,7 +232,7 @@ export default function NewRentalPage() {
               </div>
 
               <div className="space-y-2">
-                  <Label htmlFor="size" className="text-gray-700 font-medium">
+                <Label htmlFor="size" className="text-gray-700 font-medium">
                   Size (e.g., 6x7)
                 </Label>
                 <Input
@@ -288,7 +272,7 @@ export default function NewRentalPage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label htmlFor="images" className="text-gray-700 font-medium">
-                  Rental Images
+                  Rental Images (minimum 3)
                 </Label>
                 <span className="text-xs text-gray-500">
                   {imageFiles.length}{" "}
@@ -299,7 +283,9 @@ export default function NewRentalPage() {
               <div
                 className={`border-2 border-dashed rounded-lg p-6 transition-all duration-200 ${
                   imageFiles.length > 0
-                    ? "border-primary/30 bg-primary/5"
+                    ? imageFiles.length < 3
+                      ? "border-red-300 bg-red-50"
+                      : "border-primary/30 bg-primary/5"
                     : "border-gray-300 hover:border-primary/30 hover:bg-gray-50"
                 }`}
               >
@@ -338,11 +324,14 @@ export default function NewRentalPage() {
                       {imageFiles.map((image) => (
                         <div key={image.id} className="relative group">
                           <div className="relative h-32 overflow-hidden rounded-lg shadow-sm">
-                            <img
-                              src={image.url}
-                              alt="Preview"
-                              className="w-full h-full object-cover"
-                            />
+                            <div className="relative w-full h-full">
+                              <Image
+                                src={image.url}
+                                alt="Preview"
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
                             <Button
                               type="button"
                               variant="outline"
@@ -381,6 +370,11 @@ export default function NewRentalPage() {
                   </div>
                 )}
               </div>
+              {errors.images && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.images.message as string}
+                </p>
+              )}
             </div>
 
             <div className="pt-2 flex items-center justify-end gap-3">

@@ -1,18 +1,13 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { icons } from "@/lib/icons";
-
 
 // Temporary mock data - replace with actual data from your backend
 const mockRentals = [

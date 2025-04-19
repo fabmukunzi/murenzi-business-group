@@ -18,13 +18,25 @@ export default function LoginPage() {
   const [error, setError] = useState<string>("");
   const router = useRouter();
 
-  const onSubmit = async (data: LoginForm) => {
+  const onSubmit = async (formData: LoginForm) => {
     setLoading(true);
     setError("");
 
     try {
-      // Temporary development bypass
-      localStorage.setItem("token", "development-token");
+      const response = await fetch("http://192.168.1.164:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.message || "Login failed");
+      }
+
+      localStorage.setItem("token", result.token);
       router.push("/dashboard");
     } catch (error: unknown) {
       if (error instanceof Error) {
