@@ -1,11 +1,15 @@
-"use client";
+'use client';
 
-import { useForm } from "react-hook-form";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useForm } from 'react-hook-form';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useLoginMutation } from '@/store/actions/user';
+import { handleError } from '@/lib/functions/handle-error';
+import { dashboardRoutes } from '@/lib/routes';
+import { setCookies } from '@/lib/functions/set-cookies';
+import { TOKEN_NAME } from '@/lib/constants';
 
 interface LoginForm {
   email: string;
@@ -14,38 +18,19 @@ interface LoginForm {
 
 export default function LoginPage() {
   const { register, handleSubmit } = useForm<LoginForm>();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
+  const [login, { isLoading }] = useLoginMutation();
   const router = useRouter();
+  const params = useSearchParams();
 
   const onSubmit = async (formData: LoginForm) => {
-    setLoading(true);
-    setError("");
-
     try {
-      const response = await fetch("http://192.168.1.164:5000/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result.message || "Login failed");
-      }
-
-      localStorage.setItem("token", result.token);
-      router.push("/dashboard");
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError("An unknown error occurred");
-      }
-    } finally {
-      setLoading(false);
+      const response = await login(formData).unwrap();
+      await setCookies(TOKEN_NAME, response.data.token);
+      const redirectTo = params.get('redirectTo');
+      if (redirectTo) router.push(redirectTo);
+      else router.push(dashboardRoutes.analytics.path);
+    } catch (error) {
+      handleError(error);
     }
   };
 
@@ -64,7 +49,7 @@ export default function LoginPage() {
                 Email
               </label>
               <Input
-                {...register("email")}
+                {...register('email')}
                 type="email"
                 placeholder="Enter your email"
                 required
@@ -76,18 +61,15 @@ export default function LoginPage() {
                 Password
               </label>
               <Input
-                {...register("password")}
+                {...register('password')}
                 type="password"
                 placeholder="Enter your password"
                 required
                 className="mt-1"
               />
             </div>
-            {error && (
-              <p className="text-red-500 text-sm text-center">{error}</p>
-            )}
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Logging in..." : "Login"}
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? 'Logging in...' : 'Login'}
             </Button>
           </form>
         </CardContent>

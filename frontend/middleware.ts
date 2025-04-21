@@ -1,24 +1,20 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { TOKEN_NAME } from './lib/constants';
 
-// This function can be marked `async` if using `await` inside
 export function middleware(request: NextRequest) {
-  // For development purposes, allow access to dashboard
-  if (process.env.NODE_ENV === 'development') {
-    return NextResponse.next()
-  }
-
-  // In production, you would implement proper authentication here
-  const token = request.cookies.get('token')
+  const token = request.cookies.get(TOKEN_NAME)
+  const { pathname } = request.nextUrl;
   
-  if (!token && request.nextUrl.pathname.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/login', request.url))
+  if (!token && pathname.startsWith('/dashboard')) {
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('redirectTo', pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
   return NextResponse.next()
 }
 
-// See "Matching Paths" below to learn more
 export const config = {
   matcher: '/dashboard/:path*',
 } 
