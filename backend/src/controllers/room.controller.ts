@@ -6,7 +6,52 @@ import { uploadImage, uploadVideo } from '../config/cloudinary';
 const roomService = new RoomService();
 export const createRoom = async (req: Request, res: Response) => {
     try {
-        const { name, description, price, sizeOfBeds, sizeOfBaths, parkingSpace, meters } = req.body;
+        const { name, description, pricePerNight, parkingSlots, size } = req.body;
+        console.log(req.body);
+        if(!name){
+            res.status(400).json({
+                status: 'fail',
+                message: 'Room name is required',
+            });
+            return
+        }
+        if(!description){
+            res.status(400).json({
+                status: 'fail',
+                message: 'Room description is required',
+            });
+            return
+        }
+        if(!pricePerNight){
+            res.status(400).json({
+                status: 'fail',
+                message: 'Room price is required',
+            });
+            return
+        }
+        if (!parkingSlots){
+            res.status(400).json({
+                status: 'fail',
+                message: 'Room parking space is required',
+            });
+            return
+        }
+        if(!size){
+            res.status(400).json({
+                status: 'fail',
+                message: 'Room meters is required',
+            });
+            return
+        }
+    
+        if (name.length < 3 || name.length > 50) {
+            res.status(400).json({
+                status: 'fail',
+                message: 'Room name must be between 3 and 50 characters',
+            });
+            return
+        }
+        
         const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
         const roomExist = await roomService.getRoomByName(name);
@@ -35,13 +80,10 @@ export const createRoom = async (req: Request, res: Response) => {
             uploadedVideoUrl = await uploadVideo(files.video[0].buffer);
         }
 
-        const parsedPrice = parseFloat(price);
-        const parsedSizeOfBeds = parseInt(sizeOfBeds, 10);
-        const parsedSizeOfBaths = parseInt(sizeOfBaths, 10);
-        const parsedParkingSpace = parseInt(parkingSpace, 10);
-        const parsedMeters = parseFloat(meters);
+        const parsedPrice = parseFloat(pricePerNight);
+        const parsedParkingSpace = parseInt(parkingSlots, 10);
 
-        if ([parsedPrice, parsedSizeOfBeds, parsedSizeOfBaths, parsedParkingSpace, parsedMeters].some(value => isNaN(value) || value < 0)) {
+        if ([parsedPrice, parsedParkingSpace].some(value => isNaN(value) || value < 0)) {
             res.status(400).json({
                 status: 'fail',
                 message: 'Invalid numerical values provided',
@@ -55,10 +97,8 @@ export const createRoom = async (req: Request, res: Response) => {
             images: uploadedImageUrls,
             video: uploadedVideoUrl,
             price: parsedPrice,
-            sizeOfBeds: parsedSizeOfBeds,
-            sizeOfBaths: parsedSizeOfBaths,
             parkingSpace: parsedParkingSpace,
-            meters: parsedMeters,
+            size,
         });
 
         res.status(201).json({
@@ -126,19 +166,7 @@ export const updateRoom = async (req: Request, res: Response) => {
             }
         }
 
-        if (sizeOfBeds !== undefined) {
-            const parsedSizeOfBeds = parseInt(sizeOfBeds, 10);
-            if (!isNaN(parsedSizeOfBeds) && parsedSizeOfBeds >= 0 && parsedSizeOfBeds !== existingRoom.sizeOfBeds) {
-                updatedData.sizeOfBeds = parsedSizeOfBeds;
-            }
-        }
 
-        if (sizeOfBaths !== undefined) {
-            const parsedSizeOfBaths = parseInt(sizeOfBaths, 10);
-            if (!isNaN(parsedSizeOfBaths) && parsedSizeOfBaths >= 0 && parsedSizeOfBaths !== existingRoom.sizeOfBaths) {
-                updatedData.sizeOfBaths = parsedSizeOfBaths;
-            }
-        }
 
         if (parkingSpace !== undefined) {
             const parsedParkingSpace = parseInt(parkingSpace, 10);
@@ -147,12 +175,6 @@ export const updateRoom = async (req: Request, res: Response) => {
             }
         }
 
-        if (meters !== undefined) {
-            const parsedMeters = parseFloat(meters);
-            if (!isNaN(parsedMeters) && parsedMeters >= 0 && parsedMeters !== existingRoom.meters) {
-                updatedData.meters = parsedMeters;
-            }
-        }
         let newImages = Array.isArray(existingRoom.images) ? [...existingRoom.images] : [];
 
         if (files?.images && files.images.length > 0) {

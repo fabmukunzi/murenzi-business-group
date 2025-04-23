@@ -20,6 +20,8 @@ import { Upload, ArrowLeft, X, Plus } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useAddNewRoomMutation } from "@/store/actions/rental";
+import { handleError } from "@/lib/functions/handle-error";
 
 const rentalSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -28,9 +30,6 @@ const rentalSchema = z.object({
   parkingSlots: z.number().min(0, "Number of parking slots must be positive"),
   size: z.string().min(1, "Size is required"),
   description: z.string().min(1, "Description is required"),
-  images: z.any().refine((val) => val?.length >= 3, {
-    message: "At least 3 images are required",
-  }),
 });
 
 type RentalFormData = z.infer<typeof rentalSchema>;
@@ -43,6 +42,7 @@ type ImagePreview = {
 
 export default function NewRentalPage() {
   const router = useRouter();
+  const [addNewRoom] = useAddNewRoomMutation();
   const [imageFiles, setImageFiles] = useState<ImagePreview[]>([]);
   const {
     register,
@@ -61,25 +61,22 @@ export default function NewRentalPage() {
   });
 
   const onSubmit = async (data: RentalFormData) => {
-    // Create FormData for file uploads
     const formData = new FormData();
 
-    // Add all text fields
-    Object.entries(data).forEach(([key, value]) => {
-      if (key !== "images") {
-        formData.append(key, String(value));
-      }
-    });
-
-    // Add all images
-    imageFiles.forEach((image, index) => {
-      formData.append(`images[${index}]`, image.file);
-    });
-
-    console.log("Form data prepared with", imageFiles.length, "images");
-    // Here you would send formData to your backend
-
-    router.push("/dashboard/rentals");
+    try {
+      Object.entries(data).forEach(([key, value]) => {
+        if (key !== "images") {
+          formData.append(key, String(value));
+        }
+      });
+      imageFiles.forEach((image) => {
+        formData.append(`images`, image.file);
+      });
+      await addNewRoom(formData).unwrap();
+      router.push("/dashboard/rentals");
+    } catch (error) {
+      handleError(error);
+    }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -99,7 +96,6 @@ export default function NewRentalPage() {
           file,
         });
 
-        // Update state after all files are processed
         if (newFiles.length === files.length) {
           setImageFiles((prev) => [...prev, ...newFiles]);
         }
@@ -281,13 +277,12 @@ export default function NewRentalPage() {
               </div>
 
               <div
-                className={`border-2 border-dashed rounded-lg p-6 transition-all duration-200 ${
-                  imageFiles.length > 0
-                    ? imageFiles.length < 3
-                      ? "border-red-300 bg-red-50"
-                      : "border-primary/30 bg-primary/5"
-                    : "border-gray-300 hover:border-primary/30 hover:bg-gray-50"
-                }`}
+                className={`border-2 border-dashed rounded-lg p-6 transition-all duration-200 ${imageFiles.length > 0
+                  ? imageFiles.length < 3
+                    ? "border-red-300 bg-red-50"
+                    : "border-primary/30 bg-primary/5"
+                  : "border-gray-300 hover:border-primary/30 hover:bg-gray-50"
+                  }`}
               >
                 {imageFiles.length === 0 ? (
                   <div className="flex flex-col items-center justify-center text-center">
@@ -305,7 +300,6 @@ export default function NewRentalPage() {
                       type="file"
                       accept="image/*"
                       multiple
-                      {...register("images")}
                       onChange={handleImageChange}
                       className="hidden"
                     />
@@ -363,16 +357,15 @@ export default function NewRentalPage() {
                       type="file"
                       accept="image/*"
                       multiple
-                      {...register("images")}
                       onChange={handleImageChange}
                       className="hidden"
                     />
                   </div>
                 )}
               </div>
-              {errors.images && (
+              {imageFiles.length < 3 && (
                 <p className="text-sm text-red-500 mt-1">
-                  {errors.images.message as string}
+                  Please select at least 3 image
                 </p>
               )}
             </div>

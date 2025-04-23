@@ -36,10 +36,8 @@ model Room {
   video        String?
   available    Boolean  @default(true)
   price        Float    @default(0.0)
-  sizeOfBeds   Int?
-  sizeOfBaths  Int?
   parkingSpace Int?
-  meters       Int?
+  size       String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
