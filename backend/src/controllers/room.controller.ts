@@ -6,7 +6,7 @@ import { uploadImage, uploadVideo } from '../config/cloudinary';
 const roomService = new RoomService();
 export const createRoom = async (req: Request, res: Response) => {
     try {
-        const { name, description, pricePerNight, parkingSlots, size } = req.body;
+        const { name, description, pricePerNight, parkingSlots, size,location } = req.body;
         console.log(req.body);
         if(!name){
             res.status(400).json({
@@ -40,6 +40,13 @@ export const createRoom = async (req: Request, res: Response) => {
             res.status(400).json({
                 status: 'fail',
                 message: 'Room meters is required',
+            });
+            return
+        }
+        if(!location){
+            res.status(400).json({
+                status: 'fail',
+                message: 'Room location is required',
             });
             return
         }
@@ -99,6 +106,7 @@ export const createRoom = async (req: Request, res: Response) => {
             price: parsedPrice,
             parkingSpace: parsedParkingSpace,
             size,
+            location,
         });
 
         res.status(201).json({
