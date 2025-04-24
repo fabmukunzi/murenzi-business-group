@@ -1,9 +1,9 @@
-export type roomResponse = {
+export interface IRoom {
     id: string;
     name: string;
-    pricePerNight: number;
+    price: number;
     location: string;
-    parkingSlots: number;
+    parkingSpace: number;
     size: string;
     description: string;
     images: string[];

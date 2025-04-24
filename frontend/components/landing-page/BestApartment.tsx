@@ -1,5 +1,5 @@
 import React from 'react';
-import CardApartment from '../apartment/CardApartment';
+// import CardApartment from '../apartment/CardApartment';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { homepageRoutes } from '@/lib/routes';
@@ -18,11 +18,11 @@ const BestApartment = () => {
       </div>
 
       {/* Ensure full width on mobile */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 place-items-center gap-4">
+      {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 place-items-center gap-4">
         <CardApartment />
         <CardApartment />
         <CardApartment />
-      </div>
+      </div> */}
     </div>
   );
 };

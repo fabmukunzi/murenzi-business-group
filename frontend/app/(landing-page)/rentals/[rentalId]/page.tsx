@@ -1,84 +1,26 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
-import { icons } from "@/lib/icons";
-import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Card, CardContent } from "@/components/ui/card";
-
-interface Rental {
-  id: number;
-  name: string;
-  pricePerNight: number;
-  location: string;
-  bedrooms: number;
-  parkingSlots: number;
-  area: string;
-  description: string;
-  images: string[];
-}
-
-// Mock data for testing - replace with API call
-const mockRentals: Rental[] = [
-  {
-    id: 1,
-    name: "Luxury Apartment",
-    pricePerNight: 150,
-    location: "Kacyiru, Kigali, Rwanda",
-    bedrooms: 2,
-    parkingSlots: 1,
-    area: "6x7",
-    description:
-      "Beautiful apartment in the heart of the city. This luxurious apartment offers modern amenities, stunning views, and a convenient location. Perfect for both short and long stays, with easy access to restaurants, shopping centers, and tourist attractions.",
-    images: [
-      "https://plutproperties.com/wp-content/uploads/2021/09/apartment-in-kigali-plut-properties-3.jpg",
-      "https://plutproperties.com/wp-content/uploads/2021/09/apartment-in-kigali-plut-properties-3.jpg",
-      "https://plutproperties.com/wp-content/uploads/2021/09/apartment-in-kigali-plut-properties-3.jpg",
-    ],
-  },
-  {
-    id: 2,
-    name: "Modern Studio",
-    pricePerNight: 100,
-    location: "Kimihurura, Kigali, Rwanda",
-    bedrooms: 1,
-    parkingSlots: 1,
-    area: "5x6",
-    description:
-      "Cozy studio with modern amenities. Ideal for solo travelers or couples, this studio offers a comfortable and convenient stay in a prime location.",
-    images: [
-      "https://plutproperties.com/wp-content/uploads/2021/09/apartment-in-kigali-plut-properties-3.jpg",
-      "https://plutproperties.com/wp-content/uploads/2021/09/apartment-in-kigali-plut-properties-3.jpg",
-      "https://plutproperties.com/wp-content/uploads/2021/09/apartment-in-kigali-plut-properties-3.jpg",
-    ],
-  },
-];
+import { useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { icons } from '@/lib/icons';
+import { motion } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Card, CardContent } from '@/components/ui/card';
+import { useGetSingleRentalQuery } from '@/store/actions/rental';
 
 export default function RentalDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const [rental, setRental] = useState<Rental | null>(null);
-  const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
 
-  useEffect(() => {
-    // In a real app, you would fetch the rental details from an API
-    // For now, we'll use mock data
-    const rentalId = Number(params.rentalId);
-    const foundRental = mockRentals.find((r) => r.id === rentalId);
+  const { data, isLoading } = useGetSingleRentalQuery({
+    roomId: params.rentalId as string,
+  });
 
-    if (foundRental) {
-      setRental(foundRental);
-    }
-
-    setLoading(false);
-  }, [params.rentalId]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         Loading...
@@ -86,11 +28,11 @@ export default function RentalDetailPage() {
     );
   }
 
-  if (!rental) {
+  if (!data) {
     return (
       <div className="flex flex-col justify-center items-center min-h-screen">
         <h1 className="text-2xl font-bold mb-4">Rental Not Found</h1>
-        <Button onClick={() => router.push("/rentals")}>Back to Rentals</Button>
+        <Button onClick={() => router.push('/rentals')}>Back to Rentals</Button>
       </div>
     );
   }
@@ -106,12 +48,12 @@ export default function RentalDetailPage() {
         <Button
           variant="ghost"
           className="mb-4 pl-0"
-          onClick={() => router.push("/rentals")}
+          onClick={() => router.push('/rentals')}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Rentals
         </Button>
-        <h1 className="text-3xl font-bold">{rental.name}</h1>
+        <h1 className="text-3xl font-bold">{data?.data?.room.name}</h1>
         <p className="text-gray-600 flex items-center mt-1">
           <Image
             src={icons.locationPin}
@@ -120,7 +62,7 @@ export default function RentalDetailPage() {
             height={14}
             className="mr-1"
           />
-          {rental.location}
+          Kanombe, Kigali, Rwanda
         </p>
       </motion.div>
 
@@ -133,27 +75,27 @@ export default function RentalDetailPage() {
           >
             <div className="relative aspect-video overflow-hidden rounded-lg mb-4">
               <Image
-                src={rental.images[selectedImage]}
-                alt={rental.name}
+                src={data?.data?.room.images[selectedImage]}
+                alt={data?.data?.room.name}
                 fill
                 className="object-cover"
               />
             </div>
 
             <div className="grid grid-cols-3 gap-4">
-              {rental.images.map((image: string, index: number) => (
+              {data?.data?.room?.images.map((image: string, index: number) => (
                 <div
                   key={index}
                   className={`relative aspect-video cursor-pointer rounded-md overflow-hidden border-2 ${
                     selectedImage === index
-                      ? "border-primary"
-                      : "border-transparent"
+                      ? 'border-primary'
+                      : 'border-transparent'
                   }`}
                   onClick={() => setSelectedImage(index)}
                 >
                   <Image
                     src={image}
-                    alt={`${rental.name} ${index + 1}`}
+                    alt={`${data?.data?.room.name} ${index + 1}`}
                     fill
                     className="object-cover"
                   />
@@ -168,7 +110,7 @@ export default function RentalDetailPage() {
             <CardContent className="p-6">
               <div className="mb-6">
                 <p className="text-3xl font-bold text-primary">
-                  ${rental.pricePerNight}
+                  ${data?.data?.room.price}
                   <span className="text-sm font-normal text-gray-500">
                     /night
                   </span>
@@ -180,12 +122,8 @@ export default function RentalDetailPage() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2">
-                    <Image src={icons.bed} alt="" width={20} height={20} />
-                    <span>{rental.bedrooms} Bedroom</span>
-                  </div>
-                  <div className="flex items-center gap-2">
                     <Image src={icons.parkSlot} alt="" width={20} height={20} />
-                    <span>{rental.parkingSlots} Parking</span>
+                    <span>{data?.data?.room.parkingSpace} Parking</span>
                   </div>
                 </div>
 
@@ -197,7 +135,7 @@ export default function RentalDetailPage() {
                     height={20}
                   />
                   <span className="flex items-center">
-                    {rental.area} m<span className="text-[10px]">2</span>
+                    {data?.data?.room.size} m<span className="text-[10px]">2</span>
                   </span>
                 </div>
               </div>
@@ -214,7 +152,7 @@ export default function RentalDetailPage() {
 
       <div className="mt-8">
         <h2 className="text-2xl font-semibold mb-4">About this rental</h2>
-        <p className="text-gray-700 leading-relaxed">{rental.description}</p>
+        <p className="text-gray-700 leading-relaxed">{data?.data?.room?.description}</p>
       </div>
     </div>
   );
