@@ -5,16 +5,23 @@ import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { icons } from '@/lib/icons';
 import { motion } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { useGetSingleRentalQuery } from '@/store/actions/rental';
+import { Label } from '@/components/ui/label';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { Input } from '@/components/ui/input';
+import { Calendar } from '@/components/ui/calendar';
+import { format, isBefore, addDays } from 'date-fns';
 
 export default function RentalDetailPage() {
   const params = useParams();
   const router = useRouter();
   const [selectedImage, setSelectedImage] = useState(0);
+  const [checkIn, setCheckIn] = useState<Date | undefined>();
+  const [checkOut, setCheckOut] = useState<Date | undefined>();
 
   const { data, isLoading } = useGetSingleRentalQuery({
     roomId: params.rentalId as string,
@@ -37,8 +44,18 @@ export default function RentalDetailPage() {
     );
   }
 
+  const room = data.data.room;
+  const basePrice = room.price || 0;
+
+  const isValidRange = checkIn && checkOut && isBefore(checkIn, checkOut);
+  const totalNights = isValidRange
+    ? Math.round((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
+    : 0;
+
+  const totalPrice = basePrice * totalNights;
+
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className="container mx-auto px-4 py-8 max-w-6xl mt-14">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -53,7 +70,7 @@ export default function RentalDetailPage() {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Rentals
         </Button>
-        <h1 className="text-3xl font-bold">{data?.data?.room.name}</h1>
+        <h1 className="text-3xl font-bold">{room.name}</h1>
         <p className="text-gray-600 flex items-center mt-1">
           <Image
             src={icons.locationPin}
@@ -75,27 +92,26 @@ export default function RentalDetailPage() {
           >
             <div className="relative aspect-video overflow-hidden rounded-lg mb-4">
               <Image
-                src={data?.data?.room.images[selectedImage]}
-                alt={data?.data?.room.name}
+                src={room.images[selectedImage]}
+                alt={room.name}
                 fill
                 className="object-cover"
               />
             </div>
 
             <div className="grid grid-cols-3 gap-4">
-              {data?.data?.room?.images.map((image: string, index: number) => (
+              {room.images.map((image: string, index: number) => (
                 <div
                   key={index}
-                  className={`relative aspect-video cursor-pointer rounded-md overflow-hidden border-2 ${
-                    selectedImage === index
-                      ? 'border-primary'
-                      : 'border-transparent'
-                  }`}
+                  className={`relative aspect-video cursor-pointer rounded-md overflow-hidden border-2 ${selectedImage === index
+                    ? 'border-primary'
+                    : 'border-transparent'
+                    }`}
                   onClick={() => setSelectedImage(index)}
                 >
                   <Image
                     src={image}
-                    alt={`${data?.data?.room.name} ${index + 1}`}
+                    alt={`${room.name} ${index + 1}`}
                     fill
                     className="object-cover"
                   />
@@ -106,53 +122,79 @@ export default function RentalDetailPage() {
         </div>
 
         <div>
-          <Card className="sticky top-8">
-            <CardContent className="p-6">
-              <div className="mb-6">
-                <p className="text-3xl font-bold text-primary">
-                  ${data?.data?.room.price}
-                  <span className="text-sm font-normal text-gray-500">
-                    /night
-                  </span>
-                </p>
+          <Card className="md:col-span-2 p-5">
+            <h2 className="md:text-xl text-lg font-bold">
+              Luxury Room (${basePrice}/per night)
+            </h2>
+
+            <div className="flex gap-2 flex-col">
+              <Input type="text" placeholder="Your Name" className="w-full mt-3" />
+              <Input type="text" placeholder="Your Email" className="w-full mt-3" />
+              <Input type="number" placeholder="Your phone number(will be used to pay)" className="w-full mt-3" />
+            </div>
+
+            <div className="flex gap-2 mt-4">
+              <div className="w-full">
+                <Label>Check-in</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-full flex justify-between">
+                      {checkIn ? format(checkIn, 'PPP') : 'Pick a date'}
+                      <CalendarIcon />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <Calendar
+                      mode="single"
+                      selected={checkIn}
+                      onSelect={setCheckIn}
+                      disabled={(date) => isBefore(date, new Date())}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
 
-              <Separator className="my-6" />
-
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <Image src={icons.parkSlot} alt="" width={20} height={20} />
-                    <span>{data?.data?.room.parkingSpace} Parking</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Image
-                    src={icons.squareMeter}
-                    alt=""
-                    width={20}
-                    height={20}
-                  />
-                  <span className="flex items-center">
-                    {data?.data?.room.size} m<span className="text-[10px]">2</span>
-                  </span>
-                </div>
+              <div className="w-full">
+                <Label>Check-out</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-full flex justify-between">
+                      {checkOut ? format(checkOut, 'PPP') : 'Pick a date'}
+                      <CalendarIcon />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <Calendar
+                      mode="single"
+                      selected={checkOut}
+                      onSelect={setCheckOut}
+                      disabled={(date) =>
+                        isBefore(date, checkIn ? addDays(checkIn, 1) : new Date())
+                      }
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
+            </div>
 
-              <Separator className="my-6" />
+            <motion.div
+              className="mt-3 p-3 border rounded-lg leading-8 bg-primary/20"
+              animate={{ scale: 1 }}
+              initial={{ scale: 0.9 }}
+            >
+              <p>Per Night: ${basePrice}</p>
+              <p>Extras: $0</p>
+              <p className="font-bold">Total Price: ${totalPrice.toFixed(2)}</p>
+            </motion.div>
 
-              <Button className="w-full bg-primary hover:bg-primary/90">
-                Book Now
-              </Button>
-            </CardContent>
+            <Button className="mt-5 w-full">Pay Now</Button>
           </Card>
         </div>
       </div>
 
       <div className="mt-8">
         <h2 className="text-2xl font-semibold mb-4">About this rental</h2>
-        <p className="text-gray-700 leading-relaxed">{data?.data?.room?.description}</p>
+        <p className="text-gray-700 leading-relaxed">{room.description}</p>
       </div>
     </div>
   );
