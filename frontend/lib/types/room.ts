@@ -12,3 +12,14 @@ export interface IRoom {
     createdAt: string;
     updatedAt: string;
 };
+
+
+export interface BookingPayload {
+    name: string;
+    email: string;
+    phoneNumber: string;
+    roomId: string;
+    checkIn: string;
+    checkOut: string;
+    totalPrice: number;
+}

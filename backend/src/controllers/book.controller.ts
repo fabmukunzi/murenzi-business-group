@@ -39,7 +39,7 @@ export const createBooking = async (req: Request, res: Response) => {
             timestamp: "20161231115242",
             password: "71c931d4966984a90cee2bcc2953ce432899122b0f16778e5f4845d5ea18f7e6",
             mobilephone: phoneNumber,
-            amount: 1000,
+            amount: totalPrice,
             requesttransactionid: Date.now(),
             callbackurl: "https://fabrand.vercel.app/"
         };
@@ -59,17 +59,21 @@ export const createBooking = async (req: Request, res: Response) => {
                 body: JSON.stringify(payload),
             });
             const data = await response.json();
-            paymentResponse = data;
+            paymentResponse = await data;
             console.log("Payment response:", response);
         }
+        console.log(
+            "Payment response:", paymentResponse, "Payload:", payload, "Total Price:", totalPrice, "Phone Number:", phoneNumber, "Check In:", checkIn, "Check Out:", checkOut, "Room ID:", roomId, "Email:", email, "Name:", name
+        );
+        
 
         const transaction = await TransactionService.createTransaction({
-            amount: paymentResponse.amount,
+            amount: parseFloat(totalPrice),
             transactionid: paymentResponse.transactionid,
             requesttransactionid: paymentResponse.requesttransactionid,
             status: paymentResponse.status,
         });
-        console.log("Transaction response:", transaction);
+
         if (!transaction) {
             res.status(500).json({
                 status: 'error',
@@ -87,7 +91,7 @@ export const createBooking = async (req: Request, res: Response) => {
             totalPrice: parseFloat(totalPrice),
             phoneNumber,
         });
-
+        
         res.status(201).json({
             status: 'success',
             message: paymentResponse.message,

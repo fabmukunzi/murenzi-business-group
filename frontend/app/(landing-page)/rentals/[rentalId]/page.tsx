@@ -15,13 +15,18 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { Input } from '@/components/ui/input';
 import { Calendar } from '@/components/ui/calendar';
 import { format, isBefore, addDays } from 'date-fns';
+import { useBookingRoomMutation } from '@/store/actions/booking';
 
 export default function RentalDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const [bookRoom, { isLoading: isBooking }] = useBookingRoomMutation();
   const [selectedImage, setSelectedImage] = useState(0);
   const [checkIn, setCheckIn] = useState<Date | undefined>();
   const [checkOut, setCheckOut] = useState<Date | undefined>();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
 
   const { data, isLoading } = useGetSingleRentalQuery({
     roomId: params.rentalId as string,
@@ -53,6 +58,29 @@ export default function RentalDetailPage() {
     : 0;
 
   const totalPrice = basePrice * totalNights;
+
+  const handlePayment = async () => {
+    if (!checkIn || !checkOut || !name || !email || !phoneNumber) {
+      return alert('Please fill all fields and select valid dates.');
+    }
+
+    try {
+      const payload = {
+        name,
+        email,
+        phoneNumber,
+        roomId: room.id,
+        checkIn: checkIn.toISOString(),
+        checkOut: checkOut.toISOString(),
+        totalPrice,
+      };
+
+      const res = await bookRoom(payload).unwrap();
+      router.push('/confirmation');
+    } catch (err: any) {
+      alert(err?.data?.message || 'Something went wrong.');
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl mt-14">
@@ -103,9 +131,7 @@ export default function RentalDetailPage() {
               {room.images.map((image: string, index: number) => (
                 <div
                   key={index}
-                  className={`relative aspect-video cursor-pointer rounded-md overflow-hidden border-2 ${selectedImage === index
-                    ? 'border-primary'
-                    : 'border-transparent'
+                  className={`relative aspect-video cursor-pointer rounded-md overflow-hidden border-2 ${selectedImage === index ? 'border-primary' : 'border-transparent'
                     }`}
                   onClick={() => setSelectedImage(index)}
                 >
@@ -128,9 +154,9 @@ export default function RentalDetailPage() {
             </h2>
 
             <div className="flex gap-2 flex-col">
-              <Input type="text" placeholder="Your Name" className="w-full mt-3" />
-              <Input type="text" placeholder="Your Email" className="w-full mt-3" />
-              <Input type="number" placeholder="Your phone number(will be used to pay)" className="w-full mt-3" />
+              <Input type="text" placeholder="Your Name" className="w-full mt-3" value={name} onChange={(e) => setName(e.target.value)} />
+              <Input type="email" placeholder="Your Email" className="w-full mt-3" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <Input type="number" placeholder="Your phone number (will be used to pay)" className="w-full mt-3" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
             </div>
 
             <div className="flex gap-2 mt-4">
@@ -187,7 +213,9 @@ export default function RentalDetailPage() {
               <p className="font-bold">Total Price: ${totalPrice.toFixed(2)}</p>
             </motion.div>
 
-            <Button className="mt-5 w-full">Pay Now</Button>
+            <Button className="mt-5 w-full" onClick={handlePayment} disabled={isBooking}>
+              {isBooking ? 'Processing...' : 'Pay Now'}
+            </Button>
           </Card>
         </div>
       </div>
