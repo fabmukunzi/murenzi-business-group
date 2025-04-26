@@ -1,9 +1,9 @@
-import { BookingPayload, IRoom } from '@/lib/types/room';
+import { BookingPayload, BookingResponse, IRoom } from '@/lib/types/room';
 import { baseAPI } from '@/store/api';
 
 const bookingEndpoints = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
-        bookingRoom: builder.mutation<{ booking: any }, any>({
+        bookingRoom: builder.mutation<BookingResponse, BookingPayload>({
             query: (body) => ({
                 url: '/bookings',
                 method: 'POST',

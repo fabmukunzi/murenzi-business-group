@@ -2,13 +2,16 @@ import { Request, Response } from 'express';
 import { BookService } from '../services/book.service';
 import { RoomService } from '../services/room.service';
 import { TransactionService } from '../services/transaction.service';
+import { generateRequestTransactionId } from '../utils/requestTransactionId';
 
 const bookService = new BookService();
 const roomService = new RoomService();
 
 export const createBooking = async (req: Request, res: Response) => {
     try {
-        const { name, email, roomId, checkIn, checkOut, totalPrice, phoneNumber } = req.body;
+        let { name, email, roomId, checkIn, checkOut, totalPrice, phoneNumber } = req.body;
+        totalPrice = parseFloat(totalPrice);
+        phoneNumber = Number(phoneNumber);
         if (!name || !email || !roomId || !checkIn || !checkOut || !totalPrice) {
             res.status(400).json({
                 status: 'error',
@@ -16,6 +19,8 @@ export const createBooking = async (req: Request, res: Response) => {
             });
             return
         }
+        console.log(req.body);
+        
 
         const existingRoom = await roomService.getRoomById(roomId);
 
@@ -33,14 +38,23 @@ export const createBooking = async (req: Request, res: Response) => {
             });
             return
         }
+        if (!/^\d{12}$/.test(phoneNumber)) {
+             res.status(400).json({
+                status: 'error',
+                message: 'Phone number must be a valid 12-digit number (e.g., 2507XXXXXXXX)',
+            });
+            return
+        }
+console.log(process.env.INTOUCHPAY_USERNAME);
+        console.log(process.env.INTOUCHPAY_PASSWORD);
 
         const payload = {
-            username: "testa",
+            username: process.env.INTOUCHPAY_USERNAME,
             timestamp: "20161231115242",
-            password: "71c931d4966984a90cee2bcc2953ce432899122b0f16778e5f4845d5ea18f7e6",
+            password: process.env.INTOUCHPAY_PASSWORD,
             mobilephone: phoneNumber,
             amount: totalPrice,
-            requesttransactionid: Date.now(),
+            requesttransactionid: generateRequestTransactionId(),
             callbackurl: "https://fabrand.vercel.app/"
         };
 
@@ -60,11 +74,19 @@ export const createBooking = async (req: Request, res: Response) => {
             });
             const data = await response.json();
             paymentResponse = await data;
-            console.log("Payment response:", response);
         }
-        console.log(
-            "Payment response:", paymentResponse, "Payload:", payload, "Total Price:", totalPrice, "Phone Number:", phoneNumber, "Check In:", checkIn, "Check Out:", checkOut, "Room ID:", roomId, "Email:", email, "Name:", name
-        );
+        if (paymentResponse.responsecode==2300){
+            res.status(400).json({
+                status: 'error',
+                message: paymentResponse.message,
+                success: paymentResponse.success,
+                responsecode: paymentResponse.responsecode,
+            });
+            return
+        }
+        console.log("transactionId", paymentResponse.transactionid);
+        console.log("requesttransactionid", paymentResponse.requesttransactionid);
+        
         
 
         const transaction = await TransactionService.createTransaction({
@@ -89,11 +111,11 @@ export const createBooking = async (req: Request, res: Response) => {
             checkOut: new Date(checkOut),
             transactionId: transaction.id,
             totalPrice: parseFloat(totalPrice),
-            phoneNumber,
+            phoneNumber: phoneNumber.toString(),
         });
         
         res.status(201).json({
-            status: 'success',
+            status: paymentResponse.status,
             message: paymentResponse.message,
             data: { booking },
         });
