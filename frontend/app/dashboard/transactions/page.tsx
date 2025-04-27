@@ -2,23 +2,10 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import {
-  Search,
-  Filter,
-  Download,
-  Home,
-  Coffee,
-  Bath,
-  Check,
-  X,
-  AlertCircle,
-  ChevronDown,
-  Eye,
-} from "lucide-react";
+import { Search, Download, Check, X, AlertCircle, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
@@ -29,12 +16,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -47,192 +28,132 @@ interface TransactionDetails {
   [key: string]: string | number;
 }
 
-interface BaseTransaction {
+interface RentalTransaction {
   id: string;
   customer: string;
+  email: string;
+  phone: string;
   date: string;
+  property: string;
   amount: number;
-  status: string;
+  duration: string;
+  status: "pending" | "failed" | "success";
   paymentMethod: string;
+  correspondent: string;
   details: TransactionDetails;
 }
 
-interface RentalTransaction extends BaseTransaction {
-  property: string;
-  duration: string;
-}
-
-interface RestaurantTransaction extends BaseTransaction {
-  items: string[];
-}
-
-interface SpaTransaction extends BaseTransaction {
-  service: string;
-}
-
-// Mock transactions data with typed structure
-const transactions: {
-  rentals: RentalTransaction[];
-  restaurant: RestaurantTransaction[];
-  saunaMassage: SpaTransaction[];
-} = {
-  rentals: [
-    {
-      id: "R12345",
-      customer: "John Smith",
-      date: "2025-05-15",
-      property: "Luxury Apartment",
-      amount: 450,
-      duration: "3 nights",
-      status: "completed",
-      paymentMethod: "Credit Card",
-      details: {
-        checkin: "2023-05-15",
-        checkout: "2023-05-18",
-        guests: 2,
-        specialRequests: "Late check-in requested",
-      },
+// Mock transactions data
+const transactions: RentalTransaction[] = [
+  {
+    id: "R12345",
+    customer: "John Smith",
+    email: "john.smith@example.com",
+    phone: "+250789123456",
+    date: "2025-05-15",
+    property: "Luxury Apartment",
+    amount: 450,
+    duration: "3 nights",
+    status: "success",
+    paymentMethod: "Credit Card",
+    correspondent: "Visa",
+    details: {
+      checkin: "2023-05-15",
+      checkout: "2023-05-18",
+      guests: 2,
+      specialRequests: "Late check-in requested",
     },
-    {
-      id: "R12346",
-      customer: "Melvin KAGABO",
-      date: "2025-05-18",
-      property: "Modern Studio",
-      amount: 200,
-      duration: "2 nights",
-      status: "upcoming",
-      paymentMethod: "PayPal",
-      details: {
-        checkin: "2023-06-01",
-        checkout: "2023-06-03",
-        guests: 1,
-        specialRequests: "None",
-      },
+  },
+  {
+    id: "R12346",
+    customer: "Melvin KAGABO",
+    email: "melvin.k@example.com",
+    phone: "+250782956478",
+    date: "2025-05-18",
+    property: "Modern Studio",
+    amount: 200,
+    duration: "2 nights",
+    status: "pending",
+    paymentMethod: "Mobile Money",
+    correspondent: "MTN MoMo",
+    details: {
+      checkin: "2023-06-01",
+      checkout: "2023-06-03",
+      guests: 1,
+      specialRequests: "None",
     },
-    {
-      id: "R12347",
-      customer: "Raphael MUGABO",
-      date: "2025-05-10",
-      property: "Deluxe Villa",
-      amount: 1200,
-      duration: "4 nights",
-      status: "cancelled",
-      paymentMethod: "Bank Transfer",
-      details: {
-        checkin: "2023-05-20",
-        checkout: "2023-05-24",
-        guests: 4,
-        specialRequests: "Airport pickup requested",
-      },
+  },
+  {
+    id: "R12347",
+    customer: "Raphael MUGABO",
+    email: "raphael.m@example.com",
+    phone: "+250733111222",
+    date: "2025-05-10",
+    property: "Deluxe Villa",
+    amount: 1200,
+    duration: "4 nights",
+    status: "failed",
+    paymentMethod: "Bank Transfer",
+    correspondent: "Bank of Kigali",
+    details: {
+      checkin: "2023-05-20",
+      checkout: "2023-05-24",
+      guests: 4,
+      specialRequests: "Airport pickup requested",
     },
-  ],
-  restaurant: [
-    {
-      id: "F12345",
-      customer: "David Wilson",
-      date: "2025-05-19",
-      items: ["Continental Breakfast", "Coffee"],
-      amount: 22,
-      status: "completed",
-      paymentMethod: "Cash",
-      details: {
-        time: "08:30",
-        specialRequests: "Gluten-free options",
-        tableNumber: "12",
-      },
+  },
+  {
+    id: "R12348",
+    customer: "Sarah Johnson",
+    email: "sarah.j@example.com",
+    phone: "+250781234567",
+    date: "2025-05-20",
+    property: "Ocean View Suite",
+    amount: 550,
+    duration: "5 nights",
+    status: "success",
+    paymentMethod: "Mobile Money",
+    correspondent: "MTN MoMo",
+    details: {
+      checkin: "2023-05-25",
+      checkout: "2023-05-30",
+      guests: 2,
+      specialRequests: "Ocean view room requested",
     },
-    {
-      id: "F12346",
-      customer: "Emma Brown",
-      date: "2025-05-19",
-      items: ["Beef Burger", "Craft Beer Selection"],
-      amount: 23,
-      status: "processing",
-      paymentMethod: "Credit Card",
-      details: {
-        time: "13:15",
-        specialRequests: "Extra sauce on the side",
-        tableNumber: "8",
-      },
+  },
+  {
+    id: "R12349",
+    customer: "Daniel Kamau",
+    email: "daniel.k@example.com",
+    phone: "+250722987654",
+    date: "2025-05-22",
+    property: "Mountain Cabin",
+    amount: 320,
+    duration: "3 nights",
+    status: "pending",
+    paymentMethod: "Credit Card",
+    correspondent: "Mastercard",
+    details: {
+      checkin: "2023-06-05",
+      checkout: "2023-06-08",
+      guests: 3,
+      specialRequests: "Hiking equipment rental",
     },
-    {
-      id: "F12347",
-      customer: "Michael Davis",
-      date: "2025-05-18",
-      items: ["Grilled Salmon", "House Red Wine", "Vegetarian Curry"],
-      amount: 62,
-      status: "completed",
-      paymentMethod: "Mobile Payment",
-      details: {
-        time: "19:45",
-        specialRequests: "No pepper in curry",
-        tableNumber: "15",
-      },
-    },
-  ],
-  saunaMassage: [
-    {
-      id: "S12345",
-      customer: "Jennifer Lee",
-      date: "2025-05-19",
-      service: "Swedish Massage",
-      amount: 75,
-      status: "upcoming",
-      paymentMethod: "Credit Card",
-      details: {
-        time: "14:00",
-        duration: "60 min",
-        therapist: "Sarah",
-        notes: "First-time client",
-      },
-    },
-    {
-      id: "S12346",
-      customer: "Thomas White",
-      date: "2025-05-18",
-      service: "Traditional Sauna",
-      amount: 35,
-      status: "completed",
-      paymentMethod: "Gift Card",
-      details: {
-        time: "16:00",
-        duration: "45 min",
-        therapist: "N/A",
-        notes: "Regular client",
-      },
-    },
-    {
-      id: "S12347",
-      customer: "Michelle Taylor",
-      date: "2025-05-17",
-      service: "Deluxe Spa Package",
-      amount: 220,
-      status: "cancelled",
-      paymentMethod: "Mobile Money",
-      details: {
-        time: "10:00",
-        duration: "180 min",
-        therapist: "James",
-        notes: "Cancellation due to illness",
-      },
-    },
-  ],
-};
+  },
+];
 
 // Status badge component
 const StatusBadge = ({ status }: { status: string }) => {
   const statusStyles = {
-    completed: "bg-green-100 text-green-800 border-green-200",
-    upcoming: "bg-blue-100 text-blue-800 border-blue-200",
-    processing: "bg-yellow-100 text-yellow-800 border-yellow-200",
-    cancelled: "bg-red-100 text-red-800 border-red-200",
+    success: "bg-green-100 text-green-800 border-green-200",
+    pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
+    failed: "bg-red-100 text-red-800 border-red-200",
   };
 
   const statusIcons = {
-    completed: <Check size={14} className="mr-1" />,
-    upcoming: <AlertCircle size={14} className="mr-1" />,
-    processing: <AlertCircle size={14} className="mr-1" />,
-    cancelled: <X size={14} className="mr-1" />,
+    success: <Check size={14} className="mr-1" />,
+    pending: <AlertCircle size={14} className="mr-1" />,
+    failed: <X size={14} className="mr-1" />,
   };
 
   const style =
@@ -248,24 +169,19 @@ const StatusBadge = ({ status }: { status: string }) => {
   );
 };
 
-type TransactionTab = "rentals" | "restaurant" | "saunaMassage";
-type Transaction = RentalTransaction | RestaurantTransaction | SpaTransaction;
-
 export default function TransactionsPage() {
-  const [activeTab, setActiveTab] = useState<TransactionTab>("rentals");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTransaction, setSelectedTransaction] =
-    useState<Transaction | null>(null);
+    useState<RentalTransaction | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
-  const handleViewDetails = (transaction: Transaction) => {
+  const handleViewDetails = (transaction: RentalTransaction) => {
     setSelectedTransaction(transaction);
     setIsDialogOpen(true);
   };
 
-  // Filter transactions based on search query and status
-  const filteredTransactions = transactions[activeTab].filter((transaction) => {
+  // Filter transactions based on search query
+  const filteredTransactions = transactions.filter((transaction) => {
     // Safely stringify transaction values for search
     const searchableText = Object.entries(transaction)
       .map(([key, value]) => {
@@ -277,93 +193,8 @@ export default function TransactionsPage() {
       .join(" ")
       .toLowerCase();
 
-    const matchesSearch = searchableText.includes(searchQuery.toLowerCase());
-    const matchesStatus =
-      statusFilter === null || transaction.status === statusFilter;
-
-    return matchesSearch && matchesStatus;
+    return searchableText.includes(searchQuery.toLowerCase());
   });
-
-  // Handle status filter change
-  const handleStatusFilterChange = (status: string | null) => {
-    setStatusFilter(status);
-  };
-
-  // Render rental row
-  const renderRentalRow = (transaction: RentalTransaction) => (
-    <TableRow key={transaction.id}>
-      <TableCell className="font-medium">{transaction.id}</TableCell>
-      <TableCell>{transaction.customer}</TableCell>
-      <TableCell>{transaction.property}</TableCell>
-      <TableCell>{transaction.date}</TableCell>
-      <TableCell>${transaction.amount}</TableCell>
-      <TableCell>
-        <StatusBadge status={transaction.status} />
-      </TableCell>
-      <TableCell className="text-right">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => handleViewDetails(transaction)}
-        >
-          <Eye size={16} className="mr-1" />
-          View
-        </Button>
-      </TableCell>
-    </TableRow>
-  );
-
-  // Render restaurant row
-  const renderRestaurantRow = (transaction: RestaurantTransaction) => (
-    <TableRow key={transaction.id}>
-      <TableCell className="font-medium">{transaction.id}</TableCell>
-      <TableCell>{transaction.customer}</TableCell>
-      <TableCell>
-        {Array.isArray(transaction.items) && transaction.items.length > 0
-          ? transaction.items.join(", ")
-          : "No items"}
-      </TableCell>
-      <TableCell>{transaction.date}</TableCell>
-      <TableCell>${transaction.amount}</TableCell>
-      <TableCell>
-        <StatusBadge status={transaction.status} />
-      </TableCell>
-      <TableCell className="text-right">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => handleViewDetails(transaction)}
-        >
-          <Eye size={16} className="mr-1" />
-          View
-        </Button>
-      </TableCell>
-    </TableRow>
-  );
-
-  // Render spa row
-  const renderSpaRow = (transaction: SpaTransaction) => (
-    <TableRow key={transaction.id}>
-      <TableCell className="font-medium">{transaction.id}</TableCell>
-      <TableCell>{transaction.customer}</TableCell>
-      <TableCell>{transaction.service}</TableCell>
-      <TableCell>{transaction.date}</TableCell>
-      <TableCell>${transaction.amount}</TableCell>
-      <TableCell>
-        <StatusBadge status={transaction.status} />
-      </TableCell>
-      <TableCell className="text-right">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => handleViewDetails(transaction)}
-        >
-          <Eye size={16} className="mr-1" />
-          View
-        </Button>
-      </TableCell>
-    </TableRow>
-  );
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-10 px-4">
@@ -374,9 +205,11 @@ export default function TransactionsPage() {
         className="flex justify-between items-center"
       >
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Transactions</h1>
+          <h1 className="text-3xl font-bold text-gray-800">
+            Rental Transactions
+          </h1>
           <p className="text-gray-500 mt-1">
-            Monitor all business transactions
+            Monitor all apartment rental payments
           </p>
         </div>
         <Button variant="outline" className="gap-2">
@@ -398,151 +231,69 @@ export default function TransactionsPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <div className="flex gap-2 self-end">
-          <Button variant="outline" size="sm" className="gap-1">
-            <Filter size={14} />
-            <span>Filter</span>
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-1">
-                <span>Status: {statusFilter || "All"}</span>
-                <ChevronDown size={14} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleStatusFilterChange(null)}>
-                All
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => handleStatusFilterChange("completed")}
-              >
-                Completed
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => handleStatusFilterChange("upcoming")}
-              >
-                Upcoming
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => handleStatusFilterChange("processing")}
-              >
-                Processing
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => handleStatusFilterChange("cancelled")}
-              >
-                Cancelled
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
       </div>
 
-      <Tabs
-        defaultValue="rentals"
-        value={activeTab}
-        onValueChange={(value) => {
-          // Cast the string value to our type to satisfy TypeScript
-          if (
-            value === "rentals" ||
-            value === "restaurant" ||
-            value === "saunaMassage"
-          ) {
-            setActiveTab(value);
-          }
-        }}
-      >
-        <TabsList className="w-full grid grid-cols-3 mb-6">
-          <TabsTrigger value="rentals" className="flex items-center gap-2">
-            <Home size={16} />
-            <span>Rentals</span>
-          </TabsTrigger>
-          <TabsTrigger value="restaurant" className="flex items-center gap-2">
-            <Coffee size={16} />
-            <span>Restaurant</span>
-          </TabsTrigger>
-          <TabsTrigger value="saunaMassage" className="flex items-center gap-2">
-            <Bath size={16} />
-            <span>Sauna & Massage</span>
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="rentals" className="space-y-4">
-          <Card>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[100px]">ID</TableHead>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Property</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredTransactions.map((transaction) =>
-                    renderRentalRow(transaction as RentalTransaction)
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="restaurant" className="space-y-4">
-          <Card>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[100px]">ID</TableHead>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Items</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredTransactions.map((transaction) =>
-                    renderRestaurantRow(transaction as RestaurantTransaction)
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="saunaMassage" className="space-y-4">
-          <Card>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[100px]">ID</TableHead>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Service</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredTransactions.map((transaction) =>
-                    renderSpaRow(transaction as SpaTransaction)
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[80px]">ID</TableHead>
+                <TableHead>Customer</TableHead>
+                <TableHead>Contact</TableHead>
+                <TableHead>Property</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Method</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredTransactions.map((transaction) => (
+                <TableRow key={transaction.id}>
+                  <TableCell className="font-medium">
+                    {transaction.id}
+                  </TableCell>
+                  <TableCell>{transaction.customer}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="text-xs text-gray-500">
+                        {transaction.email}
+                      </span>
+                      <span className="text-xs">{transaction.phone}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>{transaction.property}</TableCell>
+                  <TableCell>{transaction.date}</TableCell>
+                  <TableCell>${transaction.amount}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span>{transaction.paymentMethod}</span>
+                      <span className="text-xs text-gray-500">
+                        {transaction.correspondent}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <StatusBadge status={transaction.status} />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleViewDetails(transaction)}
+                    >
+                      <Eye size={16} className="mr-1" />
+                      View
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
       {/* Transaction Details Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -569,6 +320,26 @@ export default function TransactionsPage() {
                   <p>{selectedTransaction.customer}</p>
                 </div>
                 <div>
+                  <h3 className="text-sm font-medium text-gray-500">Email</h3>
+                  <p>{selectedTransaction.email}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">Phone</h3>
+                  <p>{selectedTransaction.phone}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">
+                    Property
+                  </h3>
+                  <p>{selectedTransaction.property}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">
+                    Duration
+                  </h3>
+                  <p>{selectedTransaction.duration}</p>
+                </div>
+                <div>
                   <h3 className="text-sm font-medium text-gray-500">Amount</h3>
                   <p>${selectedTransaction.amount}</p>
                 </div>
@@ -581,6 +352,12 @@ export default function TransactionsPage() {
                     Payment Method
                   </h3>
                   <p>{selectedTransaction.paymentMethod}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">
+                    Correspondent
+                  </h3>
+                  <p>{selectedTransaction.correspondent}</p>
                 </div>
               </div>
 
@@ -613,10 +390,7 @@ export default function TransactionsPage() {
                 >
                   Close
                 </Button>
-                {selectedTransaction.status === "upcoming" && (
-                  <Button variant="destructive">Cancel Booking</Button>
-                )}
-                {selectedTransaction.status === "processing" && (
+                {selectedTransaction.status === "pending" && (
                   <Button className="bg-primary hover:bg-primary/90">
                     Mark as Complete
                   </Button>
@@ -629,8 +403,8 @@ export default function TransactionsPage() {
 
       <div className="flex justify-between items-center">
         <div className="text-sm text-gray-500">
-          Showing {filteredTransactions.length} of{" "}
-          {transactions[activeTab].length} transactions
+          Showing {filteredTransactions.length} of {transactions.length}{" "}
+          transactions
         </div>
         <div className="flex gap-1">
           <Button variant="outline" size="sm" disabled>

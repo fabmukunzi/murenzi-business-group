@@ -2,7 +2,15 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Coffee, Utensils, Pizza, Wine } from "lucide-react";
+import {
+  Plus,
+  Coffee,
+  Utensils,
+  Pizza,
+  Wine,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -167,10 +175,9 @@ const menuData = {
 
 export default function RestaurantPage() {
   const [activeTab, setActiveTab] = useState("breakfast");
-  const [orders, setOrders] = useState<
-    Array<{ id: number; name: string; quantity: number }>
-  >([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [newItem, setNewItem] = useState({
     name: "",
     price: "",
@@ -179,24 +186,6 @@ export default function RestaurantPage() {
     image: "",
     available: true,
   });
-
-  const handleOrder = (item: MenuItem) => {
-    if (!item.available) return;
-
-    const existingOrder = orders.find((order) => order.id === item.id);
-
-    if (existingOrder) {
-      setOrders(
-        orders.map((order) =>
-          order.id === item.id
-            ? { ...order, quantity: order.quantity + 1 }
-            : order
-        )
-      );
-    } else {
-      setOrders([...orders, { id: item.id, name: item.name, quantity: 1 }]);
-    }
-  };
 
   const handleAddItem = (e: React.FormEvent) => {
     e.preventDefault();
@@ -215,6 +204,36 @@ export default function RestaurantPage() {
     setIsAddDialogOpen(false);
   };
 
+  const handleEditItem = (item: MenuItem) => {
+    setSelectedItem(item);
+    setNewItem({
+      name: item.name,
+      price: String(item.price),
+      description: item.description,
+      category: activeTab,
+      image: item.image,
+      available: item.available,
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Here you would update the item in your API
+    console.log("Editing menu item:", selectedItem?.id, newItem);
+
+    // Close dialog
+    setIsEditDialogOpen(false);
+    setSelectedItem(null);
+  };
+
+  const handleDeleteItem = (item: MenuItem) => {
+    // Here you would delete the item from your API
+    console.log("Deleting menu item:", item.id);
+    // In a real application, you'd call your API and remove the item
+    // After successful deletion, you would update your local state
+  };
+
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-10 px-4">
       <motion.div
@@ -225,10 +244,10 @@ export default function RestaurantPage() {
       >
         <div>
           <h1 className="text-3xl font-bold text-gray-800">
-            Restaurant Management
+            Restaurant Menu Management
           </h1>
           <p className="text-gray-500 mt-1">
-            Manage menu items and customer orders
+            Manage menu items for online display
           </p>
         </div>
         <Button
@@ -242,137 +261,105 @@ export default function RestaurantPage() {
 
       <Separator />
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <div className="lg:col-span-3">
-          <Tabs
-            defaultValue="breakfast"
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="w-full"
-          >
-            <TabsList className="grid grid-cols-4 mb-6">
-              <TabsTrigger
-                value="breakfast"
-                className="flex items-center gap-2"
-              >
-                <Coffee size={16} />
-                <span className="hidden sm:inline">Breakfast</span>
-              </TabsTrigger>
-              <TabsTrigger value="lunch" className="flex items-center gap-2">
-                <Utensils size={16} />
-                <span className="hidden sm:inline">Lunch</span>
-              </TabsTrigger>
-              <TabsTrigger value="dinner" className="flex items-center gap-2">
-                <Pizza size={16} />
-                <span className="hidden sm:inline">Dinner</span>
-              </TabsTrigger>
-              <TabsTrigger value="drinks" className="flex items-center gap-2">
-                <Wine size={16} />
-                <span className="hidden sm:inline">Drinks</span>
-              </TabsTrigger>
-            </TabsList>
+      <Tabs
+        defaultValue="breakfast"
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="w-full"
+      >
+        <TabsList className="grid grid-cols-4 mb-6">
+          <TabsTrigger value="breakfast" className="flex items-center gap-2">
+            <Coffee size={16} />
+            <span className="hidden sm:inline">Breakfast</span>
+          </TabsTrigger>
+          <TabsTrigger value="lunch" className="flex items-center gap-2">
+            <Utensils size={16} />
+            <span className="hidden sm:inline">Lunch</span>
+          </TabsTrigger>
+          <TabsTrigger value="dinner" className="flex items-center gap-2">
+            <Pizza size={16} />
+            <span className="hidden sm:inline">Dinner</span>
+          </TabsTrigger>
+          <TabsTrigger value="drinks" className="flex items-center gap-2">
+            <Wine size={16} />
+            <span className="hidden sm:inline">Drinks</span>
+          </TabsTrigger>
+        </TabsList>
 
-            {Object.entries(menuData).map(([category, items]) => (
-              <TabsContent key={category} value={category} className="mt-0">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {items.map((item) => (
-                    <Card
-                      key={item.id}
-                      className={`overflow-hidden ${
-                        !item.available ? "opacity-60" : ""
-                      }`}
-                    >
-                      <div className="relative h-40">
-                        <Image
-                          src={item.image}
-                          alt={item.name}
-                          fill
-                          className="object-cover"
-                        />
-                        {!item.available && (
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                            <Badge
-                              variant="destructive"
-                              className="text-sm font-medium px-3 py-1"
-                            >
-                              Unavailable
-                            </Badge>
-                          </div>
-                        )}
-                      </div>
-                      <CardHeader className="p-4 pb-0">
-                        <div className="flex justify-between items-start">
-                          <CardTitle className="text-lg font-semibold">
-                            {item.name}
-                          </CardTitle>
-                          <span className="font-bold text-primary">
-                            ${item.price}
-                          </span>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="p-4 pt-2">
-                        <p className="text-sm text-gray-600 line-clamp-2">
-                          {item.description}
-                        </p>
-                      </CardContent>
-                      <CardFooter className="p-4 pt-0 flex justify-between">
-                        <Badge variant="outline" className="text-xs">
-                          {category}
-                        </Badge>
-                        <Button
-                          size="sm"
-                          disabled={!item.available}
-                          onClick={() => handleOrder(item)}
-                          className={
-                            item.available
-                              ? "bg-primary hover:bg-primary/90"
-                              : ""
-                          }
+        {Object.entries(menuData).map(([category, items]) => (
+          <TabsContent key={category} value={category} className="mt-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {items.map((item) => (
+                <Card
+                  key={item.id}
+                  className={`overflow-hidden ${
+                    !item.available ? "opacity-60" : ""
+                  }`}
+                >
+                  <div className="relative h-40">
+                    <Image
+                      src={item.image}
+                      alt={item.name}
+                      fill
+                      className="object-cover"
+                    />
+                    {!item.available && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                        <Badge
+                          variant="destructive"
+                          className="text-sm font-medium px-3 py-1"
                         >
-                          Order
-                        </Button>
-                      </CardFooter>
-                    </Card>
-                  ))}
-                </div>
-              </TabsContent>
-            ))}
-          </Tabs>
-        </div>
-
-        <div>
-          <Card>
-            <CardHeader>
-              <CardTitle>Current Orders</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {orders.length === 0 ? (
-                <p className="text-sm text-gray-500">No orders yet</p>
-              ) : (
-                <ul className="space-y-2">
-                  {orders.map((order) => (
-                    <li
-                      key={order.id}
-                      className="flex justify-between items-center text-sm"
-                    >
-                      <span>{order.name}</span>
-                      <span className="font-medium">x{order.quantity}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </CardContent>
-            <CardFooter>
-              <Button
-                disabled={orders.length === 0}
-                className="w-full bg-primary hover:bg-primary/90"
-              >
-                Process Orders
-              </Button>
-            </CardFooter>
-          </Card>
-        </div>
-      </div>
+                          Unavailable
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
+                  <CardHeader className="p-4 pb-0">
+                    <div className="flex justify-between items-start">
+                      <CardTitle className="text-lg font-semibold">
+                        {item.name}
+                      </CardTitle>
+                      <span className="font-bold text-primary">
+                        ${item.price}
+                      </span>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-4 pt-2">
+                    <p className="text-sm text-gray-600 line-clamp-2">
+                      {item.description}
+                    </p>
+                  </CardContent>
+                  <CardFooter className="p-4 pt-0 flex justify-between">
+                    <Badge variant="outline" className="text-xs">
+                      {category}
+                    </Badge>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEditItem(item)}
+                        className="flex items-center gap-1"
+                      >
+                        <Pencil size={14} />
+                        <span className="hidden sm:inline">Edit</span>
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDeleteItem(item)}
+                        className="flex items-center gap-1"
+                      >
+                        <Trash2 size={14} />
+                        <span className="hidden sm:inline">Delete</span>
+                      </Button>
+                    </div>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+        ))}
+      </Tabs>
 
       {/* Add New Item Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
@@ -483,6 +470,123 @@ export default function RestaurantPage() {
               </Button>
               <Button type="submit" className="bg-primary hover:bg-primary/90">
                 Add Menu Item
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Item Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Edit Menu Item</DialogTitle>
+            <DialogDescription>
+              Update this menu Items&apos; details.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleSaveEdit} className="space-y-4">
+            <div className="grid grid-cols-1 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-item-name">Name</Label>
+                <Input
+                  id="edit-item-name"
+                  required
+                  value={newItem.name}
+                  onChange={(e) =>
+                    setNewItem({ ...newItem, name: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-item-price">Price ($)</Label>
+                <Input
+                  id="edit-item-price"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  required
+                  value={newItem.price}
+                  onChange={(e) =>
+                    setNewItem({ ...newItem, price: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-item-description">Description</Label>
+                <Textarea
+                  id="edit-item-description"
+                  required
+                  value={newItem.description}
+                  onChange={(e) =>
+                    setNewItem({ ...newItem, description: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-item-category">Category</Label>
+                <Select
+                  value={newItem.category}
+                  onValueChange={(value) =>
+                    setNewItem({ ...newItem, category: value })
+                  }
+                >
+                  <SelectTrigger id="edit-item-category">
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="breakfast">Breakfast</SelectItem>
+                    <SelectItem value="lunch">Lunch</SelectItem>
+                    <SelectItem value="dinner">Dinner</SelectItem>
+                    <SelectItem value="drinks">Drinks</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-item-image">Image URL</Label>
+                <Input
+                  id="edit-item-image"
+                  type="url"
+                  required
+                  placeholder="https://example.com/image.jpg"
+                  value={newItem.image}
+                  onChange={(e) =>
+                    setNewItem({ ...newItem, image: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="edit-item-available"
+                  className="rounded border-gray-300"
+                  checked={newItem.available}
+                  onChange={(e) =>
+                    setNewItem({ ...newItem, available: e.target.checked })
+                  }
+                />
+                <Label htmlFor="edit-item-available">
+                  Available for ordering
+                </Label>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsEditDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" className="bg-primary hover:bg-primary/90">
+                Save Changes
               </Button>
             </DialogFooter>
           </form>

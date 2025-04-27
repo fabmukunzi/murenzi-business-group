@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Clock, X } from "lucide-react";
+import { Plus, Clock, X, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -162,12 +162,11 @@ const services = {
 
 export default function SaunaMassagePage() {
   const [activeTab, setActiveTab] = useState("massage");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<SpaService | null>(
     null
   );
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [bookingTime, setBookingTime] = useState("");
   const [newService, setNewService] = useState({
     name: "",
     duration: "",
@@ -179,21 +178,36 @@ export default function SaunaMassagePage() {
     availabilityInput: "",
   });
 
-  const handleBook = (service: SpaService) => {
+  const handleEditService = (service: SpaService) => {
     setSelectedService(service);
-    setIsDialogOpen(true);
+    setNewService({
+      name: service.name,
+      duration: String(service.duration),
+      price: String(service.price),
+      description: service.description,
+      category: activeTab,
+      image: service.image,
+      availability: [...service.availability],
+      availabilityInput: "",
+    });
+    setIsEditDialogOpen(true);
   };
 
-  const handleBookingSubmit = (e: React.FormEvent) => {
+  const handleSaveEdit = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, you would send this data to your backend
-    console.log("Booking submitted:", {
-      service: selectedService,
-      time: bookingTime,
-    });
-    setIsDialogOpen(false);
+    // Here you would update the service in your API
+    console.log("Editing service:", selectedService?.id, newService);
+
+    // Close dialog
+    setIsEditDialogOpen(false);
     setSelectedService(null);
-    setBookingTime("");
+  };
+
+  const handleDeleteService = (service: SpaService) => {
+    // Here you would delete the service from your API
+    console.log("Deleting service:", service.id);
+    // In a real application, you'd call your API and remove the item
+    // After successful deletion, you would update your local state
   };
 
   const handleAddService = (e: React.FormEvent) => {
@@ -247,8 +261,12 @@ export default function SaunaMassagePage() {
         className="flex justify-between items-center"
       >
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Sauna & Massage</h1>
-          <p className="text-gray-500 mt-1">Manage spa services and bookings</p>
+          <h1 className="text-3xl font-bold text-gray-800">
+            Sauna & Massage Management
+          </h1>
+          <p className="text-gray-500 mt-1">
+            Manage spa services for online display
+          </p>
         </div>
         <Button
           className="bg-primary hover:bg-primary/90 flex gap-2 items-center"
@@ -322,13 +340,26 @@ export default function SaunaMassagePage() {
                     <Badge variant="outline" className="text-xs capitalize">
                       {category}
                     </Badge>
-                    <Button
-                      size="sm"
-                      onClick={() => handleBook(service)}
-                      className="bg-primary hover:bg-primary/90"
-                    >
-                      Book
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEditService(service)}
+                        className="flex items-center gap-1"
+                      >
+                        <Pencil size={14} />
+                        <span className="hidden sm:inline">Edit</span>
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDeleteService(service)}
+                        className="flex items-center gap-1"
+                      >
+                        <Trash2 size={14} />
+                        <span className="hidden sm:inline">Delete</span>
+                      </Button>
+                    </div>
                   </CardFooter>
                 </Card>
               ))}
@@ -337,55 +368,156 @@ export default function SaunaMassagePage() {
         ))}
       </Tabs>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
+      {/* Edit Service Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Book {selectedService?.name}</DialogTitle>
+            <DialogTitle>Edit Service</DialogTitle>
             <DialogDescription>
-              Fill in the details to book this service.
+              Update this services&apos; details.
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleBookingSubmit} className="space-y-4">
+          <form onSubmit={handleSaveEdit} className="space-y-4">
             <div className="grid grid-cols-1 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="customer-name">Customer Name</Label>
-                <Input id="customer-name" required />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="customer-email">Email</Label>
-                <Input id="customer-email" type="email" required />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="customer-phone">Phone</Label>
-                <Input id="customer-phone" type="tel" required />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="booking-date">Date</Label>
-                <Input id="booking-date" type="date" required />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="booking-time">Time</Label>
-                <Select
+                <Label htmlFor="edit-service-name">Service Name</Label>
+                <Input
+                  id="edit-service-name"
                   required
-                  value={bookingTime}
-                  onValueChange={setBookingTime}
+                  value={newService.name}
+                  onChange={(e) =>
+                    setNewService({ ...newService, name: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-service-duration">Duration (min)</Label>
+                  <Input
+                    id="edit-service-duration"
+                    type="number"
+                    min="15"
+                    step="15"
+                    required
+                    value={newService.duration}
+                    onChange={(e) =>
+                      setNewService({ ...newService, duration: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="edit-service-price">Price ($)</Label>
+                  <Input
+                    id="edit-service-price"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    required
+                    value={newService.price}
+                    onChange={(e) =>
+                      setNewService({ ...newService, price: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-service-description">Description</Label>
+                <Textarea
+                  id="edit-service-description"
+                  required
+                  value={newService.description}
+                  onChange={(e) =>
+                    setNewService({
+                      ...newService,
+                      description: e.target.value,
+                    })
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-service-category">Category</Label>
+                <Select
+                  value={newService.category}
+                  onValueChange={(value) =>
+                    setNewService({ ...newService, category: value })
+                  }
                 >
-                  <SelectTrigger id="booking-time">
-                    <SelectValue placeholder="Select a time" />
+                  <SelectTrigger id="edit-service-category">
+                    <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    {selectedService?.availability.map((time: string) => (
-                      <SelectItem key={time} value={time}>
-                        {time}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="massage">Massage</SelectItem>
+                    <SelectItem value="sauna">Sauna</SelectItem>
+                    <SelectItem value="packages">Package</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-service-image">Image URL</Label>
+                <Input
+                  id="edit-service-image"
+                  type="url"
+                  required
+                  placeholder="https://example.com/image.jpg"
+                  value={newService.image}
+                  onChange={(e) =>
+                    setNewService({ ...newService, image: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Available Times</Label>
+                <div className="flex gap-2">
+                  <Input
+                    type="time"
+                    value={newService.availabilityInput}
+                    onChange={(e) =>
+                      setNewService({
+                        ...newService,
+                        availabilityInput: e.target.value,
+                      })
+                    }
+                    placeholder="Add available times"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleAddAvailability}
+                  >
+                    Add
+                  </Button>
+                </div>
+
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {newService.availability.map((time, index) => (
+                    <Badge
+                      key={index}
+                      variant="outline"
+                      className="pr-1 flex items-center gap-1"
+                    >
+                      {time}
+                      <button
+                        type="button"
+                        className="ml-1 rounded-full hover:bg-gray-200 p-1"
+                        onClick={() => handleRemoveAvailability(time)}
+                      >
+                        <X size={10} />
+                      </button>
+                    </Badge>
+                  ))}
+                  {newService.availability.length === 0 && (
+                    <span className="text-xs text-gray-500">
+                      No times added yet
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -393,12 +525,12 @@ export default function SaunaMassagePage() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setIsDialogOpen(false)}
+                onClick={() => setIsEditDialogOpen(false)}
               >
                 Cancel
               </Button>
               <Button type="submit" className="bg-primary hover:bg-primary/90">
-                Confirm Booking
+                Save Changes
               </Button>
             </DialogFooter>
           </form>
