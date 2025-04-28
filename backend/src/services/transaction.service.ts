@@ -10,6 +10,8 @@ export class TransactionService {
         return prisma.transaction.findMany({include: { booking: true}});
     }
     static async createTransaction(data: any) {
+        console.log(data);
+        
         return prisma.transaction.create({ data });
     }
     static async updateTransaction(id: string, data: any) {

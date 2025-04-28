@@ -34,12 +34,12 @@ model Room {
   description  String?
   images       String[]  @default([])
   video        String?
-  available    Boolean  @default(true)
-  price        Float    @default(0.0)
+  available    Boolean   @default(true)
+  price        Float     @default(0.0)
   parkingSpace Int?
-  size       String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  size         String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
   Booking      Booking[]
 }
 
@@ -86,13 +86,14 @@ model Booking {
 model Transaction {
   id                   String   @id @default(uuid())
   amount               Float    @default(0.0)
-  transactionid        String   @unique
+  transactionid        String   @unique  // <-- Changed to String
   requesttransactionid String   @unique
   status               String   @default("pending")
   booking              Booking? @relation()
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 }
+
 
 enum RoleData {
   ADMIN

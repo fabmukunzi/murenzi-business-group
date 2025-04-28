@@ -7,15 +7,18 @@ export class BookService {
             where: {
                 roomId: data.roomId,
                 checkIn: { lte: new Date(data.checkOut) },
-                checkOut: { gte: new Date(data.checkIn) },
+                checkOut: { gte: new Date(data.checkIn) },  
                 transaction: {
-                    status: 'success',
+                    is: {
+                        status: 'Successful',
+                    },
                 },
             },
-            include: {
-                transaction: true,
-            },
         });
+
+
+        console.log('Overlapping booking:', overlappingBooking);
+        
 
         if (overlappingBooking) {
             throw new Error('The selected room is already booked for the given dates.');
