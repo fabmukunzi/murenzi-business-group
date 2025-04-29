@@ -7,7 +7,6 @@ import { icons } from '@/lib/icons';
 import { motion } from 'framer-motion';
 import { ArrowLeft, CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { Card } from '@/components/ui/card';
 import { useGetSingleRentalQuery } from '@/store/actions/rental';
 import { Label } from '@/components/ui/label';
@@ -15,13 +14,28 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { Input } from '@/components/ui/input';
 import { Calendar } from '@/components/ui/calendar';
 import { format, isBefore, addDays } from 'date-fns';
+import { useBookingRoomMutation } from '@/store/actions/booking';
+import { handleError } from '@/lib/functions/handle-error';
+import { BookingResponse } from '@/lib/types/room';
 
 export default function RentalDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const [errors, setErrors] = useState<{
+    name?: string;
+    email?: string;
+    phoneNumber?: string;
+    checkIn?: string;
+    checkOut?: string;
+  }>({});
+
+  const [bookRoom, { isLoading: isBooking }] = useBookingRoomMutation();
   const [selectedImage, setSelectedImage] = useState(0);
   const [checkIn, setCheckIn] = useState<Date | undefined>();
   const [checkOut, setCheckOut] = useState<Date | undefined>();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
 
   const { data, isLoading } = useGetSingleRentalQuery({
     roomId: params.rentalId as string,
@@ -53,6 +67,57 @@ export default function RentalDetailPage() {
     : 0;
 
   const totalPrice = basePrice * totalNights;
+
+  const handlePayment = async () => {
+    const newErrors: typeof errors = {};
+
+    if (!name.trim()) {
+      newErrors.name = 'Name is required.';
+    }
+
+    if (!email.trim()) {
+      newErrors.email = 'Email is required.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = 'Invalid email format.';
+    }
+
+    if (!phoneNumber.trim()) {
+      newErrors.phoneNumber = 'Phone number is required.';
+    } else if (!/^\d{10,15}$/.test(phoneNumber)) {
+      newErrors.phoneNumber = 'Phone number must be 10–15 digits.';
+    }
+
+    if (!checkIn || checkIn !== undefined) {
+      newErrors.checkIn = 'Check-in date is required.';
+    }
+
+    if (!checkOut) {
+      newErrors.checkOut = 'Check-out date is required.';
+    } else if (checkIn && isBefore(checkOut, checkIn)) {
+      newErrors.checkOut = 'Check-out must be after check-in.';
+    }
+
+    setErrors(newErrors);
+
+    try {
+      const payload = {
+        name: name.trim(),
+        email: email.trim(),
+        phoneNumber: phoneNumber.trim(),
+        roomId: room.id,
+        checkIn: checkIn ? checkIn.toISOString() : '',
+        checkOut: checkOut ? checkOut.toISOString() : '',
+        totalPrice,
+      };
+
+      const res: BookingResponse = await bookRoom(payload).unwrap();
+      if (res?.status === "Pending") {
+        router.push(`/confirm`);
+      }
+    } catch (err) {
+      handleError(err);
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl mt-14">
@@ -103,9 +168,7 @@ export default function RentalDetailPage() {
               {room.images.map((image: string, index: number) => (
                 <div
                   key={index}
-                  className={`relative aspect-video cursor-pointer rounded-md overflow-hidden border-2 ${selectedImage === index
-                    ? 'border-primary'
-                    : 'border-transparent'
+                  className={`relative aspect-video cursor-pointer rounded-md overflow-hidden border-2 ${selectedImage === index ? 'border-primary' : 'border-transparent'
                     }`}
                   onClick={() => setSelectedImage(index)}
                 >
@@ -128,9 +191,54 @@ export default function RentalDetailPage() {
             </h2>
 
             <div className="flex gap-2 flex-col">
-              <Input type="text" placeholder="Your Name" className="w-full mt-3" />
-              <Input type="text" placeholder="Your Email" className="w-full mt-3" />
-              <Input type="number" placeholder="Your phone number(will be used to pay)" className="w-full mt-3" />
+              <Input type="text"
+                placeholder="Your Name"
+                className="w-full mt-3"
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
+                }}
+                onBlur={() => {
+                  if (!name.trim()) {
+                    setErrors((prev) => ({ ...prev, name: 'Name is required.' }));
+                  }
+                }}
+              />
+              {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
+              <Input type="email"
+                placeholder="Your Email"
+                className="w-full mt-3"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
+                }}
+                onBlur={() => {
+                  if (!email.trim()) {
+                    setErrors((prev) => ({ ...prev, email: 'Email is required.' }));
+                  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    setErrors((prev) => ({ ...prev, email: 'Invalid email format.' }));
+                  }
+                }}
+              />
+              {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+              <Input type="number"
+                placeholder="Your phone number (will be used to pay)"
+                className="w-full mt-3" value={phoneNumber}
+                onChange={(e) => {
+                  setPhoneNumber(e.target.value);
+                  if (errors.phoneNumber) setErrors((prev) => ({ ...prev, phoneNumber: undefined }));
+                }}
+                onBlur={() => {
+                  if (!phoneNumber.trim()) {
+                    setErrors((prev) => ({ ...prev, phoneNumber: 'Phone number is required.' }));
+                  } else if (!/^\d{10,15}$/.test(phoneNumber)) {
+                    setErrors((prev) => ({ ...prev, phoneNumber: 'Phone number must be 10–15 digits.' }));
+                  }
+                }}
+              />
+              {errors.phoneNumber && <p className="text-red-500 text-sm">{errors.phoneNumber}</p>}
             </div>
 
             <div className="flex gap-2 mt-4">
@@ -152,6 +260,7 @@ export default function RentalDetailPage() {
                     />
                   </PopoverContent>
                 </Popover>
+                {errors.checkIn && <p className="text-red-500 text-sm">{errors.checkIn}</p>}
               </div>
 
               <div className="w-full">
@@ -174,6 +283,7 @@ export default function RentalDetailPage() {
                     />
                   </PopoverContent>
                 </Popover>
+                {errors.checkOut && <p className="text-red-500 text-sm">{errors.checkOut}</p>}
               </div>
             </div>
 
@@ -183,11 +293,17 @@ export default function RentalDetailPage() {
               initial={{ scale: 0.9 }}
             >
               <p>Per Night: ${basePrice}</p>
-              <p>Extras: $0</p>
               <p className="font-bold">Total Price: ${totalPrice.toFixed(2)}</p>
             </motion.div>
 
-            <Button className="mt-5 w-full">Pay Now</Button>
+            <Button
+              className="w-full mt-5"
+              onClick={handlePayment}
+              disabled={isBooking}
+            >
+              {isBooking ? 'Processing...' : 'Proceed to Payment'}
+            </Button>
+
           </Card>
         </div>
       </div>
