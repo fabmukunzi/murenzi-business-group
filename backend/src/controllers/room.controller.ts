@@ -212,7 +212,16 @@ export const updateRoom = async (req: Request, res: Response) => {
 
 export const deleteRoom = async (req: Request, res: Response) => {
     try {
-        await roomService.deleteRoom(req.params.id);
+        const id = req.params.id
+        const room=await roomService.getRoomById(id)
+        if(!room){
+            res.status(400).json({
+                status:"failed",
+                message:"Room not found"
+            })
+            return
+        }
+        await roomService.deleteRoom(id);
         res.status(200).json({
             status: 'success',
             message: 'Room deleted successfully',
