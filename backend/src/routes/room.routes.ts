@@ -14,6 +14,7 @@ roomRouter.put('/rooms/:id', multerupload.fields([
     { name: "images", maxCount: 5 },
     { name: "video", maxCount: 1 }
 ]), updateRoom);
+roomRouter.delete('/rooms/:id', deleteRoom);
 
 
 export default roomRouter;
