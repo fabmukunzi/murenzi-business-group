@@ -16,5 +16,4 @@ roomRouter.put('/rooms/:id', multerupload.fields([
 ]), updateRoom);
 roomRouter.delete('/rooms/:id', deleteRoom);
 
-
 export default roomRouter;
