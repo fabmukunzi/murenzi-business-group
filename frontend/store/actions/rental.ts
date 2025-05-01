@@ -9,20 +9,29 @@ const roomsEndpoints = baseAPI.injectEndpoints({
         method: 'POST',
         body: formData,
       }),
+      invalidatesTags: ['room'],
     }),
-    getRentals: builder.query<{data:{rooms:IRoom[]}}, void>({
+    getRentals: builder.query<{ data: { rooms: IRoom[] } }, void>({
       query: () => ({
         url: '/rooms',
         method: 'GET',
       }),
+      providesTags: ['room'],
     }),
-    getSingleRental: builder.query<{data:{room:IRoom}}, {roomId:string}>({
-      query: ({roomId}) => ({
+    getSingleRental: builder.query<{ data: { room: IRoom } }, { roomId: string }>({
+      query: ({ roomId }) => ({
         url: `/rooms/${roomId}`,
         method: 'GET',
       }),
     }),
+    deleteRental: builder.mutation<{ data: { room: IRoom } }, { roomId: string }>({
+      query: ({ roomId }) => ({
+        url: `/rooms/${roomId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['room'],
+    }),
   }),
 });
 
-export const { useAddNewRoomMutation, useGetRentalsQuery, useGetSingleRentalQuery } = roomsEndpoints;
+export const { useAddNewRoomMutation, useGetRentalsQuery, useGetSingleRentalQuery, useDeleteRentalMutation } = roomsEndpoints;

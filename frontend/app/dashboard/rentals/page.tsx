@@ -1,56 +1,54 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Plus } from "lucide-react";
+import { PenLine, Plus, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { icons } from "@/lib/icons";
+import { useDeleteRentalMutation, useGetRentalsQuery } from "@/store/actions/rental";
+import Loader from "@/components/common/loader";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { handleError } from "@/lib/functions/handle-error";
 
-// Temporary mock data - replace with actual data from your backend
-const mockRentals = [
-  {
-    id: 1,
-    name: "Luxury Apartment",
-    pricePerNight: 150,
-    location: "Kacyiru, Kigali, Rwanda",
-    bedrooms: 2,
-    parkingSlots: 1,
-    area: "6x7",
-    description: "Beautiful apartment in the heart of the city",
-    image:
-      "https://plutproperties.com/wp-content/uploads/2021/09/apartment-in-kigali-plut-properties-3.jpg",
-  },
-  {
-    id: 2,
-    name: "Modern Studio",
-    pricePerNight: 100,
-    location: "Kimihurura, Kigali, Rwanda",
-    bedrooms: 1,
-    parkingSlots: 1,
-    area: "5x6",
-    description: "Cozy studio with modern amenities",
-    image:
-      "https://plutproperties.com/wp-content/uploads/2021/09/apartment-in-kigali-plut-properties-3.jpg",
-  },
-  {
-    id: 3,
-    name: "Deluxe Villa",
-    pricePerNight: 200,
-    location: "Nyarutarama, Kigali, Rwanda",
-    bedrooms: 3,
-    parkingSlots: 2,
-    area: "8x10",
-    description: "Spacious villa with garden and pool",
-    image:
-      "https://plutproperties.com/wp-content/uploads/2021/09/apartment-in-kigali-plut-properties-3.jpg",
-  },
-];
+
+
 
 export default function RentalsPage() {
   const router = useRouter();
+  const { data: rentals, isLoading } = useGetRentalsQuery();
+  const [deleteRental, { isLoading: isDeleting, isError, isSuccess }] = useDeleteRentalMutation();
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader loading={isLoading} />
+      </div>
+    );
+  }
+
+  const handleDeleteRental = async (roomId: string) => {
+    try {
+      await deleteRental({ roomId: roomId }).unwrap();
+      console.log('Rental deleted');
+    } catch (err) {
+      console.error('Failed to delete rental:', err);
+      handleError(err);
+    }
+  };
+
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-10">
@@ -76,7 +74,7 @@ export default function RentalsPage() {
       <Separator />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mockRentals.map((rental) => (
+        {rentals?.data.rooms.map((rental) => (
           <motion.div
             key={rental.id}
             initial={{ opacity: 0, y: 20 }}
@@ -85,16 +83,47 @@ export default function RentalsPage() {
           >
             <Card className="w-full sm:max-w-[380px] p-2">
               <CardContent
-                className="p-0 h-56 rounded-lg bg-cover bg-center relative"
-                style={{ backgroundImage: `url(${rental.image})` }}
-              ></CardContent>
+                className="p-0 h-34 rounded-lg bg-cover bg-center relative"
+                style={{ backgroundImage: `url(${rental.images[0]})` }}
+              >
+                <div className="flex justify-end gap-2 p-2">
+                  <Button
+                    variant="outline"
+                    className="bg-white hover:bg-white/90"
+                    onClick={() => router.push(`/dashboard/rentals/${rental.id}`)}
+                    size={"icon"}
+                  >
+                    <PenLine size={16} strokeWidth={3} className="text-primary" />
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size={"icon"} className="bg-red-500">
+                        <Trash size={16} strokeWidth={3} className="text-white" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently delete your
+                          account and remove your data from our servers.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction className="bg-red-500 hover:border-red-500 hover:border-2 hover:bg-white hover:text-red-500" onClick={()=>handleDeleteRental(rental.id)}><Trash size={16} strokeWidth={3} className="" /> Delete</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </CardContent>
 
               <CardFooter className="p-2">
                 <div className="w-full space-y-2">
                   <div className="flex justify-between w-full flex-wrap gap-2">
                     <div>
                       <p className="text-primary font-bold text-lg">
-                        ${rental.pricePerNight}{" "}
+                        {rental.price}{" "}RWF
                         <span className="text-gray-500 font-medium text-sm">
                           /night
                         </span>
@@ -116,12 +145,6 @@ export default function RentalsPage() {
 
                   <div className="flex justify-between w-full flex-wrap gap-2">
                     <div className="flex items-center gap-1">
-                      <Image src={icons.bed} alt="" width={16} height={16} />
-                      <span className="text-black text-sm">
-                        {rental.bedrooms} Bedroom
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1">
                       <Image
                         src={icons.parkSlot}
                         alt=""
@@ -129,7 +152,7 @@ export default function RentalsPage() {
                         height={16}
                       />
                       <span className="text-black text-sm">
-                        {rental.parkingSlots} Parking Slot
+                        {rental.parkingSpace} Parking Slot
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
@@ -140,7 +163,7 @@ export default function RentalsPage() {
                         height={16}
                       />
                       <span className="text-black text-sm flex">
-                        {rental.area}{" "}
+                        {rental.size}{" "}
                         <span className="flex">
                           m<span className="text-[8px]">2</span>
                         </span>

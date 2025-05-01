@@ -13,6 +13,6 @@ export const baseAPI = createApi({
       return headers;
     },
   }),
-  tagTypes: ['challenges', 'challenge', 'notifications', 'notification', 'skills', 'categories', 'prizes', 'systemLogs', 'users', 'stats'],
+  tagTypes: ['room', 'user', 'booking', 'transaction'],
   endpoints: () => ({}),
 });

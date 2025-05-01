@@ -368,6 +368,11 @@ export default function NewRentalPage() {
                   Please select at least 3 image
                 </p>
               )}
+              {imageFiles.length >5 && (
+                <p className="text-sm text-red-500 mt-1">
+                  Please select at most 5 image
+                </p>
+              )}
             </div>
 
             <div className="pt-2 flex items-center justify-end gap-3">
@@ -382,7 +387,7 @@ export default function NewRentalPage() {
               <Button
                 type="submit"
                 className="bg-primary hover:bg-primary/90 transition-colors duration-200 min-w-32"
-                disabled={isSubmitting}
+                disabled={isSubmitting || imageFiles.length < 3 || imageFiles.length > 5}
               >
                 {isSubmitting ? "Adding..." : "Add Rental"}
               </Button>
