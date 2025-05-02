@@ -31,7 +31,14 @@ const roomsEndpoints = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ['room'],
     }),
+    updateRoom: builder.mutation<void, { id: string; data: FormData }>({
+      query: ({ id, data }) => ({
+        url: `/rooms/${id}`,
+        method: "put",
+        body: data,
+      }),
+    }),
   }),
 });
 
-export const { useAddNewRoomMutation, useGetRentalsQuery, useGetSingleRentalQuery, useDeleteRentalMutation } = roomsEndpoints;
+export const { useAddNewRoomMutation, useGetRentalsQuery, useGetSingleRentalQuery, useDeleteRentalMutation,useUpdateRoomMutation } = roomsEndpoints;
