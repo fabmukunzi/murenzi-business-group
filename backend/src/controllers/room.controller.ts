@@ -241,3 +241,42 @@ export const deleteRoom = async (req: Request, res: Response) => {
         res.status(500).json({ status: 'error', message: error.message });
     }
 };
+
+export const deleteRoomImage = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const { imageUrl } = req.body;
+
+        const room = await roomService.getRoomById(id);
+        if (!room) {
+            res.status(404).json({
+                status: 'fail',
+                message: 'Room not found',
+            });
+            return;
+        }
+
+        if (!room.images || !room.images.includes(imageUrl)) {
+            res.status(400).json({
+                status: 'fail',
+                message: 'Image not found in the room',
+            });
+            return;
+        }
+
+        const updatedImages = room.images.filter((image) => image !== imageUrl);
+
+        const updatedRoom = await roomService.updateRoom(id, { images: updatedImages });
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Image deleted successfully',
+            data: { updatedRoom },
+        });
+    } catch (error: any) {
+        res.status(500).json({
+            status: 'error',
+            message: error.message,
+        });
+    }
+};

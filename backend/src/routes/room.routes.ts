@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createRoom, getAllRooms, getRoomById, updateRoom, deleteRoom } from '../controllers/room.controller';
+import { createRoom, getAllRooms, getRoomById, updateRoom, deleteRoom, deleteRoomImage } from '../controllers/room.controller';
 import multerupload from '../config/multer';
 
 const roomRouter = Router();
@@ -15,5 +15,6 @@ roomRouter.put('/rooms/:id', multerupload.fields([
     { name: "video", maxCount: 1 }
 ]), updateRoom);
 roomRouter.delete('/rooms/:id', deleteRoom);
+roomRouter.delete('/rooms/:id/images', deleteRoomImage);
 
 export default roomRouter;
