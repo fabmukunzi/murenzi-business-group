@@ -30,7 +30,7 @@ import { noImageUrl } from "@/lib/data";
 export default function RentalsPage() {
   const router = useRouter();
   const { data: rentals, isLoading } = useGetRentalsQuery();
-  const [deleteRental, { isLoading: isDeleting, isError, isSuccess }] = useDeleteRentalMutation();
+  const [deleteRental] = useDeleteRentalMutation();
 
   if (isLoading) {
     return (

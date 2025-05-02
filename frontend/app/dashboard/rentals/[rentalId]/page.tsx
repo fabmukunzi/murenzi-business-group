@@ -20,7 +20,7 @@ import { Upload, ArrowLeft, X, Plus } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { useAddNewRoomMutation, useDeleteRoomImageMutation, useGetSingleRentalQuery, useUpdateRoomMutation } from "@/store/actions/rental";
+import { useDeleteRoomImageMutation, useGetSingleRentalQuery, useUpdateRoomMutation } from "@/store/actions/rental";
 import { handleError } from "@/lib/functions/handle-error";
 import Loader from "@/components/common/loader";
 
@@ -41,7 +41,7 @@ type ImagePreview = {
   file: File;
 };
 
-export default function updateRentalPage() {
+export default function UpdateRentalPage() {
   const router = useRouter();
   const params = useParams()
   const { rentalId } = params as { rentalId: string };
@@ -72,7 +72,7 @@ export default function updateRentalPage() {
 
   useEffect(() => {
     if (rental?.data?.room) {
-      const { name, price, location, parkingSpace, size, description, images } = rental.data.room;
+      const { name, price, location, parkingSpace, size, description } = rental.data.room;
       reset({
         name,
         pricePerNight: price,

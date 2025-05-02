@@ -1,5 +1,4 @@
 'use client'
-import { useState } from "react";
 import { ScaleLoader } from "react-spinners";
 
 export const Loader = ({ loading }: { loading: boolean }) => {

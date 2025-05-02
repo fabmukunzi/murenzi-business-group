@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
 import { Calendar } from '@/components/ui/calendar';
-import { format, isBefore, addDays, set } from 'date-fns';
+import { format, isBefore, addDays } from 'date-fns';
 import { useBookingRoomMutation } from '@/store/actions/booking';
 import { handleError } from '@/lib/functions/handle-error';
 import { BookingResponse } from '@/lib/types/room';
