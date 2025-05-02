@@ -22,6 +22,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { handleError } from "@/lib/functions/handle-error";
+import { noImageUrl } from "@/lib/data";
 
 
 
@@ -84,7 +85,7 @@ export default function RentalsPage() {
             <Card className="w-full sm:max-w-[380px] p-2">
               <CardContent
                 className="p-0 h-34 rounded-lg bg-cover bg-center relative"
-                style={{ backgroundImage: `url(${rental.images[0]})` }}
+                style={{ backgroundImage: `url(${rental.images.length > 0 ? rental.images[0] : noImageUrl})` }}
               >
                 <div className="flex justify-end gap-2 p-2">
                   <Button

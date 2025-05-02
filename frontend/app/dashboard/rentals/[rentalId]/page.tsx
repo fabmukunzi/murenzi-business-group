@@ -20,10 +20,9 @@ import { Upload, ArrowLeft, X, Plus } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { useAddNewRoomMutation, useGetSingleRentalQuery, useUpdateRoomMutation } from "@/store/actions/rental";
+import { useAddNewRoomMutation, useDeleteRoomImageMutation, useGetSingleRentalQuery, useUpdateRoomMutation } from "@/store/actions/rental";
 import { handleError } from "@/lib/functions/handle-error";
 import Loader from "@/components/common/loader";
-import { set } from "date-fns";
 
 const rentalSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -46,16 +45,14 @@ export default function updateRentalPage() {
   const router = useRouter();
   const params = useParams()
   const { rentalId } = params as { rentalId: string };
-  const [room, setRoom] = useState<any>(null);
   console.log(rentalId);
   const { data: rental, isLoading } = useGetSingleRentalQuery({ roomId: rentalId || "" }, {
     skip: !rentalId,
   });
-  console.log(rental?.data.room.name);
-
-  const [addNewRoom] = useAddNewRoomMutation();
   const [updateRoom] = useUpdateRoomMutation();
+  const [deleteRoomImage] = useDeleteRoomImageMutation();
   const [imageFiles, setImageFiles] = useState<ImagePreview[]>([]);
+  const [deletingImage, setDeletingImage] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
@@ -100,7 +97,7 @@ export default function updateRentalPage() {
       imageFiles.forEach((image) => {
         formData.append(`images`, image.file);
       });
-      await updateRoom({id:rentalId,data:formData}).unwrap();
+      await updateRoom({ id: rentalId, data: formData }).unwrap();
       router.push("/dashboard/rentals");
     } catch (error) {
       handleError(error);
@@ -110,31 +107,37 @@ export default function updateRentalPage() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-
     const newFiles: ImagePreview[] = [];
-
     Array.from(files).forEach((file) => {
       const reader = new FileReader();
       const id = crypto.randomUUID();
-
       reader.onloadend = () => {
         newFiles.push({
           id,
           url: reader.result as string,
           file,
         });
-
         if (newFiles.length === files.length) {
           setImageFiles((prev) => [...prev, ...newFiles]);
         }
       };
-
       reader.readAsDataURL(file);
     });
   };
 
   const removeImage = (id: string) => {
     setImageFiles((prev) => prev.filter((img) => img.id !== id));
+  };
+
+  const handleDeleteImage = async (roomId: string, imageUrl: string) => {
+    setDeletingImage(imageUrl);
+    try {
+      await deleteRoomImage({ roomId, imageUrl }).unwrap();
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setDeletingImage(null);
+    }
   };
 
   return (
@@ -297,20 +300,30 @@ export default function updateRentalPage() {
                 </div>
                 <div className="flex gap-2 flex-wrap">
                   {rental?.data?.room.images.map((img, index) => (
-                    <div key={index} className="relative w-32 h-20 rounded-lg overflow-hidden shadow-md">
-                      <Image
-                        src={img}
-                        alt={`Image ${index + 1}`}
-                        fill
-                        className="object-cover rounded-md"
-                      />
-                      <button
-                        type="button"
-                        // onClick={() => removeImage(index)}
-                        className="absolute top-1 right-1 bg-white/80 hover:bg-white text-red-600 p-1 rounded-full shadow transition"
-                      >
-                        <X size={16} />
-                      </button>
+                    <div
+                      key={index}
+                      className="relative w-32 h-20 rounded-lg overflow-hidden shadow-md flex items-center justify-center"
+                    >
+                      {deletingImage === img ? (
+                        <Loader loading={true} />
+                      ) : (
+                        <>
+                          <Image
+                            src={img}
+                            alt={`Image ${index + 1}`}
+                            fill
+                            className="object-cover rounded-md"
+                          />
+                          <Button
+                            size="sm"
+                            type="button"
+                            onClick={() => handleDeleteImage(rental?.data?.room.id, img)}
+                            className="absolute top-1 right-1 bg-white/80 hover:bg-white text-red-600 p-1 rounded-full shadow transition h-6 w-6"
+                          >
+                            <X size={16} />
+                          </Button>
+                        </>
+                      )}
                     </div>
                   ))}
                 </div>

@@ -23,6 +23,7 @@ const roomsEndpoints = baseAPI.injectEndpoints({
         url: `/rooms/${roomId}`,
         method: 'GET',
       }),
+      providesTags: ['single-room'],
     }),
     deleteRental: builder.mutation<{ data: { room: IRoom } }, { roomId: string }>({
       query: ({ roomId }) => ({
@@ -37,8 +38,17 @@ const roomsEndpoints = baseAPI.injectEndpoints({
         method: "put",
         body: data,
       }),
+      invalidatesTags: ['room', 'single-room'],
+    }),
+    deleteRoomImage: builder.mutation<void, { roomId: string; imageUrl: string }>({
+      query: ({ roomId, imageUrl }) => ({
+        url: `/rooms/${roomId}/images`,
+        method: 'DELETE',
+        body: { imageUrl },
+      }),
+      invalidatesTags: ['room', 'single-room'],
     }),
   }),
 });
 
-export const { useAddNewRoomMutation, useGetRentalsQuery, useGetSingleRentalQuery, useDeleteRentalMutation,useUpdateRoomMutation } = roomsEndpoints;
+export const { useAddNewRoomMutation, useGetRentalsQuery, useGetSingleRentalQuery, useDeleteRentalMutation, useUpdateRoomMutation,useDeleteRoomImageMutation } = roomsEndpoints;

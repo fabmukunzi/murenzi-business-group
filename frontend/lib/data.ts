@@ -67,3 +67,5 @@ export const tentsItems = [
     },
 ];
 
+
+export const noImageUrl ="https://cp.spokanecounty.org/SCOUT/PropertyInformation/Images/NoImage.jpg"
