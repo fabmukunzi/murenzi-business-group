@@ -57,19 +57,38 @@ export const createItem = async (req: Request, res: Response) => {
     }
 };
 
-export const getAllItems = async (_: Request, res: Response) => {
+export const getAllItems = async (req: Request, res: Response) => {
     try {
-        const items = await itemService.getAll();
+        const { categoryId } = req.query;
+
+        let items;
+        if (categoryId) {
+            items = await itemService.getByCategoryId(categoryId as string);
+            if (items.length === 0) {
+                res.status(200).json({
+                    status: 'success',
+                    message: 'No items found for this category',
+                    data: {
+                        items: [],
+                    },
+                });
+                return;
+            }
+        } else {
+            // Fetch all items if no categoryId is provided
+            items = await itemService.getAll();
+        }
+
         res.status(200).json({
             status: 'success',
             data: {
-                items
-            }
+                items,
+            },
         });
     } catch (err: any) {
         res.status(500).json({
             status: 'error',
-            message: err.message
+            message: err.message,
         });
     }
 };
