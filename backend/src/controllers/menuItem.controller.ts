@@ -133,6 +133,7 @@ export const updateItem = async (req: Request, res: Response) => {
         if (files?.image?.[0]) {
             updateData.image = await uploadImage(files.image[0].buffer);
         }
+        
 
         const item = await itemService.update(req.params.id, updateData);
         res.status(200).json({

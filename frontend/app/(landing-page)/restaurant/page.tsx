@@ -2,33 +2,29 @@
 import React, { useState, Suspense } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import SearchInput from '@/components/common/SearchInput';
-import { useRouter, useSearchParams } from 'next/navigation';
+// import SearchInput from '@/components/common/SearchInput';
+import { useSearchParams } from 'next/navigation';
 import RestaurantMenu from '@/components/restaurant/RestaurantMenu';
 import Tents from '@/components/restaurant/Tents';
 import { useGetMenuItemsQuery } from '@/store/actions/menu';
 import Loader from '@/components/common/loader';
 
 const RestaurantContent = () => {
-    const router = useRouter();
     const searchParams = useSearchParams();
     const categoryId = searchParams.get('categoryId');
     const [activeTab, setActiveTab] = useState<'all' | 'menu' | 'tent'>('all');
     const { data: menuItem, isLoading: isMenuItemLoading } = useGetMenuItemsQuery({ categoryId: categoryId || '' });    
-    console.log('categoryId', categoryId);
-    console.log('menuItem', menuItem);
-    console.log('isMenuItemLoading', isMenuItemLoading);
     
 
-    const handleSearch = (query: string) => {
-        const params = new URLSearchParams(searchParams.toString());
-        if (query) {
-            params.set('query', query);
-        } else {
-            params.delete('query');
-        }
-        router.push(`?${params.toString()}`);
-    };
+    // const handleSearch = (query: string) => {
+    //     const params = new URLSearchParams(searchParams.toString());
+    //     if (query) {
+    //         params.set('query', query);
+    //     } else {
+    //         params.delete('query');
+    //     }
+    //     router.push(`?${params.toString()}`);
+    // };
 
     return (
         <div className="mx-6 md:mx-14 items-center my-16 md:my-24 max-sm:mt-28 flex flex-col gap-4">
@@ -59,7 +55,7 @@ const RestaurantContent = () => {
                         Tent
                     </Button>
                 </Card>
-                <SearchInput onSearch={handleSearch} />
+                {/* <SearchInput onSearch={handleSearch} /> */}
             </div>
 
             {isMenuItemLoading ? (
@@ -77,7 +73,7 @@ const RestaurantContent = () => {
 };
 
 const Restaurant = () => (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<Loader loading={true} />}>
         <RestaurantContent />
     </Suspense>
 );

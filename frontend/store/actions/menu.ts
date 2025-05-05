@@ -1,4 +1,4 @@
-import { MenuCategory, MenuResponse } from '@/lib/types/menu';
+import { MenuCategory, MenuItem, MenuResponse } from '@/lib/types/menu';
 import { IRoom } from '@/lib/types/room';
 import { baseAPI } from '@/store/api';
 
@@ -33,37 +33,22 @@ const menuItemEndpoints = baseAPI.injectEndpoints({
             }),
             providesTags: ['menu'],
         }),
-        getSingleRental: builder.query<{ data: { room: IRoom } }, { roomId: string }>({
-            query: ({ roomId }) => ({
-                url: `/rooms/${roomId}`,
-                method: 'GET',
-            }),
-            providesTags: ['single-room'],
-        }),
-        deleteRental: builder.mutation<{ data: { room: IRoom } }, { roomId: string }>({
-            query: ({ roomId }) => ({
-                url: `/rooms/${roomId}`,
+        deleteMenuItem: builder.mutation<{ data: { menu: MenuItem } }, { menuId: string }>({
+            query: ({ menuId }) => ({
+                url: `/menu/${menuId}`,
                 method: 'DELETE',
             }),
             invalidatesTags: ['room'],
         }),
-        updateRoom: builder.mutation<void, { id: string; data: FormData }>({
+        updateMenu: builder.mutation<void, { id: string; data: FormData }>({
             query: ({ id, data }) => ({
-                url: `/rooms/${id}`,
+                url: `/menu/${id}`,
                 method: "put",
                 body: data,
-            }),
-            invalidatesTags: ['room', 'single-room'],
-        }),
-        deleteRoomImage: builder.mutation<void, { roomId: string; imageUrl: string }>({
-            query: ({ roomId, imageUrl }) => ({
-                url: `/rooms/${roomId}/images`,
-                method: 'DELETE',
-                body: { imageUrl },
             }),
             invalidatesTags: ['room', 'single-room'],
         }),
     }),
 });
 
-export const { useAddNewMuneItemMutation, useGetMenuItemsQuery,useGetCategoriesQuery } = menuItemEndpoints;
+export const { useAddNewMuneItemMutation, useGetMenuItemsQuery,useGetCategoriesQuery,useDeleteMenuItemMutation,useUpdateMenuMutation } = menuItemEndpoints;

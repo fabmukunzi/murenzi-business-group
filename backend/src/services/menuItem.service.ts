@@ -3,10 +3,6 @@ const prisma = new PrismaClient();
 
 export class MenuItemService {
     async create(data: any) {
-        const itemExists= await this.getByName(data.name);
-        if (itemExists) {
-            throw new Error('Item with this name already exists');
-        }
         return await prisma.menuItem.create({ data });
     }
 
@@ -16,9 +12,6 @@ export class MenuItemService {
 
     async getById(id: string) {
         return await prisma.menuItem.findUnique({ where: { id }, include: { category: true } });
-    }
-    async getByName(name: string) {
-        return await prisma.menuItem.findUnique({ where: { name }, include: { category: true } });
     }
 
     async update(id: string, data: any) {

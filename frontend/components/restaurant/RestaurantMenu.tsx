@@ -7,6 +7,7 @@ import { MenuItem } from "@/lib/types/menu";
 import { useGetCategoriesQuery } from "@/store/actions/menu";
 import { useSearchParams, useRouter } from "next/navigation";
 import Loader from "../common/loader";
+import EmptyState from "../common/Empty";
 
 interface Props {
   menu: MenuItem[];
@@ -61,8 +62,8 @@ const RestaurantMenu: React.FC<Props> = ({ menu }) => {
             key={category.id}
             size="sm"
             className={`flex items-center gap-2 px-8 hover:text-white rounded-lg transition-colors ${categoryId === category.id
-                ? "bg-primary text-white"
-                : "bg-gray-100 text-gray-500"
+              ? "bg-primary text-white"
+              : "bg-gray-100 text-gray-500"
               }`}
             onClick={() => handleCategoryClick(category.id)}
           >
@@ -71,18 +72,22 @@ const RestaurantMenu: React.FC<Props> = ({ menu }) => {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredItems.map((item) => (
-          <MenuItemCard
-            key={item.id}
-            image={item.image}
-            title={item.name}
-            description={item.description}
-            price={item.price}
-            category={item.category.name}
-          />
-        ))}
-      </div>
+      {filteredItems.length === 0 ? (
+        <EmptyState title="No data found here " />
+      ) :
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredItems.map((item) => (
+            <MenuItemCard
+              key={item.id}
+              image={item.image}
+              title={item.name}
+              description={item.description}
+              price={item.price}
+              category={item.category.name}
+            />
+          ))}
+        </div>
+        }
     </div>
   );
 };
