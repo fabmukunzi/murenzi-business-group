@@ -1,16 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import {
-  Plus,
-  Coffee,
-  Utensils,
-  Pizza,
-  Wine,
-  Pencil,
-  Trash2,
-} from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -41,198 +33,129 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Image from "next/image";
+import { useGetMenuItemsQuery, useGetCategoriesQuery, useAddNewMuneItemMutation, useUpdateMenuMutation, useDeleteMenuItemMutation } from "@/store/actions/menu";
+import Loader from "@/components/common/loader";
+import { handleError } from "@/lib/functions/handle-error";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import EmptyState from "@/components/common/Empty";
+import { MenuItem } from "@/lib/types/menu";
 
-// Define menu item interface
-interface MenuItem {
-  id: number;
-  name: string;
-  price: number;
-  description: string;
-  image: string;
-  available: boolean;
-}
-
-// Mock menu data
-const menuData = {
-  breakfast: [
-    {
-      id: 1,
-      name: "Continental Breakfast",
-      price: 15,
-      description: "Fresh croissants, fruits, yogurt, and coffee",
-      image:
-        "https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-      available: true,
-    },
-    {
-      id: 2,
-      name: "Full English Breakfast",
-      price: 18,
-      description: "Eggs, bacon, sausage, beans, toast, and grilled tomato",
-      image:
-        "https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-      available: true,
-    },
-    {
-      id: 3,
-      name: "Healthy Start",
-      price: 12,
-      description: "Avocado toast with poached eggs and fresh fruit",
-      image:
-        "https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-      available: true,
-    },
-  ],
-  lunch: [
-    {
-      id: 4,
-      name: "Grilled Chicken Salad",
-      price: 14,
-      description:
-        "Mixed greens, grilled chicken, avocado, and balsamic dressing",
-      image:
-        "https://images.unsplash.com/photo-1547496502-affa22d38842?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-      available: true,
-    },
-    {
-      id: 5,
-      name: "Beef Burger",
-      price: 16,
-      description: "Angus beef patty, cheese, lettuce, tomato, with fries",
-      image:
-        "https://images.unsplash.com/photo-1547496502-affa22d38842?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-      available: true,
-    },
-    {
-      id: 6,
-      name: "Pasta Primavera",
-      price: 13,
-      description: "Fresh seasonal vegetables in a light cream sauce",
-      image:
-        "https://images.unsplash.com/photo-1547496502-affa22d38842?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-      available: true,
-    },
-  ],
-  dinner: [
-    {
-      id: 7,
-      name: "Grilled Salmon",
-      price: 22,
-      description: "Atlantic salmon with asparagus and lemon butter sauce",
-      image:
-        "https://images.unsplash.com/photo-1559847844-5315695dadae?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-      available: true,
-    },
-    {
-      id: 8,
-      name: "Filet Mignon",
-      price: 32,
-      description: "Premium beef tenderloin with truffle mashed potatoes",
-      image:
-        "https://images.unsplash.com/photo-1559847844-5315695dadae?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-      available: true,
-    },
-    {
-      id: 9,
-      name: "Vegetarian Curry",
-      price: 18,
-      description: "Mixed vegetables in a spicy coconut curry sauce with rice",
-      image:
-        "https://images.unsplash.com/photo-1559847844-5315695dadae?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-      available: true,
-    },
-  ],
-  drinks: [
-    {
-      id: 10,
-      name: "House Red Wine",
-      price: 8,
-      description: "Glass of premium Cabernet Sauvignon",
-      image:
-        "https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-      available: true,
-    },
-    {
-      id: 11,
-      name: "Craft Beer Selection",
-      price: 7,
-      description: "Local IPA, Stout, or Lager options",
-      image:
-        "https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-      available: true,
-    },
-    {
-      id: 12,
-      name: "Signature Cocktails",
-      price: 12,
-      description: "Handcrafted cocktails with premium spirits",
-      image:
-        "https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-      available: true,
-    },
-  ],
+const initialFormState = {
+  name: "",
+  price: "",
+  description: "",
+  categoryId: "",
+  image: "",
 };
 
 export default function RestaurantPage() {
-  const [activeTab, setActiveTab] = useState("breakfast");
+  const [activeTab, setActiveTab] = useState<string | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
-  const [newItem, setNewItem] = useState({
-    name: "",
-    price: "",
-    description: "",
-    category: "breakfast",
-    image: "",
-    available: true,
-  });
+  const [formData, setFormData] = useState(initialFormState);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [addNewMuneItem, { isLoading: isAdding }] = useAddNewMuneItemMutation();
+  const [updateMenu, { isLoading: isUpdating }] = useUpdateMenuMutation();
+  const [deleteMenuItem] = useDeleteMenuItemMutation();
 
-  const handleAddItem = (e: React.FormEvent) => {
+
+
+  const { data: menuData, isLoading: isMenuLoading, error: menuError } = useGetMenuItemsQuery({});
+  const { data: categoriesData, isLoading: isCategoriesLoading, error: categoriesError } = useGetCategoriesQuery();
+
+  const categories = categoriesData?.data.categories || [];
+  const menuItems = menuData?.data.items || [];
+
+  useEffect(() => {
+    if (!isAddDialogOpen && !isEditDialogOpen) {
+      setFormData(initialFormState);
+      setSelectedItem(null);
+      setPreviewImage(null);
+    }
+  }, [isAddDialogOpen, isEditDialogOpen]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setFormData({ ...formData, image: file.name }); // optionally save file name
+    setPreviewImage(URL.createObjectURL(file));
+  };
+
+  const handleAddItem = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically submit to your API
-    console.log("Adding new menu item:", newItem);
 
-    // Reset form and close dialog
-    setNewItem({
-      name: "",
-      price: "",
-      description: "",
-      category: "breakfast",
-      image: "",
-      available: true,
-    });
-    setIsAddDialogOpen(false);
+    const form = new FormData();
+    form.append("name", formData.name);
+    form.append("price", formData.price);
+    form.append("description", formData.description);
+    form.append("categoryId", formData.categoryId);
+    const imageInput = (e.target as HTMLFormElement).image as HTMLInputElement;
+    if (imageInput?.files?.[0]) {
+      form.append("image", imageInput.files[0]);
+    }
+
+    try {
+      await addNewMuneItem(form).unwrap();
+      setIsAddDialogOpen(false);
+    } catch (error) {
+      console.error("Failed to add item:", error);
+      handleError(error);
+    }
   };
 
   const handleEditItem = (item: MenuItem) => {
     setSelectedItem(item);
-    setNewItem({
+    setFormData({
       name: item.name,
       price: String(item.price),
       description: item.description,
-      category: activeTab,
+      categoryId: item.categoryId,
       image: item.image,
-      available: item.available,
     });
+    setPreviewImage(item.image);
     setIsEditDialogOpen(true);
   };
 
-  const handleSaveEdit = (e: React.FormEvent) => {
+  const handleSaveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would update the item in your API
-    console.log("Editing menu item:", selectedItem?.id, newItem);
 
-    // Close dialog
-    setIsEditDialogOpen(false);
-    setSelectedItem(null);
+    if (!selectedItem) return;
+
+    const form = new FormData();
+    form.append("name", formData.name);
+    form.append("price", formData.price);
+    form.append("description", formData.description);
+    form.append("categoryId", formData.categoryId);
+
+    const imageInput = (e.target as HTMLFormElement).image as HTMLInputElement;
+    if (imageInput?.files?.[0]) {
+      form.append("image", imageInput.files[0]);
+    }
+
+    try {
+      await updateMenu({ id: selectedItem.id, data: form }).unwrap();
+      setIsEditDialogOpen(false);
+    } catch (error) {
+      handleError(error);
+    }
   };
 
-  const handleDeleteItem = (item: MenuItem) => {
-    // Here you would delete the item from your API
-    console.log("Deleting menu item:", item.id);
-    // In a real application, you'd call your API and remove the item
-    // After successful deletion, you would update your local state
+  const handleDeleteItem = (item: string) => {
+    deleteMenuItem({ menuId: item })
+      .unwrap()
+      .then((response) => {
+        console.log("Item deleted successfully:", response);
+      })
+      .catch((error) => {
+        handleError(error);
+      });
   };
+
+
+  if (isMenuLoading || isCategoriesLoading) return <Loader loading />;
+  if (menuError || categoriesError) return <p>Error loading data</p>;
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-10 px-4">
@@ -252,7 +175,10 @@ export default function RestaurantPage() {
         </div>
         <Button
           className="bg-primary hover:bg-primary/90 flex gap-2 items-center"
-          onClick={() => setIsAddDialogOpen(true)}
+          onClick={() => {
+            setFormData(initialFormState);
+            setIsAddDialogOpen(true);
+          }}
         >
           <Plus size={16} />
           <span>Add New Item</span>
@@ -262,331 +188,197 @@ export default function RestaurantPage() {
       <Separator />
 
       <Tabs
-        defaultValue="breakfast"
-        value={activeTab}
+        value={activeTab || categories[0]?.id}
         onValueChange={setActiveTab}
         className="w-full"
       >
         <TabsList className="grid grid-cols-4 mb-6">
-          <TabsTrigger value="breakfast" className="flex items-center gap-2">
-            <Coffee size={16} />
-            <span className="hidden sm:inline">Breakfast</span>
-          </TabsTrigger>
-          <TabsTrigger value="lunch" className="flex items-center gap-2">
-            <Utensils size={16} />
-            <span className="hidden sm:inline">Lunch</span>
-          </TabsTrigger>
-          <TabsTrigger value="dinner" className="flex items-center gap-2">
-            <Pizza size={16} />
-            <span className="hidden sm:inline">Dinner</span>
-          </TabsTrigger>
-          <TabsTrigger value="drinks" className="flex items-center gap-2">
-            <Wine size={16} />
-            <span className="hidden sm:inline">Drinks</span>
-          </TabsTrigger>
+          {categories.map((category) => (
+            <TabsTrigger key={category.id} value={category.id}>
+              {category.name}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
-        {Object.entries(menuData).map(([category, items]) => (
-          <TabsContent key={category} value={category} className="mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {items.map((item) => (
-                <Card
-                  key={item.id}
-                  className={`overflow-hidden ${
-                    !item.available ? "opacity-60" : ""
-                  }`}
-                >
-                  <div className="relative h-40">
-                    <Image
-                      src={item.image}
-                      alt={item.name}
-                      fill
-                      className="object-cover"
+        {categories.map((category) => (
+          <TabsContent key={category.id} value={category.id}>
+            {(() => {
+              const filteredItems = menuItems.filter((item) => item.categoryId === category.id);
+
+              return (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredItems.length === 0 ? (
+                    <EmptyState
+                      title="No Items Found"
+                      description="There are no menu items in this category yet."
                     />
-                    {!item.available && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                        <Badge
-                          variant="destructive"
-                          className="text-sm font-medium px-3 py-1"
-                        >
-                          Unavailable
-                        </Badge>
-                      </div>
-                    )}
-                  </div>
-                  <CardHeader className="p-4 pb-0">
-                    <div className="flex justify-between items-start">
-                      <CardTitle className="text-lg font-semibold">
-                        {item.name}
-                      </CardTitle>
-                      <span className="font-bold text-primary">
-                        ${item.price}
-                      </span>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-4 pt-2">
-                    <p className="text-sm text-gray-600 line-clamp-2">
-                      {item.description}
-                    </p>
-                  </CardContent>
-                  <CardFooter className="p-4 pt-0 flex justify-between">
-                    <Badge variant="outline" className="text-xs">
-                      {category}
-                    </Badge>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleEditItem(item)}
-                        className="flex items-center gap-1"
-                      >
-                        <Pencil size={14} />
-                        <span className="hidden sm:inline">Edit</span>
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => handleDeleteItem(item)}
-                        className="flex items-center gap-1"
-                      >
-                        <Trash2 size={14} />
-                        <span className="hidden sm:inline">Delete</span>
-                      </Button>
-                    </div>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
+                  ) : (
+                    filteredItems.map((item) => (
+                      <Card key={item.id} className="p-0 pb-4 gap-2">
+                        <div className="relative h-40 m-2 rounded-3xl">
+                          <Image
+                            src={item.image}
+                            alt={item.name}
+                            fill
+                            className="object-cover rounded-lg"
+                          />
+                        </div>
+                        <CardHeader className="px-4">
+                          <div className="flex justify-between items-start">
+                            <CardTitle className="text-lg">{item.name}</CardTitle>
+                            <span className="font-bold text-primary">${item.price}</span>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="px-4 pt-0">
+                          <p className="text-sm text-gray-600 line-clamp-2">{item.description}</p>
+                        </CardContent>
+                        <CardFooter className="px-4 pt-0 flex justify-between">
+                          <Badge variant="outline" className="text-xs">
+                            {category.name}
+                          </Badge>
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="outline" onClick={() => handleEditItem(item)}>
+                              <Pencil size={14} />
+                              <span className="hidden sm:inline">Edit</span>
+                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="destructive" size="sm" className="bg-red-500">
+                                  <Trash2 size={16} strokeWidth={3} className="text-white" /> Delete
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete the item.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    className="bg-red-500 hover:border-red-500 hover:border-2 hover:bg-white hover:text-red-500"
+                                    onClick={() => handleDeleteItem(item.id)}
+                                  >
+                                    <Trash2 size={16} strokeWidth={3} /> Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </CardFooter>
+                      </Card>
+                    ))
+                  )}
+                </div>
+              );
+            })()}
           </TabsContent>
+
         ))}
       </Tabs>
 
-      {/* Add New Item Dialog */}
-      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+      <Dialog open={isAddDialogOpen || isEditDialogOpen} onOpenChange={(open) => {
+        if (!open) {
+          setIsAddDialogOpen(false);
+          setIsEditDialogOpen(false);
+        }
+      }}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Add New Menu Item</DialogTitle>
+            <DialogTitle>{isEditDialogOpen ? "Edit Menu Item" : "Add New Menu Item"}</DialogTitle>
             <DialogDescription>
-              Create a new menu item. Fill all fields for best results.
+              {isEditDialogOpen
+                ? "Update the selected menu item."
+                : "Create a new menu item. Fill all fields for best results."}
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleAddItem} className="space-y-4">
+          <form onSubmit={isEditDialogOpen ? handleSaveEdit : handleAddItem} className="space-y-4">
             <div className="grid grid-cols-1 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="item-name">Name</Label>
+                <Label>Name</Label>
                 <Input
-                  id="item-name"
                   required
-                  value={newItem.name}
-                  onChange={(e) =>
-                    setNewItem({ ...newItem, name: e.target.value })
-                  }
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="item-price">Price ($)</Label>
+                <Label>Price ($)</Label>
                 <Input
-                  id="item-price"
                   type="number"
                   min="0"
                   step="0.01"
                   required
-                  value={newItem.price}
-                  onChange={(e) =>
-                    setNewItem({ ...newItem, price: e.target.value })
-                  }
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                 />
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="item-description">Description</Label>
+                <Label>Description</Label>
                 <Textarea
-                  id="item-description"
                   required
-                  value={newItem.description}
-                  onChange={(e) =>
-                    setNewItem({ ...newItem, description: e.target.value })
-                  }
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 />
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="item-category">Category</Label>
+                <Label>Category</Label>
                 <Select
-                  value={newItem.category}
-                  onValueChange={(value) =>
-                    setNewItem({ ...newItem, category: value })
-                  }
+                  value={formData.categoryId}
+                  onValueChange={(value) => setFormData({ ...formData, categoryId: value })}
                 >
-                  <SelectTrigger id="item-category">
+                  <SelectTrigger>
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="breakfast">Breakfast</SelectItem>
-                    <SelectItem value="lunch">Lunch</SelectItem>
-                    <SelectItem value="dinner">Dinner</SelectItem>
-                    <SelectItem value="drinks">Drinks</SelectItem>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="item-image">Image URL</Label>
+                <Label>Upload Image</Label>
                 <Input
-                  id="item-image"
-                  type="url"
-                  required
-                  placeholder="https://example.com/image.jpg"
-                  value={newItem.image}
-                  onChange={(e) =>
-                    setNewItem({ ...newItem, image: e.target.value })
-                  }
+                  id="image"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
                 />
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="item-available"
-                  className="rounded border-gray-300"
-                  checked={newItem.available}
-                  onChange={(e) =>
-                    setNewItem({ ...newItem, available: e.target.checked })
-                  }
-                />
-                <Label htmlFor="item-available">Available for ordering</Label>
+                {previewImage && (
+                  <Image
+                    src={previewImage}
+                    alt="Preview"
+                    width={100}
+                    height={70}
+                    className="rounded-lg object-cover mt-2"
+                  />
+                )}
               </div>
             </div>
-
             <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsAddDialogOpen(false)}
-              >
+              <Button type="button" variant="outline" onClick={() => {
+                setIsAddDialogOpen(false);
+                setIsEditDialogOpen(false);
+              }}>
                 Cancel
               </Button>
-              <Button type="submit" className="bg-primary hover:bg-primary/90">
-                Add Menu Item
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit Item Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Edit Menu Item</DialogTitle>
-            <DialogDescription>
-              Update this menu Items&apos; details.
-            </DialogDescription>
-          </DialogHeader>
-
-          <form onSubmit={handleSaveEdit} className="space-y-4">
-            <div className="grid grid-cols-1 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-item-name">Name</Label>
-                <Input
-                  id="edit-item-name"
-                  required
-                  value={newItem.name}
-                  onChange={(e) =>
-                    setNewItem({ ...newItem, name: e.target.value })
-                  }
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="edit-item-price">Price ($)</Label>
-                <Input
-                  id="edit-item-price"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  required
-                  value={newItem.price}
-                  onChange={(e) =>
-                    setNewItem({ ...newItem, price: e.target.value })
-                  }
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="edit-item-description">Description</Label>
-                <Textarea
-                  id="edit-item-description"
-                  required
-                  value={newItem.description}
-                  onChange={(e) =>
-                    setNewItem({ ...newItem, description: e.target.value })
-                  }
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="edit-item-category">Category</Label>
-                <Select
-                  value={newItem.category}
-                  onValueChange={(value) =>
-                    setNewItem({ ...newItem, category: value })
-                  }
-                >
-                  <SelectTrigger id="edit-item-category">
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="breakfast">Breakfast</SelectItem>
-                    <SelectItem value="lunch">Lunch</SelectItem>
-                    <SelectItem value="dinner">Dinner</SelectItem>
-                    <SelectItem value="drinks">Drinks</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="edit-item-image">Image URL</Label>
-                <Input
-                  id="edit-item-image"
-                  type="url"
-                  required
-                  placeholder="https://example.com/image.jpg"
-                  value={newItem.image}
-                  onChange={(e) =>
-                    setNewItem({ ...newItem, image: e.target.value })
-                  }
-                />
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="edit-item-available"
-                  className="rounded border-gray-300"
-                  checked={newItem.available}
-                  onChange={(e) =>
-                    setNewItem({ ...newItem, available: e.target.checked })
-                  }
-                />
-                <Label htmlFor="edit-item-available">
-                  Available for ordering
-                </Label>
-              </div>
-            </div>
-
-            <DialogFooter>
               <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsEditDialogOpen(false)}
+                type="submit"
+                disabled={isAdding || (isEditDialogOpen && isUpdating)}
+                className="bg-primary hover:bg-primary/90"
               >
-                Cancel
-              </Button>
-              <Button type="submit" className="bg-primary hover:bg-primary/90">
-                Save Changes
+                {isAdding
+                  ? "Adding..."
+                  : isEditDialogOpen
+                    ? isUpdating
+                      ? "Saving..."
+                      : "Save Changes"
+                    : "Add Menu Item"}
               </Button>
             </DialogFooter>
           </form>

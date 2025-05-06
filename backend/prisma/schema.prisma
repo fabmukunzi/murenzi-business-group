@@ -53,7 +53,7 @@ model menuCategory {
 
 model menuItem {
   id          String       @id @default(uuid())
-  name        String       @unique
+  name        String      
   description String?
   price       Float        @default(0.0)
   image       String

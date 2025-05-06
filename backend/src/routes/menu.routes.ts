@@ -4,11 +4,13 @@ import {
     updateItem, deleteItem
 } from '../controllers/menuItem.controller';
 import multerupload from '../config/multer';
+import { getAllCategories } from '../controllers/menuCategory.controller';
 
 const muneItemRouter = Router();
 
 muneItemRouter.post('/', multerupload.fields([{ name: 'image', maxCount: 1 }]), createItem);
 muneItemRouter.get('/', getAllItems);
+muneItemRouter.get('/categories', getAllCategories);
 muneItemRouter.get('/:id', getItemById);
 muneItemRouter.put('/:id', multerupload.fields([{ name: 'image', maxCount: 1 }]), updateItem);
 muneItemRouter.delete('/:id', deleteItem);
