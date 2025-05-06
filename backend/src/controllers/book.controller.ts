@@ -1,10 +1,9 @@
 import { Request, Response } from 'express';
-import { BookService } from '../services/book.service';
 import { RoomService } from '../services/room.service';
 import { TransactionService } from '../services/transaction.service';
 import { generateRequestTransactionId } from '../utils/requestTransactionId';
+import { bookingService } from '../services/book.service';
 
-const bookService = new BookService();
 const roomService = new RoomService();
 
 export const createBooking = async (req: Request, res: Response) => {
@@ -19,9 +18,6 @@ export const createBooking = async (req: Request, res: Response) => {
             });
             return
         }
-        console.log(req.body);
-        
-
         const existingRoom = await roomService.getRoomById(roomId);
 
         if (new Date(checkIn) >= new Date(checkOut)) {
@@ -39,14 +35,12 @@ export const createBooking = async (req: Request, res: Response) => {
             return
         }
         if (!/^\d{12}$/.test(phoneNumber)) {
-             res.status(400).json({
+            res.status(400).json({
                 status: 'error',
                 message: 'Phone number must be a valid 12-digit number (e.g., 2507XXXXXXXX)',
             });
             return
         }
-console.log(process.env.INTOUCHPAY_USERNAME);
-        console.log(process.env.INTOUCHPAY_PASSWORD);
 
         const payload = {
             username: process.env.INTOUCHPAY_USERNAME,
@@ -74,8 +68,9 @@ console.log(process.env.INTOUCHPAY_USERNAME);
             });
             const data = await response.json();
             paymentResponse = await data;
+
         }
-        if (paymentResponse.responsecode==2300){
+        if (paymentResponse.responsecode == 2300) {
             res.status(400).json({
                 status: 'error',
                 message: paymentResponse.message,
@@ -84,10 +79,16 @@ console.log(process.env.INTOUCHPAY_USERNAME);
             });
             return
         }
-        console.log("transactionId", paymentResponse.transactionid);
-        console.log("requesttransactionid", paymentResponse.requesttransactionid);
-        
-        
+        if (paymentResponse.responsecode == 2200) {
+            res.status(400).json({
+                status: 'error',
+                message: paymentResponse.message,
+                success: paymentResponse.success,
+                responsecode: paymentResponse.responsecode,
+            });
+            return
+        }
+
 
         const transaction = await TransactionService.createTransaction({
             amount: parseFloat(totalPrice),
@@ -103,7 +104,7 @@ console.log(process.env.INTOUCHPAY_USERNAME);
             });
             return
         }
-        const booking = await bookService.create({
+        const booking = await bookingService.create({
             name,
             email,
             roomId,
@@ -113,7 +114,7 @@ console.log(process.env.INTOUCHPAY_USERNAME);
             totalPrice: parseFloat(totalPrice),
             phoneNumber: phoneNumber.toString(),
         });
-        
+
         res.status(201).json({
             status: paymentResponse.status,
             message: paymentResponse.message,
@@ -121,7 +122,6 @@ console.log(process.env.INTOUCHPAY_USERNAME);
         });
     } catch (error: any) {
         console.log("Error creating booking:", error.message);
-
         res.status(500).json({
             status: 'error',
             message: error.message,
@@ -131,7 +131,7 @@ console.log(process.env.INTOUCHPAY_USERNAME);
 
 export const getAllBookings = async (req: Request, res: Response) => {
     try {
-        const bookings = await bookService.getAll();
+        const bookings = await bookingService.getAll();
         res.status(200).json({
             status: 'success',
             message: 'Bookings retrieved successfully',
@@ -149,7 +149,7 @@ export const getBookingById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
 
-        const booking = await bookService.getById(id);
+        const booking = await bookingService.getBookingById(id);
         if (!booking) {
             res.status(404).json({
                 status: 'error',
@@ -176,7 +176,7 @@ export const updateBooking = async (req: Request, res: Response) => {
         const { id } = req.params;
         const data = req.body;
 
-        const existingBooking = await bookService.getById(id);
+        const existingBooking = await bookingService.getBookingById(id);
         if (!existingBooking) {
             res.status(404).json({
                 status: 'error',
@@ -185,7 +185,7 @@ export const updateBooking = async (req: Request, res: Response) => {
             return
         }
 
-        const updatedBooking = await bookService.update(id, data);
+        const updatedBooking = await bookingService.update(id, data);
 
         res.status(200).json({
             status: 'success',
@@ -203,8 +203,7 @@ export const updateBooking = async (req: Request, res: Response) => {
 export const deleteBooking = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-
-        const existingBooking = await bookService.getById(id);
+        const existingBooking = await bookingService.getBookingById(id);
         if (!existingBooking) {
             res.status(404).json({
                 status: 'error',
@@ -213,7 +212,7 @@ export const deleteBooking = async (req: Request, res: Response) => {
             return
         }
 
-        await bookService.delete(id);
+        await bookingService.delete(id);
 
         res.status(200).json({
             status: 'success',

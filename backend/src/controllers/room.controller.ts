@@ -2,55 +2,55 @@ import { Request, Response } from 'express';
 import { RoomService } from '../services/room.service';
 import multerupload from '../config/multer';
 import { uploadImage, uploadVideo } from '../config/cloudinary';
-
+import { bookingService } from '../services/book.service';
 const roomService = new RoomService();
 export const createRoom = async (req: Request, res: Response) => {
     try {
-        const { name, description, pricePerNight, parkingSlots, size,location } = req.body;
+        const { name, description, pricePerNight, parkingSlots, size, location } = req.body;
         console.log(req.body);
-        if(!name){
+        if (!name) {
             res.status(400).json({
                 status: 'fail',
                 message: 'Room name is required',
             });
             return
         }
-        if(!description){
+        if (!description) {
             res.status(400).json({
                 status: 'fail',
                 message: 'Room description is required',
             });
             return
         }
-        if(!pricePerNight){
+        if (!pricePerNight) {
             res.status(400).json({
                 status: 'fail',
                 message: 'Room price is required',
             });
             return
         }
-        if (!parkingSlots){
+        if (!parkingSlots) {
             res.status(400).json({
                 status: 'fail',
                 message: 'Room parking space is required',
             });
             return
         }
-        if(!size){
+        if (!size) {
             res.status(400).json({
                 status: 'fail',
                 message: 'Room meters is required',
             });
             return
         }
-        if(!location){
+        if (!location) {
             res.status(400).json({
                 status: 'fail',
                 message: 'Room location is required',
             });
             return
         }
-    
+
         if (name.length < 3 || name.length > 50) {
             res.status(400).json({
                 status: 'fail',
@@ -58,7 +58,7 @@ export const createRoom = async (req: Request, res: Response) => {
             });
             return
         }
-        
+
         const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
         const roomExist = await roomService.getRoomByName(name);
@@ -166,7 +166,7 @@ export const updateRoom = async (req: Request, res: Response) => {
 
         if (name && name !== existingRoom.name) updatedData.name = name;
         if (description && description !== existingRoom.description) updatedData.description = description;
-        
+
         if (price !== undefined) {
             const parsedPrice = parseFloat(price);
             if (!isNaN(parsedPrice) && parsedPrice >= 0 && parsedPrice !== existingRoom.price) {
@@ -212,21 +212,71 @@ export const updateRoom = async (req: Request, res: Response) => {
 
 export const deleteRoom = async (req: Request, res: Response) => {
     try {
-        const id = req.params.id
-        const room=await roomService.getRoomById(id)
-        if(!room){
-            res.status(400).json({
-                status:"failed",
-                message:"Room not found"
-            })
+        const id = req.params.id;
+
+        const room = await roomService.getRoomById(id);
+        if (!room) {
+            res.status(404).json({
+                status: "failed",
+                message: "Room not found"
+            });
             return
         }
+        const booking = await bookingService.getBookingByRoomId(id);
+        if (booking) {
+            res.status(400).json({
+                status: "failed",
+                message: "First delete the booking before deleting the room"
+            });
+            return
+        }
+
         await roomService.deleteRoom(id);
         res.status(200).json({
             status: 'success',
             message: 'Room deleted successfully',
         });
+
     } catch (error: any) {
         res.status(500).json({ status: 'error', message: error.message });
+    }
+};
+
+export const deleteRoomImage = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const { imageUrl } = req.body;
+
+        const room = await roomService.getRoomById(id);
+        if (!room) {
+            res.status(404).json({
+                status: 'fail',
+                message: 'Room not found',
+            });
+            return;
+        }
+
+        if (!room.images || !room.images.includes(imageUrl)) {
+            res.status(400).json({
+                status: 'fail',
+                message: 'Image not found in the room',
+            });
+            return;
+        }
+
+        const updatedImages = room.images.filter((image) => image !== imageUrl);
+
+        const updatedRoom = await roomService.updateRoom(id, { images: updatedImages });
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Image deleted successfully',
+            data: { updatedRoom },
+        });
+    } catch (error: any) {
+        res.status(500).json({
+            status: 'error',
+            message: error.message,
+        });
     }
 };

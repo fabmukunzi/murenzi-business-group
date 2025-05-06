@@ -17,6 +17,7 @@ import { format, isBefore, addDays } from 'date-fns';
 import { useBookingRoomMutation } from '@/store/actions/booking';
 import { handleError } from '@/lib/functions/handle-error';
 import { BookingResponse } from '@/lib/types/room';
+import Loader from '@/components/common/loader';
 
 export default function RentalDetailPage() {
   const params = useParams();
@@ -44,7 +45,7 @@ export default function RentalDetailPage() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        Loading...
+        <Loader loading={isLoading} />
       </div>
     );
   }
@@ -83,11 +84,11 @@ export default function RentalDetailPage() {
 
     if (!phoneNumber.trim()) {
       newErrors.phoneNumber = 'Phone number is required.';
-    } else if (!/^\d{10,15}$/.test(phoneNumber)) {
-      newErrors.phoneNumber = 'Phone number must be 10–15 digits.';
+    } else if (!/^2507\d{8}$/.test(phoneNumber)) {
+      newErrors.phoneNumber = 'Phone number format: 2507********.';
     }
 
-    if (!checkIn || checkIn !== undefined) {
+    if (!checkIn) {
       newErrors.checkIn = 'Check-in date is required.';
     }
 
@@ -98,6 +99,9 @@ export default function RentalDetailPage() {
     }
 
     setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      return;
+    }
 
     try {
       const payload = {
@@ -109,7 +113,6 @@ export default function RentalDetailPage() {
         checkOut: checkOut ? checkOut.toISOString() : '',
         totalPrice,
       };
-
       const res: BookingResponse = await bookRoom(payload).unwrap();
       if (res?.status === "Pending") {
         router.push(`/confirm`);
@@ -224,7 +227,7 @@ export default function RentalDetailPage() {
               />
               {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
               <Input type="number"
-                placeholder="Your phone number (will be used to pay)"
+                placeholder="Phone number format: 2507********"
                 className="w-full mt-3" value={phoneNumber}
                 onChange={(e) => {
                   setPhoneNumber(e.target.value);
