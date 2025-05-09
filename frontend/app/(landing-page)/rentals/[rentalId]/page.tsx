@@ -227,7 +227,7 @@ export default function RentalDetailPage() {
               />
               {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
               <Input type="number"
-                placeholder="Phone number format: 2507********"
+                placeholder="2507********"
                 className="w-full mt-3" value={phoneNumber}
                 onChange={(e) => {
                   setPhoneNumber(e.target.value);
