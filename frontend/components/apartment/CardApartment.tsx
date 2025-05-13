@@ -6,6 +6,7 @@ import { icons } from '@/lib/icons';
 import Link from 'next/link';
 import { homepageRoutes } from '@/lib/routes';
 import { IRoom } from '@/lib/types/room';
+import formatNumber from '@/lib/functions/format-number';
 
 const CardApartment: FC<{ room: IRoom }> = ({ room }) => {
   return (
@@ -21,8 +22,8 @@ const CardApartment: FC<{ room: IRoom }> = ({ room }) => {
             <div className="w-full flex-wrap gap-2">
               <div className="flex justify-between">
                 <p className="text-gray-500 text-sm">{room.name}</p>
-                <p className="text-primary font-bold text-lg">
-                  ${room.price}
+                <p className="text-primary font-bold text-base">
+                  {formatNumber(room.price)} RWF
                   <span className="text-gray-500 font-medium text-sm">
                     /night
                   </span>

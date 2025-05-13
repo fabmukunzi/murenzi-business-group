@@ -14,15 +14,20 @@ import { dashboardRoutes, homepageRoutes } from '@/lib/routes';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Building2, Footprints, HomeIcon, Newspaper, UtensilsCrossed } from 'lucide-react';
+import {
+  Building2,
+  Footprints,
+  Newspaper,
+  UtensilsCrossed,
+} from 'lucide-react';
 import { logoImage } from '@/lib/images';
 
 const items = [
-  {
-    title: dashboardRoutes.analytics.label,
-    url: dashboardRoutes.analytics.path,
-    icon: HomeIcon,
-  },
+  // {
+  //   title: dashboardRoutes.analytics.label,
+  //   url: dashboardRoutes.analytics.path,
+  //   icon: HomeIcon,
+  // },
   {
     title: dashboardRoutes.rentals.label,
     url: dashboardRoutes.rentals.path,
@@ -50,7 +55,8 @@ export function AppSidebar() {
   const [selectedItem, setSelectedItem] = useState(() => {
     const matchingItem = items.find(
       (item) =>
-        pathname.startsWith(item.url) && item.url !== dashboardRoutes.analytics.path
+        pathname.startsWith(item.url) &&
+        item.url !== dashboardRoutes.analytics.path
     );
     return matchingItem?.title || items[0].title;
   });
@@ -58,7 +64,8 @@ export function AppSidebar() {
   useEffect(() => {
     const matchingItem = items.find(
       (item) =>
-        pathname.startsWith(item.url) && item.url !== dashboardRoutes.analytics.path
+        pathname.startsWith(item.url) &&
+        item.url !== dashboardRoutes.analytics.path
     );
     setSelectedItem(matchingItem?.title || items[0].title);
   }, [pathname]);
@@ -73,7 +80,7 @@ export function AppSidebar() {
                 <Image
                   src={logoImage}
                   className="h-32 w-32 rounded-full"
-                  alt="Umurava logo"
+                  alt="Diaspora Lounge Logo"
                 />
               </Link>
             </SidebarGroupLabel>

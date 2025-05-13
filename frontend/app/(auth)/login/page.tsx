@@ -28,7 +28,7 @@ export default function LoginPage() {
       await setCookies(TOKEN_NAME, response.data.token);
       const redirectTo = params.get('redirectTo');
       if (redirectTo) router.push(redirectTo);
-      else router.push(dashboardRoutes.analytics.path);
+      else router.push(dashboardRoutes.rentals.path);
     } catch (error) {
       handleError(error);
     }

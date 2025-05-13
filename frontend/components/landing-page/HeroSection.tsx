@@ -3,6 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { icons } from '@/lib/icons';
 import { heroImage } from '@/lib/images';
+import Link from 'next/link';
 
 const HeroSection = () => {
   return (
@@ -25,7 +26,11 @@ const HeroSection = () => {
           <h3 className="font-semibold text-lg text-gray-700">
             Book apartment with
           </h3>
-          <div className="flex gap-16 max-md:justify-between md:justify-start">
+          <Link
+            target="_blank"
+            href="https://www.airbnb.com/rooms/1358734658884634267?viralityEntryPoint=1&s=76"
+            className="flex gap-16 max-md:justify-between md:justify-start"
+          >
             <Button
               variant={'outline'}
               className="h-11 px-8 border-2 border-pink-600"
@@ -33,7 +38,7 @@ const HeroSection = () => {
               <Image src={icons.airbnb} alt="" />
             </Button>
             <Button className="h-11 px-10 bg-[#003680]">Booking</Button>
-          </div>
+          </Link>
         </div>
       </div>
       <div className="max-md:w-full max-md:flex max-md:justify-center">
