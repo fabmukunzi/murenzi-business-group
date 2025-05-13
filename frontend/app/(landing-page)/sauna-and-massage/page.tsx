@@ -6,57 +6,6 @@ import { SaunaImg1 } from '@/lib/images';
 import { Card } from '@/components/ui/card';
 import { massageServices } from '@/lib/data/massage';
 
-const saunaBenefits = [
-  {
-    id: 1,
-    title: 'Improves Sleep',
-    description:
-      'Regular sauna use promotes relaxation and improves sleep quality by reducing stress and muscle tension.',
-    image: 'bed1.avif',
-    imagePosition: 'right',
-  },
-  {
-    id: 2,
-    title: 'Enhances Immune Function',
-    description:
-      'The heat from a sauna stimulates the production of white blood cells, helping the body fight infections more effectively.',
-    image: 'bed1.avif',
-    imagePosition: 'left',
-  },
-  {
-    id: 3,
-    title: 'Detoxifies',
-    description:
-      'Saunas induce sweating, which helps the body eliminate toxins and heavy metals.',
-    image: 'bed1.avif',
-    imagePosition: 'right',
-  },
-  {
-    id: 4,
-    title: 'Reduces Stress',
-    description:
-      'The soothing heat of a sauna helps relax muscles and releases endorphins, reducing stress and anxiety.',
-    image: 'bed1.avif',
-    imagePosition: 'left',
-  },
-  {
-    id: 5,
-    title: 'Slows Signs of Aging',
-    description:
-      'Improved circulation and detoxification from saunas promote healthier skin, reducing signs of aging.',
-    image: 'bed1.avif',
-    imagePosition: 'right',
-  },
-  {
-    id: 6,
-    title: 'Lowers Risk of Heart Problems',
-    description:
-      'Regular sauna use has been linked to improved heart health and lower risks of cardiovascular diseases.',
-    image: 'bed1.avif',
-    imagePosition: 'left',
-  },
-];
-
 const SaunaMassage = () => {
   return (
     <motion.div
@@ -109,29 +58,26 @@ const SaunaMassage = () => {
           ))}
         </div>
       </div>
-      <div className="w-full">
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold mb-4 mt-2">
-          Benefits Of<span className="text-primary"> Sauna </span>
-        </h2>
-        <div className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-6">
-          {saunaBenefits.map((benefit) => (
-            <div
-              key={benefit.id}
-              className="flex flex-col md:flex-row p-4 sm:p-2 overflow-auto max-md-p-2 rounded-lg shadow-md"
-            >
-              <Image
-                src={SaunaImg1}
-                alt={benefit.title}
-                width={200}
-                height={200}
-                className="w-full max-md:w-full sm:w-60 h-40 object-cover rounded-lg"
-              />
-              <div className="text-left max-w-md mt-4 md:mt-0 md:ml-6">
-                <h3 className="text-xl font-semibold mb-2">{benefit.title}</h3>
-                <p className="text-gray-700">{benefit.description}</p>
-              </div>
-            </div>
-          ))}
+
+      <div className="w-full flex flex-col lg:flex-row gap-10 items-center">
+        <div className="w-full lg:w-1/2 rounded-lg overflow-hidden shadow-lg">
+          <Image
+            src={SaunaImg1}
+            alt="Sauna"
+            className="w-full h-full object-cover"
+            width={800}
+            height={600}
+          />
+        </div>
+
+        <div className="w-full lg:w-1/2 text-left">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold mb-4">
+            Discover the <span className="text-primary">Power of Sauna</span>
+          </h2>
+          <p className="text-lg text-gray-700 mb-4">
+            Step into a world of relaxation and health. Our sauna experience helps you unwind, detox, and rejuvenate both body and mind.
+          </p>
+          <p className="text-lg font-semibold text-primary">10,000 RWF per person</p>
         </div>
       </div>
     </motion.div>

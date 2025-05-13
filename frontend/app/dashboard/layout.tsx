@@ -21,6 +21,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { logoImage } from '@/lib/images';
 import { formatMoney } from '@/lib/functions/format-number';
 import { toast } from 'sonner'; // ✅ NEW
+import { INTOUCHPAY_PASSWORD, INTOUCHPAY_USERNAME } from '@/lib/constants';
 
 const schema = yup.object().shape({
   amount: yup
@@ -65,13 +66,12 @@ export default function DashboardLayout({
     setSubmitting(true);
     try {
       const payload = {
-        username: 'testa',
+        username: INTOUCHPAY_USERNAME,
         timestamp: '20161231115242',
         amount: formData.amount,
         withdrawcharge: formData.charge,
         reason: formData.reason,
-        password:
-          '71c931d4966984a90cee2bcc2953ce432899122b0f16778e5f4845d5ea18f7e6',
+        password:INTOUCHPAY_PASSWORD,
         mobilephone: Number(formData.phone),
         requesttransactionid: Math.floor(Math.random() * 1000000),
         callbackurl: 'https://murenzi-business-group.vercel.app/rentals',

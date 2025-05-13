@@ -18,6 +18,7 @@ import { useBookingRoomMutation } from '@/store/actions/booking';
 import { handleError } from '@/lib/functions/handle-error';
 import { BookingResponse } from '@/lib/types/room';
 import Loader from '@/components/common/loader';
+import { formatMoney } from '@/lib/functions/format-number';
 
 export default function RentalDetailPage() {
   const params = useParams();
@@ -295,8 +296,8 @@ export default function RentalDetailPage() {
               animate={{ scale: 1 }}
               initial={{ scale: 0.9 }}
             >
-              <p>Per Night: ${basePrice}</p>
-              <p className="font-bold">Total Price: ${totalPrice.toFixed(2)}</p>
+              <p>Per Night: RWF{formatMoney(basePrice)}</p>
+              <p className="font-bold">Total Price: RWF{formatMoney(parseInt(totalPrice.toFixed(2)))}</p>
             </motion.div>
 
             <Button
