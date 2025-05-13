@@ -32,6 +32,11 @@ export const homepageRoutes = {
       path: '/dashboard',
       name: 'analytics',
     },
+    bookings: {
+      label: 'Bookings',
+      path: '/dashboard/bookings',
+      name: 'bookings',
+    },
     restuarant: {
       label: 'Restaurant',
       path: '/dashboard/restuarant',

@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Building2,
+  CalendarCheck,
   Footprints,
   Newspaper,
   UtensilsCrossed,
@@ -32,6 +33,11 @@ const items = [
     title: dashboardRoutes.rentals.label,
     url: dashboardRoutes.rentals.path,
     icon: Building2,
+  },
+  {
+    title: dashboardRoutes.bookings.label,
+    url: dashboardRoutes.bookings.path,
+    icon: CalendarCheck,
   },
   {
     title: dashboardRoutes.restuarant.label,
