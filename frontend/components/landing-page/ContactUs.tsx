@@ -8,7 +8,6 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
-import { Button } from '@/components/ui/button';
 
 const ContactUs = () => {
   return (
@@ -22,16 +21,16 @@ const ContactUs = () => {
             Get in touch
           </h1>
           <div className="w-full sm:w-3/4 flex flex-col gap-3">
-            <div className="flex px-4 gap-2 items-center py-1 rounded-md">
+            <Link href="mailto:murenziguesthouse@gmail.com" className="flex px-4 gap-2 items-center py-1 rounded-md">
               <Mail width={20} className="text-primary" />
               <span className="text-gray-500 text-sm break-words">
                 murenziguesthouse@gmail.com
               </span>
-            </div>
-            <Button className="ml-4 px-0 w-52 gap-2 border border-primary py-1 rounded-md bg-primary/20">
+            </Link>
+            <Link href="tel:+250795758411" className="ml-4 flex items-center p-1 h-10 w-52 gap-2 border border-primary rounded-md bg-primary/20 hover:bg-primary/30">
               <Phone width={20} className="text-primary" />
-              <span className="text-gray-500 text-sm pr-14">+2507978789</span>
-            </Button>
+              <span className="text-gray-500 text-sm">+250 795 758 411</span>
+            </Link>
             <div className="flex px-4 gap-2 items-center py-1 rounded-md">
               <MapPin width={20} className="text-primary" />
               <span className="text-gray-500 text-sm">

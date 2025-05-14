@@ -3,6 +3,7 @@ import LogoComponent from '@/components/common/logo';
 import { Facebook, Instagram, Twitter } from 'lucide-react';
 import Link from 'next/link';
 import ContactUs from '../landing-page/ContactUs';
+import { homepageRoutes } from '@/lib/routes';
 
 const FooterComponent = () => {
   return (
@@ -35,7 +36,7 @@ const FooterComponent = () => {
           <h3 className='font-semibold text-black'>Help</h3>
           <ul className='mt-2 space-y-2 text-sm'>
             <li>
-              <Link href='#' className='hover:underline'>Contact Us</Link>
+              <Link href='#contact' className='hover:underline'>Contact Us</Link>
             </li>
             <li>
               <Link href='#' className='hover:underline'>Terms & Conditions</Link>
@@ -55,7 +56,7 @@ const FooterComponent = () => {
               <Link href='#' className='hover:underline'>Booking</Link>
             </li>
             <li>
-              <Link href='#' className='hover:underline'>Book Now</Link>
+              <Link href={homepageRoutes.rentals.path} className='hover:underline'>Book Now</Link>
             </li>
           </ul>
         </div>

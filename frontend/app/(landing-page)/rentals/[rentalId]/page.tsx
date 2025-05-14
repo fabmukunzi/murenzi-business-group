@@ -190,8 +190,8 @@ export default function RentalDetailPage() {
 
         <div>
           <Card className="md:col-span-2 p-5">
-            <h2 className="md:text-xl text-lg font-bold">
-              Luxury Room (${basePrice}/per night)
+            <h2 className="text-lg font-bold">
+              {room.name} (RWF {formatMoney(basePrice)}/per night)
             </h2>
 
             <div className="flex gap-2 flex-col">
@@ -296,8 +296,8 @@ export default function RentalDetailPage() {
               animate={{ scale: 1 }}
               initial={{ scale: 0.9 }}
             >
-              <p>Per Night: RWF{formatMoney(basePrice)}</p>
-              <p className="font-bold">Total Price: RWF{formatMoney(parseInt(totalPrice.toFixed(2)))}</p>
+              <p>Per Night: RWF {formatMoney(basePrice)}</p>
+              <p className="font-bold">Total Price: RWF {formatMoney(parseInt(totalPrice.toFixed(2)))}</p>
             </motion.div>
 
             <Button

@@ -7,6 +7,7 @@ import { Menu, X } from 'lucide-react';
 import clsx from 'clsx';
 import { homepageRoutes } from '@/lib/routes';
 import LogoComponent from './logo';
+import Link from 'next/link';
 
 const HeaderComponent = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -55,9 +56,9 @@ const HeaderComponent = () => {
             })}
           </nav>
 
-          <div className="hidden lg:block">
+          <Link href={homepageRoutes.rentals.path} className="hidden lg:block">
             <Button>Book Now</Button>
-          </div>
+          </Link>
 
           <div className="block lg:hidden">
             <div
@@ -98,9 +99,9 @@ const HeaderComponent = () => {
               );
             })}
           </nav>
-          <div className="px-6 pb-4">
+          <Link href={homepageRoutes.rentals.path} className="px-6 pb-4">
             <Button>Book Now</Button>
-          </div>
+          </Link>
         </div>
       </header>
     </Fragment>
