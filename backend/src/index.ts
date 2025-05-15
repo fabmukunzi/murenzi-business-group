@@ -8,6 +8,7 @@ import authRoutes from './routes/auth.routes';
 import roomRouter from './routes/room.routes';
 import muneItemRouter from './routes/menu.routes';
 import bookRouter from './routes/book.routes';
+import transactionRouter from './routes/transaction.routes';
 
 const app: Express = express();
 const prisma = new PrismaClient();
@@ -33,5 +34,7 @@ app.post("/api/pay", async (req, res) => {
   const data = await response.json();
   res.json(data);
 });
+
+app.use("/api/transaction", transactionRouter);
 
 export default app;
