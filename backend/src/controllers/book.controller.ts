@@ -91,10 +91,14 @@ export const createBooking = async (req: Request, res: Response) => {
 
 
         const transaction = await TransactionService.createTransaction({
-            amount: parseFloat(totalPrice),
+            amount: totalPrice,
+            name,
+            email,
             transactionid: paymentResponse.transactionid,
-            requesttransactionid: paymentResponse.requesttransactionid,
+            requesttransactionid: paymentResponse.requesttransactionid.toString(),
             status: paymentResponse.status,
+            reason: "Room Booking",
+            type: "incoming",
         });
 
         if (!transaction) {

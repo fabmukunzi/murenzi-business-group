@@ -90,7 +90,6 @@ export default function TransactionsPage() {
     useState<RentalTransaction | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Fetch transactions from API
   const { data: transactionsData, isLoading, isError } = useGettransactionsQuery();
   const transactions = transactionsData?.transactions || [];
   const dispatch = useDispatch();

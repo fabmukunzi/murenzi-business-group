@@ -53,7 +53,7 @@ model menuCategory {
 
 model menuItem {
   id          String       @id @default(uuid())
-  name        String      
+  name        String
   description String?
   price       Float        @default(0.0)
   image       String
@@ -87,9 +87,13 @@ model Booking {
 model Transaction {
   id                   String   @id @default(uuid())
   amount               Float    @default(0.0)
-  transactionid        String   @unique // <-- Changed to String
+  transactionid        String   @unique
+  name                 String
+  email                String
   requesttransactionid String   @unique
   status               String   @default("pending")
+  reason               String   @default("Booking Payment")
+  type                 String   @default("incoming")
   booking              Booking? @relation()
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
