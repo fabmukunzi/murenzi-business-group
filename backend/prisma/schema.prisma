@@ -90,6 +90,7 @@ model Transaction {
   transactionid        String   @unique
   name                 String
   email                String
+  phoneNumber          String
   requesttransactionid String   @unique
   status               String   @default("pending")
   reason               String   @default("Booking Payment")

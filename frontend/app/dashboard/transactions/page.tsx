@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Search, Download, Check, X, AlertCircle, Eye } from "lucide-react";
+import { Search, Download, Check, X, AlertCircle, Eye, TrendingDown, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -25,17 +25,29 @@ import {
 import { transactionEndpoints, useGettransactionsQuery } from "@/store/actions/transaction";
 import { useDispatch } from "react-redux";
 import Pusher from 'pusher-js';
+import { Transaction } from "@/lib/types/transaction";
 
 interface TransactionDetails {
   [key: string]: string | number | null;
 }
 
+interface StatusUpdatedEventData {
+  transactionid: string;
+  requesttransactionid: string;
+  status: string; // You can narrow this if you use specific status values like: 'pending' | 'Successful' | 'Failed'
+}
+
+
 interface RentalTransaction {
   id: string;
   amount: number;
+  name:string;
+  email:string;
+  phoneNumber:number,
+  type:string,
   transactionid: string;
   requesttransactionid: string;
-  status: "Pending" | "Failed" | "Success";
+  status: "Pending" | "Failed" | "Successfull";
   createdAt: string;
   updatedAt: string;
   booking: {
@@ -102,9 +114,9 @@ export default function TransactionsPage() {
 
     const channel = pusher.subscribe('transactions');
 
-    channel.bind('status-updated', (data: any) => {
+    channel.bind('status-updated', (data: StatusUpdatedEventData) => {
       console.log('Pusher event received:', data);
-      dispatch(transactionEndpoints.util.invalidateTags(['Transaction']));
+      dispatch(transactionEndpoints.util.invalidateTags(['Transaction',"booking"]));
     });
 
     return () => {
@@ -136,7 +148,7 @@ export default function TransactionsPage() {
   };
 
   // Filter transactions based on search query
-  const filteredTransactions = transactions.filter((transaction: any) => {
+  const filteredTransactions = transactions.filter((transaction: Transaction) => {
     const searchableText = Object.entries(transaction)
       .map(([key, value]) => {
         if (key === "booking" && value) {
@@ -212,26 +224,33 @@ export default function TransactionsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredTransactions.map((transaction: any) => (
+                {filteredTransactions.map((transaction: Transaction) => (
                   <TableRow key={transaction.id}>
                     <TableCell className="font-medium">
                       {transaction.transactionid.slice(0, 8)}...
                     </TableCell>
                     <TableCell>
-                      {transaction.booking?.name || "N/A"}
+                      {transaction?.name || "N/A"}
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
                       <div className="flex flex-col">
                         <span className="text-xs text-gray-500">
-                          {transaction.booking?.email || "N/A"}
+                          {transaction?.email || "N/A"}
                         </span>
                         <span className="text-xs">
-                          {transaction.booking?.phoneNumber || "N/A"}
+                          {transaction?.phoneNumber || "N/A"}
                         </span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      {transaction.booking?.room?.name || "N/A"}
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-500">  
+                          {transaction?.type}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {transaction?.type === "incoming" ? <TrendingDown className="text-green-600/70" /> : <TrendingUp className="text-destructive/70" />}
+                        </span>
+                      </div>
                     </TableCell>
                     <TableCell className="hidden xs:table-cell">
                       {new Date(transaction.createdAt).toLocaleDateString()}
@@ -279,19 +298,19 @@ export default function TransactionsPage() {
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Customer</h3>
-                  <p className="text-sm sm:text-base">{selectedTransaction.booking?.name || "N/A"}</p>
+                  <p className="text-sm sm:text-base">{selectedTransaction?.name || "N/A"}</p>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Email</h3>
-                  <p className="text-sm sm:text-base break-all">{selectedTransaction.booking?.email || "N/A"}</p>
+                  <p className="text-sm sm:text-base break-all">{selectedTransaction.email || "N/A"}</p>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Phone</h3>
-                  <p className="text-sm sm:text-base">{selectedTransaction.booking?.phoneNumber || "N/A"}</p>
-                </div>
+                  <p className="text-sm sm:text-base">{selectedTransaction.phoneNumber || "N/A"}</p>
+                </div> 
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500">Property</h3>
-                  <p className="text-sm sm:text-base">{selectedTransaction.booking?.room?.name || "N/A"}</p>
+                  <h3 className="text-sm font-medium text-gray-500">Type</h3>
+                  <p className="text-sm sm:text-base">{selectedTransaction?.type || "N/A"}</p>
                 </div>
                 {selectedTransaction.booking && (
                   <>

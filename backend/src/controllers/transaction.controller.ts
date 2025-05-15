@@ -3,6 +3,8 @@ import { TransactionService } from '../services/transaction.service';
 import { TransactionWebhookPayload } from '../types/transaction';
 import { generateRequestTransactionId } from '../utils/requestTransactionId';
 import { responseMessages } from '../utils/response.message.util';
+import { get } from 'http';
+import { UserService } from '../services/user.service';
 
 export const getAllTransactions = async (req: Request, res: Response) => {
     try {
@@ -125,12 +127,27 @@ export const withdraw = async (req: Request, res: Response) => {
             return
         }
 
+        const currentUser=await UserService.getUserByEmail(req.user.email);
+        if (!currentUser) {
+            res.status(404).json({
+                status: "error",
+                message: "User not found",
+            });
+            return
+        }
+        console.log("Current User:", currentUser);
+        
+
         const transaction = await TransactionService.createTransaction({
             amount: parseFloat(totalPrice),
+            name: currentUser.firstName + " " + currentUser.lastName,
+            email: currentUser.email,
+            phoneNumber: `${phoneNumber}`,
             transactionid: paymentResponse.transactionid,
             requesttransactionid: `${requesttransactionid}`,
             status: paymentResponse.status,
             reason: payload.reason,
+            type:"Outgoing"
         });
 
          res.status(200).json({

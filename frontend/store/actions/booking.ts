@@ -2,7 +2,7 @@ import { IBooking } from '@/lib/types/booking';
 import { BookingPayload, BookingResponse } from '@/lib/types/room';
 import { baseAPI } from '@/store/api';
 
-const bookingEndpoints = baseAPI.injectEndpoints({
+export const bookingEndpoints = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     bookingRoom: builder.mutation<BookingResponse, BookingPayload>({
       query: (body) => ({
@@ -16,7 +16,9 @@ const bookingEndpoints = baseAPI.injectEndpoints({
     }),
     getBookings: builder.query<{ data: { bookings: IBooking[] } }, void>({
       query: () => '/bookings',
-    }),
+      providesTags: () => ['booking'],
+    }),    
+    
   }),
 });
 

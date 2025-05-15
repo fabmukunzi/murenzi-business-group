@@ -6,14 +6,18 @@ export interface TransactionsResponse {
 export interface Transaction {
     id: string;
     amount: number;
+    name: string;
+    email: string;
+    phoneNumber: number;
+    type: string;
     transactionid: string;
     requesttransactionid: string;
-    status: string;
+    status: 'Pending' | 'Failed' | 'Successfull';
     createdAt: string;
     updatedAt: string;
     booking: Booking | null;
 }
-
+  
 export interface Booking {
     id: string;
     name: string;

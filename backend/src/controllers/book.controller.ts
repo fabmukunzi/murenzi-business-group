@@ -94,6 +94,7 @@ export const createBooking = async (req: Request, res: Response) => {
             amount: totalPrice,
             name,
             email,
+            phoneNumber:`${phoneNumber}`,
             transactionid: paymentResponse.transactionid,
             requesttransactionid: paymentResponse.requesttransactionid.toString(),
             status: paymentResponse.status,
