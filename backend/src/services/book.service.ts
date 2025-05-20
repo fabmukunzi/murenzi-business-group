@@ -13,9 +13,6 @@ class BookingService {
                 },
             },
         });
-        console.log('Overlapping booking:', overlappingBooking);
-        
-
         if (overlappingBooking) {
             throw new Error('The selected room is already booked for the given dates.');
         }

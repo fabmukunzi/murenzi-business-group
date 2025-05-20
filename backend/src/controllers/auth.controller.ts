@@ -50,9 +50,8 @@ export const login = async (req: UserRequest, res: Response): Promise<void> => {
             message: 'Login successful',
             data: { token, role: role?.name, user: userWithoutPassword },
         });
-    } catch (error) {
-        console.error('Error during login:', error);
-        res.status(500).json({ status: 'fail', message: 'An error occurred during login' });
+    } catch (error:any) {
+        res.status(500).json({ status: 'fail', message:error.message|| 'An error occurred during login' });
     }
 };
 export const signup = async (req: Request, res: Response) => {
@@ -87,11 +86,10 @@ export const signup = async (req: Request, res: Response) => {
                 user: userWithoutPassword,
             },
         });
-    } catch (error) {
-        console.error('Error creating user:', error);
+    } catch (error:any) {
         res.status(500).json({
             status: 'fail',
-            message: 'Error creating user',
+            message: error.message||'Error creating user',
         });
     }
 };
@@ -122,11 +120,10 @@ export const verifyUser =async (req: Request, res: Response) => {
                 user,
             },
         });
-    } catch (error) {
-        console.error(error);
+    } catch (error:any) {
         res.status(500).json({
             status: 'fail',
-            message: 'Error verifying user',
+            message: error.message||'Error verifying user',
         });
     }
 
@@ -144,7 +141,6 @@ export const resendVerification = async (req: Request, res: Response) => {
       data: result.data,
     });
   } catch (error:any) {
-    console.error('Error:', error.message);
     if (error.message === 'User not found') {
       res.status(404).json({
         status: 'error',
@@ -158,7 +154,7 @@ export const resendVerification = async (req: Request, res: Response) => {
     } else {
       res.status(500).json({
         status: 'error',
-        message: 'Error resending verification email',
+          message: error.message||'Error resending verification email',
       });
     }
   }

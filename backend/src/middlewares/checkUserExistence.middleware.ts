@@ -8,7 +8,7 @@ export const checkUserExistence = async (req: UserRequest, res: Response, next: 
   const { email } = req.body;
 
   if (!email) {
-    return 
+    return
   }
 
   try {
@@ -19,8 +19,7 @@ export const checkUserExistence = async (req: UserRequest, res: Response, next: 
     }
     req.user = user;
     next();
-  } catch (error) {
-    console.error('Error fetching user:', error);
-    res.status(500).json({ status: 'error', message: 'Server error while checking user existence' });
+  } catch (error: any) {
+    res.status(500).json({ status: 'error', message: error.message || 'Server error while checking user existence' });
   }
 };

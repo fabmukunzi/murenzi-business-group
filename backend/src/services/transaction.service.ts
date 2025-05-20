@@ -33,18 +33,11 @@ export class TransactionService {
             transactionid,
             status,
         } = payload;
-
-        console.log("Webhook payload:", payload);
-        
-
         if (!transactionid || !requesttransactionid) {
             throw new Error("Missing transactionid or requesttransactionid");
         }
 
         const normalizedStatus = status.toLowerCase() === "successfull" ? "success" : "failed";
-        console.log("Normalized status:", normalizedStatus);
-        
-
         const updatedTransaction = await prisma.transaction.updateMany({
             where: {
                 transactionid,

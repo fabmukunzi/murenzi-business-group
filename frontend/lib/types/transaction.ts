@@ -1,3 +1,11 @@
+import { IBooking } from "./booking";
+
+export enum TransactionStatus {
+    pending = "pending",
+    success = "success",
+    failed = "failed",
+}
+
 export interface TransactionsResponse {
     success: boolean;
     transactions: Transaction[];
@@ -12,12 +20,12 @@ export interface Transaction {
     type: string;
     transactionid: string;
     requesttransactionid: string;
-    status: 'Pending' | 'Failed' | 'Successfull';
+    status: TransactionStatus;
     createdAt: string;
     updatedAt: string;
     booking: Booking | null;
 }
-  
+
 export interface Booking {
     id: string;
     name: string;
@@ -47,8 +55,6 @@ export interface Room {
     createdAt: string;
     updatedAt: string;
 }
-  
-
 
 export interface TransactionDetails {
     [key: string]: string | number | null;
@@ -59,25 +65,11 @@ export interface RentalTransaction {
     amount: number;
     transactionid: string;
     requesttransactionid: string;
-    status: "Pending" | "Failed" | "Success";
+    type: string;
+    reason?: string;
+    status: TransactionStatus;
     createdAt: string;
     updatedAt: string;
-    booking: {
-        id: string;
-        name: string;
-        email: string;
-        phoneNumber: string;
-        roomId: string;
-        checkIn: string;
-        checkOut: string;
-        totalPrice: number;
-        room: {
-            id: string;
-            name: string;
-            description: string;
-            price: number;
-            location: string;
-        };
-    } | null;
+    booking: Booking| null;
     details?: TransactionDetails;
-  }
+}

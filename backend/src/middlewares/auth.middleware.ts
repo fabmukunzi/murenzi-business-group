@@ -37,9 +37,8 @@ export const protectRoute = async (
                 next();
             }
         });
-    } catch (err) {
-        console.log(err, "Error occurred");
-        res.status(500).json({ message: "Internal Server Error" });
+    } catch (err:any) {
+        res.status(500).json({ message:err.message|| "Internal Server Error" });
     }
 };
 

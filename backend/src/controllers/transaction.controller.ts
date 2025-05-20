@@ -10,9 +10,8 @@ export const getAllTransactions = async (req: Request, res: Response) => {
     try {
         const transactions = await TransactionService.gellAllTransactions();
         res.status(200).json({ success: true, transactions });
-    } catch (error) {
-        console.error('Error fetching transactions:', error);
-        res.status(500).json({ success: false, message: 'Internal server error' });
+    } catch (error:any) {
+        res.status(500).json({ success: false, message: error.message || 'Internal server error' });
     }
 }
 
@@ -27,9 +26,8 @@ export const getTransactionById = async (req: Request, res: Response) => {
         }
 
         res.status(200).json({ success: true, transaction });
-    } catch (error) {
-        console.error('Error fetching transaction:', error);
-        res.status(500).json({ success: false, message: 'Internal server error' });
+    } catch (error:any) {
+        res.status(500).json({ success: false, message: error.message || 'Internal server error' });
     }
 }
 
@@ -37,9 +35,8 @@ export const createTransaction = async (req: Request, res: Response) => {
     try {
         const newTransaction = await TransactionService.createTransaction(req.body);
         res.status(201).json({ success: true, transaction: newTransaction });
-    } catch (error) {
-        console.error('Error creating transaction:', error);
-        res.status(500).json({ success: false, message: 'Internal server error' });
+    } catch (error:any) {
+        res.status(500).json({ success: false, message: error.message||'Internal server error' });
     }
 }
 
@@ -48,9 +45,8 @@ export const updateTransaction = async (req: Request, res: Response) => {
         const { id } = req.params;
         const updated = await TransactionService.updateTransaction(id, req.body);
         res.status(200).json({ success: true, transaction: updated });
-    } catch (error) {
-        console.error('Error updating transaction:', error);
-        res.status(500).json({ success: false, message: 'Internal server error' });
+    } catch (error:any) {
+        res.status(500).json({ success: false, message: error.message||'Internal server error' });
     }
 }
 
@@ -59,9 +55,8 @@ export const deleteTransaction = async (req: Request, res: Response) => {
         const { id } = req.params;
         await TransactionService.deleteTransaction(id);
         res.status(200).json({ success: true, message: 'Transaction deleted' });
-    } catch (error) {
-        console.error('Error deleting transaction:', error);
-        res.status(500).json({ success: false, message: 'Internal server error' });
+    } catch (error:any) {
+        res.status(500).json({ success: false, message: error.message|| 'Internal server error' });
     }
 }
 
@@ -82,9 +77,7 @@ export const webhook = async (req: Request, res: Response) => {
 export const withdraw = async (req: Request, res: Response) => {
     const { phoneNumber, totalPrice, reason } = req.body;
     try {
-
         if (!phoneNumber || !totalPrice) {
-            console.log(phoneNumber,totalPrice)
              res.status(400).json({
                 status: "error",
                 message: "Missing phoneNumber or totalPrice in request body.",
@@ -105,17 +98,15 @@ export const withdraw = async (req: Request, res: Response) => {
             requesttransactionid
         };
 
-        const response = await fetch("https://www.intouchpay.co.rw/api/requestdeposit/", {
+        const response = await fetch(`${process.env.INTOUCH_BASE_URL}/requestdeposit/`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
         });
 
         const paymentResponse = await response.json();
-        console.log("Response from IntouchPay:", paymentResponse);
-
-        const responseCode = String(paymentResponse.responsecode);
-        const message = responseMessages[responseCode] || paymentResponse.message || paymentResponse.statusdesc|| "Unknown error";
+        const responseCode = String(paymentResponse.responsecode || "401");
+        const message = responseMessages[responseCode] || paymentResponse.message || paymentResponse.statusdesc || paymentResponse.detail || "Unknown error";
 
         if (responseCode !== "2001") {
              res.status(400).json({
@@ -126,22 +117,12 @@ export const withdraw = async (req: Request, res: Response) => {
             });
             return
         }
-
-        const currentUser=await UserService.getUserByEmail(req.user.email);
-        if (!currentUser) {
-            res.status(404).json({
-                status: "error",
-                message: "User not found",
-            });
-            return
-        }
-        console.log("Current User:", currentUser);
         
 
         const transaction = await TransactionService.createTransaction({
             amount: parseFloat(totalPrice),
-            name: currentUser.firstName + " " + currentUser.lastName,
-            email: currentUser.email,
+            name: req.user?.firstName + " " + req.user?.lastName,
+            email: req.user?.email,
             phoneNumber: `${phoneNumber}`,
             transactionid: paymentResponse.transactionid,
             requesttransactionid: `${requesttransactionid}`,

@@ -25,7 +25,7 @@ import {
 import { transactionEndpoints, useGettransactionsQuery } from "@/store/actions/transaction";
 import { useDispatch } from "react-redux";
 import Pusher from 'pusher-js';
-import { Transaction } from "@/lib/types/transaction";
+import { RentalTransaction, Transaction } from "@/lib/types/transaction";
 
 interface TransactionDetails {
   [key: string]: string | number | null;
@@ -38,37 +38,37 @@ interface StatusUpdatedEventData {
 }
 
 
-interface RentalTransaction {
-  id: string;
-  amount: number;
-  name:string;
-  email:string;
-  phoneNumber:number,
-  type:string,
-  transactionid: string;
-  requesttransactionid: string;
-  status: "Pending" | "Failed" | "Successfull";
-  createdAt: string;
-  updatedAt: string;
-  booking: {
-    id: string;
-    name: string;
-    email: string;
-    phoneNumber: string;
-    roomId: string;
-    checkIn: string;
-    checkOut: string;
-    totalPrice: number;
-    room: {
-      id: string;
-      name: string;
-      description: string;
-      price: number;
-      location: string;
-    };
-  } | null;
-  details?: TransactionDetails;
-}
+// interface RentalTransaction {
+//   id: string;
+//   amount: number;
+//   name:string;
+//   email:string;
+//   phoneNumber:number,
+//   type:string,
+//   transactionid: string;
+//   requesttransactionid: string;
+//   status: "Pending" | "Failed" | "Successfull";
+//   createdAt: string;
+//   updatedAt: string;
+//   booking: {
+//     id: string;
+//     name: string;
+//     email: string;
+//     phoneNumber: string;
+//     roomId: string;
+//     checkIn: string;
+//     checkOut: string;
+//     totalPrice: number;
+//     room: {
+//       id: string;
+//       name: string;
+//       description: string;
+//       price: number;
+//       location: string;
+//     };
+//   } | null;
+//   details?: TransactionDetails;
+// }
 
 const StatusBadge = ({ status }: { status: string }) => {
   const statusStyles = {
@@ -298,15 +298,15 @@ export default function TransactionsPage() {
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Customer</h3>
-                  <p className="text-sm sm:text-base">{selectedTransaction?.name || "N/A"}</p>
+                  <p className="text-sm sm:text-base">{selectedTransaction?.booking?.name || "N/A"}</p>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Email</h3>
-                  <p className="text-sm sm:text-base break-all">{selectedTransaction.email || "N/A"}</p>
+                  <p className="text-sm sm:text-base break-all">{selectedTransaction.booking?.email || "N/A"}</p>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Phone</h3>
-                  <p className="text-sm sm:text-base">{selectedTransaction.phoneNumber || "N/A"}</p>
+                  <p className="text-sm sm:text-base">{selectedTransaction.booking?.phoneNumber || "N/A"}</p>
                 </div> 
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Type</h3>
