@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Search, Download, Check, X, AlertCircle, Eye } from "lucide-react";
+import { Search, Download, Check, X, AlertCircle, Eye, TrendingDown, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -22,138 +22,65 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { transactionEndpoints, useGettransactionsQuery } from "@/store/actions/transaction";
+import { useDispatch } from "react-redux";
+import Pusher from 'pusher-js';
+import { RentalTransaction, Transaction } from "@/lib/types/transaction";
 
-// Define transaction interfaces
 interface TransactionDetails {
-  [key: string]: string | number;
+  [key: string]: string | number | null;
 }
 
-interface RentalTransaction {
-  id: string;
-  customer: string;
-  email: string;
-  phone: string;
-  date: string;
-  property: string;
-  amount: number;
-  duration: string;
-  status: "pending" | "failed" | "success";
-  paymentMethod: string;
-  correspondent: string;
-  details: TransactionDetails;
+interface StatusUpdatedEventData {
+  transactionid: string;
+  requesttransactionid: string;
+  status: string; // You can narrow this if you use specific status values like: 'pending' | 'Successful' | 'Failed'
 }
 
-// Mock transactions data
-const transactions: RentalTransaction[] = [
-  {
-    id: "R12345",
-    customer: "John Smith",
-    email: "john.smith@example.com",
-    phone: "+250789123456",
-    date: "2025-05-15",
-    property: "Luxury Apartment",
-    amount: 450,
-    duration: "3 nights",
-    status: "success",
-    paymentMethod: "Credit Card",
-    correspondent: "Visa",
-    details: {
-      checkin: "2023-05-15",
-      checkout: "2023-05-18",
-      guests: 2,
-      specialRequests: "Late check-in requested",
-    },
-  },
-  {
-    id: "R12346",
-    customer: "Melvin KAGABO",
-    email: "melvin.k@example.com",
-    phone: "+250782956478",
-    date: "2025-05-18",
-    property: "Modern Studio",
-    amount: 200,
-    duration: "2 nights",
-    status: "pending",
-    paymentMethod: "Mobile Money",
-    correspondent: "MTN MoMo",
-    details: {
-      checkin: "2023-06-01",
-      checkout: "2023-06-03",
-      guests: 1,
-      specialRequests: "None",
-    },
-  },
-  {
-    id: "R12347",
-    customer: "Raphael MUGABO",
-    email: "raphael.m@example.com",
-    phone: "+250733111222",
-    date: "2025-05-10",
-    property: "Deluxe Villa",
-    amount: 1200,
-    duration: "4 nights",
-    status: "failed",
-    paymentMethod: "Bank Transfer",
-    correspondent: "Bank of Kigali",
-    details: {
-      checkin: "2023-05-20",
-      checkout: "2023-05-24",
-      guests: 4,
-      specialRequests: "Airport pickup requested",
-    },
-  },
-  {
-    id: "R12348",
-    customer: "Sarah Johnson",
-    email: "sarah.j@example.com",
-    phone: "+250781234567",
-    date: "2025-05-20",
-    property: "Ocean View Suite",
-    amount: 550,
-    duration: "5 nights",
-    status: "success",
-    paymentMethod: "Mobile Money",
-    correspondent: "MTN MoMo",
-    details: {
-      checkin: "2023-05-25",
-      checkout: "2023-05-30",
-      guests: 2,
-      specialRequests: "Ocean view room requested",
-    },
-  },
-  {
-    id: "R12349",
-    customer: "Daniel Kamau",
-    email: "daniel.k@example.com",
-    phone: "+250722987654",
-    date: "2025-05-22",
-    property: "Mountain Cabin",
-    amount: 320,
-    duration: "3 nights",
-    status: "pending",
-    paymentMethod: "Credit Card",
-    correspondent: "Mastercard",
-    details: {
-      checkin: "2023-06-05",
-      checkout: "2023-06-08",
-      guests: 3,
-      specialRequests: "Hiking equipment rental",
-    },
-  },
-];
 
-// Status badge component
+// interface RentalTransaction {
+//   id: string;
+//   amount: number;
+//   name:string;
+//   email:string;
+//   phoneNumber:number,
+//   type:string,
+//   transactionid: string;
+//   requesttransactionid: string;
+//   status: "Pending" | "Failed" | "Successfull";
+//   createdAt: string;
+//   updatedAt: string;
+//   booking: {
+//     id: string;
+//     name: string;
+//     email: string;
+//     phoneNumber: string;
+//     roomId: string;
+//     checkIn: string;
+//     checkOut: string;
+//     totalPrice: number;
+//     room: {
+//       id: string;
+//       name: string;
+//       description: string;
+//       price: number;
+//       location: string;
+//     };
+//   } | null;
+//   details?: TransactionDetails;
+// }
+
 const StatusBadge = ({ status }: { status: string }) => {
   const statusStyles = {
-    success: "bg-green-100 text-green-800 border-green-200",
-    pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
-    failed: "bg-red-100 text-red-800 border-red-200",
+    Success: "bg-green-100 text-green-800 border-green-200",
+    Pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
+    Failed: "bg-red-100 text-red-800 border-red-200",
   };
 
   const statusIcons = {
-    success: <Check size={14} className="mr-1" />,
-    pending: <AlertCircle size={14} className="mr-1" />,
-    failed: <X size={14} className="mr-1" />,
+    Success: <Check size={14} className="mr-1" />,
+    Pending: <AlertCircle size={14} className="mr-1" />,
+    Failed: <X size={14} className="mr-1" />,
   };
 
   const style =
@@ -175,19 +102,58 @@ export default function TransactionsPage() {
     useState<RentalTransaction | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  const { data: transactionsData, isLoading, isError } = useGettransactionsQuery();
+  const transactions = transactionsData?.transactions || [];
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
+      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
+      forceTLS: true,
+    });
+
+    const channel = pusher.subscribe('transactions');
+
+    channel.bind('status-updated', (data: StatusUpdatedEventData) => {
+      console.log('Pusher event received:', data);
+      dispatch(transactionEndpoints.util.invalidateTags(['Transaction',"booking"]));
+    });
+
+    return () => {
+      channel.unbind_all();
+      channel.unsubscribe();
+    };
+  }, [dispatch]);
+
   const handleViewDetails = (transaction: RentalTransaction) => {
-    setSelectedTransaction(transaction);
+    const details: TransactionDetails = {
+      transactionId: transaction.transactionid,
+      requestId: transaction.requesttransactionid,
+      createdAt: new Date(transaction.createdAt).toLocaleString(),
+      updatedAt: new Date(transaction.updatedAt).toLocaleString(),
+    };
+
+    if (transaction.booking) {
+      details.checkIn = new Date(transaction.booking.checkIn).toLocaleDateString();
+      details.checkOut = new Date(transaction.booking.checkOut).toLocaleDateString();
+      details.guests = "-";
+      details.specialRequests = "-";
+    }
+
+    setSelectedTransaction({
+      ...transaction,
+      details
+    });
     setIsDialogOpen(true);
   };
 
   // Filter transactions based on search query
-  const filteredTransactions = transactions.filter((transaction) => {
-    // Safely stringify transaction values for search
+  const filteredTransactions = transactions.filter((transaction: Transaction) => {
     const searchableText = Object.entries(transaction)
       .map(([key, value]) => {
-        // Skip complex objects but include primitive values and arrays that can be joined
-        if (key === "details") return "";
-        if (Array.isArray(value)) return value.join(" ");
+        if (key === "booking" && value) {
+          return Object.values(value).join(" ");
+        }
         return String(value);
       })
       .join(" ")
@@ -196,25 +162,33 @@ export default function TransactionsPage() {
     return searchableText.includes(searchQuery.toLowerCase());
   });
 
+  if (isLoading) {
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  }
+
+  if (isError) {
+    return <div className="flex justify-center items-center h-screen">Error loading transactions</div>;
+  }
+
   return (
-    <div className="space-y-8 max-w-7xl mx-auto pb-10 px-4">
+    <div className="space-y-4 md:space-y-8 max-w-7xl mx-auto pb-4 md:pb-10 px-2 sm:px-4">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="flex justify-between items-center"
+        className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
       >
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
             Rental Transactions
           </h1>
-          <p className="text-gray-500 mt-1">
+          <p className="text-sm md:text-base text-gray-500 mt-1">
             Monitor all apartment rental payments
           </p>
         </div>
-        <Button variant="outline" className="gap-2">
+        <Button variant="outline" className="gap-2 w-full md:w-auto">
           <Download size={16} />
-          <span>Export</span>
+          <span className="hidden sm:inline">Export</span>
         </Button>
       </motion.div>
 
@@ -233,149 +207,148 @@ export default function TransactionsPage() {
         </div>
       </div>
 
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[80px]">ID</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Contact</TableHead>
-                <TableHead>Property</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Method</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredTransactions.map((transaction) => (
-                <TableRow key={transaction.id}>
-                  <TableCell className="font-medium">
-                    {transaction.id}
-                  </TableCell>
-                  <TableCell>{transaction.customer}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-col">
-                      <span className="text-xs text-gray-500">
-                        {transaction.email}
-                      </span>
-                      <span className="text-xs">{transaction.phone}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>{transaction.property}</TableCell>
-                  <TableCell>{transaction.date}</TableCell>
-                  <TableCell>${transaction.amount}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-col">
-                      <span>{transaction.paymentMethod}</span>
-                      <span className="text-xs text-gray-500">
-                        {transaction.correspondent}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <StatusBadge status={transaction.status} />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleViewDetails(transaction)}
-                    >
-                      <Eye size={16} className="mr-1" />
-                      View
-                    </Button>
-                  </TableCell>
+      <div className="overflow-x-auto">
+        <Card>
+          <CardContent className="p-0">
+            <Table className="min-w-[800px] md:min-w-full max-sm:max-w-screen">
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[80px]">ID</TableHead>
+                  <TableHead>Customer</TableHead>
+                  <TableHead className="hidden sm:table-cell">Contact</TableHead>
+                  <TableHead>Property</TableHead>
+                  <TableHead className="hidden xs:table-cell">Date</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+              </TableHeader>
+              <TableBody>
+                {filteredTransactions.map((transaction: Transaction) => (
+                  <TableRow key={transaction.id}>
+                    <TableCell className="font-medium">
+                      {transaction.transactionid.slice(0, 8)}...
+                    </TableCell>
+                    <TableCell>
+                      {transaction?.name || "N/A"}
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                      <div className="flex flex-col">
+                        <span className="text-xs text-gray-500">
+                          {transaction?.email || "N/A"}
+                        </span>
+                        <span className="text-xs">
+                          {transaction?.phoneNumber || "N/A"}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-500">  
+                          {transaction?.type}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {transaction?.type === "incoming" ? <TrendingDown className="text-green-600/70" /> : <TrendingUp className="text-destructive/70" />}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden xs:table-cell">
+                      {new Date(transaction.createdAt).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>${transaction.amount}</TableCell>
+                    <TableCell>
+                      <StatusBadge status={transaction.status} />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleViewDetails(transaction)}
+                        className="p-2 sm:px-3"
+                      >
+                        <Eye size={16} className="mr-0 sm:mr-1" />
+                        <span className="hidden sm:inline">View</span>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Transaction Details Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[625px]">
           <DialogHeader>
-            <DialogTitle>Transaction Details</DialogTitle>
+            <DialogTitle className="text-lg sm:text-xl">Transaction Details</DialogTitle>
           </DialogHeader>
 
           {selectedTransaction && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500">ID</h3>
-                  <p>{selectedTransaction.id}</p>
+                  <h3 className="text-sm font-medium text-gray-500">Transaction ID</h3>
+                  <p className="text-sm sm:text-base break-all">{selectedTransaction.transactionid}</p>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Date</h3>
-                  <p>{selectedTransaction.date}</p>
+                  <p className="text-sm sm:text-base">{new Date(selectedTransaction.createdAt).toLocaleString()}</p>
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500">
-                    Customer
-                  </h3>
-                  <p>{selectedTransaction.customer}</p>
+                  <h3 className="text-sm font-medium text-gray-500">Customer</h3>
+                  <p className="text-sm sm:text-base">{selectedTransaction?.booking?.name || "N/A"}</p>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Email</h3>
-                  <p>{selectedTransaction.email}</p>
+                  <p className="text-sm sm:text-base break-all">{selectedTransaction.booking?.email || "N/A"}</p>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Phone</h3>
-                  <p>{selectedTransaction.phone}</p>
-                </div>
+                  <p className="text-sm sm:text-base">{selectedTransaction.booking?.phoneNumber || "N/A"}</p>
+                </div> 
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500">
-                    Property
-                  </h3>
-                  <p>{selectedTransaction.property}</p>
+                  <h3 className="text-sm font-medium text-gray-500">Type</h3>
+                  <p className="text-sm sm:text-base">{selectedTransaction?.type || "N/A"}</p>
                 </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">
-                    Duration
-                  </h3>
-                  <p>{selectedTransaction.duration}</p>
-                </div>
+                {selectedTransaction.booking && (
+                  <>
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-500">Check In</h3>
+                      <p className="text-sm sm:text-base">{new Date(selectedTransaction.booking.checkIn).toLocaleDateString()}</p>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-500">Check Out</h3>
+                      <p className="text-sm sm:text-base">{new Date(selectedTransaction.booking.checkOut).toLocaleDateString()}</p>
+                    </div>
+                  </>
+                )}
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Amount</h3>
-                  <p>${selectedTransaction.amount}</p>
+                  <p className="text-sm sm:text-base">${selectedTransaction.amount}</p>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Status</h3>
-                  <StatusBadge status={selectedTransaction.status} />
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">
-                    Payment Method
-                  </h3>
-                  <p>{selectedTransaction.paymentMethod}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">
-                    Correspondent
-                  </h3>
-                  <p>{selectedTransaction.correspondent}</p>
+                  <div className="mt-1">
+                    <StatusBadge status={selectedTransaction.status} />
+                  </div>
                 </div>
               </div>
 
               <Separator />
 
               <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-2">
-                  Details
-                </h3>
+                <h3 className="text-sm font-medium text-gray-500 mb-2">Details</h3>
                 <Card>
-                  <CardContent className="p-4">
-                    {Object.entries(selectedTransaction.details).map(
+                  <CardContent className="p-2 sm:p-4">
+                    {selectedTransaction.details && Object.entries(selectedTransaction.details).map(
                       ([key, value]) => (
-                        <div key={key} className="flex justify-between py-1">
-                          <span className="text-sm font-medium capitalize">
+                        <div key={key} className="flex justify-between py-1 text-sm">
+                          <span className="font-medium capitalize">
                             {key.replace(/([A-Z])/g, " $1")}
                           </span>
-                          <span className="text-sm">{String(value)}</span>
+                          <span className="text-right break-all">{String(value)}</span>
                         </div>
                       )
                     )}
@@ -383,28 +356,23 @@ export default function TransactionsPage() {
                 </Card>
               </div>
 
-              <div className="flex justify-end gap-2">
+              <div className="flex flex-col-reverse sm:flex-row justify-end gap-2">
                 <Button
                   variant="outline"
                   onClick={() => setIsDialogOpen(false)}
+                  className="mt-2 sm:mt-0"
                 >
                   Close
                 </Button>
-                {selectedTransaction.status === "pending" && (
-                  <Button className="bg-primary hover:bg-primary/90">
-                    Mark as Complete
-                  </Button>
-                )}
               </div>
             </div>
           )}
         </DialogContent>
       </Dialog>
 
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
         <div className="text-sm text-gray-500">
-          Showing {filteredTransactions.length} of {transactions.length}{" "}
-          transactions
+          Showing {filteredTransactions.length} of {transactions.length} transactions
         </div>
         <div className="flex gap-1">
           <Button variant="outline" size="sm" disabled>

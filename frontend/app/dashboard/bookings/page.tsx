@@ -11,12 +11,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useGetBookingsQuery } from '@/store/actions/booking';
-import { useState } from 'react';
+import { bookingEndpoints, useGetBookingsQuery } from '@/store/actions/booking';
+import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import * as XLSX from 'xlsx';
 import Image from 'next/image';
 import { Loader2 } from 'lucide-react';
+import Pusher from 'pusher-js';
+import { useDispatch } from 'react-redux';
 
 function StatusBadge({ status }: { status: string }) {
   const statusColor = {
@@ -26,6 +28,7 @@ function StatusBadge({ status }: { status: string }) {
     unknown: 'bg-gray-100 text-gray-800',
   };
 
+  
   const color =
     statusColor[status?.toLowerCase() as keyof typeof statusColor] ||
     statusColor.unknown;
@@ -38,10 +41,36 @@ function StatusBadge({ status }: { status: string }) {
     </span>
   );
 }
+interface StatusUpdatedEventData {
+  transactionid: string;
+  requesttransactionid: string;
+  status: string; // You can narrow this if you use specific status values like: 'pending' | 'Successful' | 'Failed'
+}
 
 export default function BookingsTable() {
   const { data, isLoading, isError } = useGetBookingsQuery();
   const [search, setSearch] = useState('');
+
+    const dispatch = useDispatch();
+  
+    useEffect(() => {
+      const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
+        cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
+        forceTLS: true,
+      });
+  
+      const channel = pusher.subscribe('transactions');
+  
+      channel.bind('status-updated', (data: StatusUpdatedEventData) => {
+        console.log('Pusher event received:', data);
+        dispatch(bookingEndpoints.util.invalidateTags(["booking"]));
+      });
+  
+      return () => {
+        channel.unbind_all();
+        channel.unsubscribe();
+      };
+    }, [dispatch]);
 
   const filtered = data?.data?.bookings?.filter(
     (b) =>

@@ -9,11 +9,10 @@ class BookingService {
                 checkIn: { lte: new Date(data.checkOut) },
                 checkOut: { gte: new Date(data.checkIn) },
                 transaction: {
-                    is: { status: 'Successful' },
+                    is: { status: 'Successfull' },
                 },
             },
         });
-
         if (overlappingBooking) {
             throw new Error('The selected room is already booked for the given dates.');
         }

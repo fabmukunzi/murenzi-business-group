@@ -7,7 +7,6 @@ const roomService = new RoomService();
 export const createRoom = async (req: Request, res: Response) => {
     try {
         const { name, description, pricePerNight, parkingSlots, size, location } = req.body;
-        console.log(req.body);
         if (!name) {
             res.status(400).json({
                 status: 'fail',

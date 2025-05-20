@@ -61,7 +61,7 @@ export const createBooking = async (req: Request, res: Response) => {
             return
         }
         else {
-            const response = await fetch("https://www.intouchpay.co.rw/api/requestpayment/", {
+            const response = await fetch(`${process.env.INTOUCH_BASE_URL}/requestpayment/`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -91,10 +91,15 @@ export const createBooking = async (req: Request, res: Response) => {
 
 
         const transaction = await TransactionService.createTransaction({
-            amount: parseFloat(totalPrice),
+            amount: totalPrice,
+            name,
+            email,
+            phoneNumber:`${phoneNumber}`,
             transactionid: paymentResponse.transactionid,
-            requesttransactionid: paymentResponse.requesttransactionid,
+            requesttransactionid: paymentResponse.requesttransactionid.toString(),
             status: paymentResponse.status,
+            reason: "Room Booking",
+            type: "incoming",
         });
 
         if (!transaction) {
@@ -121,7 +126,6 @@ export const createBooking = async (req: Request, res: Response) => {
             data: { booking },
         });
     } catch (error: any) {
-        console.log("Error creating booking:", error.message);
         res.status(500).json({
             status: 'error',
             message: error.message,

@@ -1,4 +1,6 @@
 import { PrismaClient } from '@prisma/client';
+import { TransactionWebhookPayload } from '../types/transaction';
+import { pusher } from '../config/pusher';
 
 const prisma = new PrismaClient();
 
@@ -7,11 +9,12 @@ export class TransactionService {
         return prisma.transaction.findUnique({ where: { id } });
     }
     static async gellAllTransactions() {
-        return prisma.transaction.findMany({include: { booking: true}});
+        return prisma.transaction.findMany({
+            orderBy: {
+                createdAt: 'desc',
+            }, include: { booking: { include: { room: true } } } });
     }
     static async createTransaction(data: any) {
-        console.log(data);
-        
         return prisma.transaction.create({ data });
     }
     static async updateTransaction(id: string, data: any) {
@@ -23,4 +26,40 @@ export class TransactionService {
     static async deleteTransaction(id: string) {
         return prisma.transaction.delete({ where: { id } });
     }
+
+    static async handleWebhook(payload: TransactionWebhookPayload) {
+        const {
+            requesttransactionid,
+            transactionid,
+            status,
+        } = payload;
+        if (!transactionid || !requesttransactionid) {
+            throw new Error("Missing transactionid or requesttransactionid");
+        }
+
+        const normalizedStatus = status.toLowerCase() === "successfull" ? "success" : "failed";
+        const updatedTransaction = await prisma.transaction.updateMany({
+            where: {
+                transactionid,
+                requesttransactionid,
+            },
+            data: {
+                status: normalizedStatus,
+                updatedAt: new Date(),
+            },
+        });
+
+        if (updatedTransaction.count === 0) {
+            throw new Error("Transaction not found");
+        }
+
+        await pusher.trigger("transactions", "status-updated", {
+            transactionid,
+            requesttransactionid,
+            status: normalizedStatus,
+        });
+
+        return updatedTransaction;
+      }
+
 }
