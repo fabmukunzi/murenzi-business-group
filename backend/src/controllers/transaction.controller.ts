@@ -62,7 +62,8 @@ export const deleteTransaction = async (req: Request, res: Response) => {
 
 export const webhook = async (req: Request, res: Response) => {
     try {
-        const payload: TransactionWebhookPayload = req.body;
+        const payload: TransactionWebhookPayload = req.body.jsonpayload;
+        console.log("webhook payload", payload);
         if (!payload) {
             res.status(400).json({ success: false, message: 'Missing payload' });
             return
@@ -70,6 +71,7 @@ export const webhook = async (req: Request, res: Response) => {
         const result = await TransactionService.handleWebhook(payload);
         res.status(200).json({ success: true, message: 'Webhook processed', result });
     } catch (error) {
+        console.error("Error processing webhook:", error);
         res.status(500).json({ success: false, message: `${error}` });
     }
 }
