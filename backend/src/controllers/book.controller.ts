@@ -49,7 +49,7 @@ export const createBooking = async (req: Request, res: Response) => {
             mobilephone: phoneNumber,
             amount: totalPrice,
             requesttransactionid: generateRequestTransactionId(),
-            callbackurl: "https://fabrand.vercel.app/"
+            callbackurl: process.env.CALLBACK_URL
         };
 
         let paymentResponse;

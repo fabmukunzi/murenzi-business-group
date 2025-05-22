@@ -97,7 +97,8 @@ export const withdraw = async (req: Request, res: Response) => {
             // withdrawcharge: 1,
             reason: reason || "User withdrawal request",
             // sid: 1,
-            requesttransactionid
+            requesttransactionid,
+            callbackurl: process.env.CALLBACK_URL,
         };
 
         const response = await fetch(`${process.env.INTOUCH_BASE_URL}/requestdeposit/`, {
