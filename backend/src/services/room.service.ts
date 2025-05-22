@@ -19,7 +19,7 @@ export class RoomService {
         return await prisma.room.findUnique({ where: { name } });
     }
 
-    async updateRoom(id: string, data: any) {        
+    async updateRoom(id: string, data: any) {
         return await prisma.room.update({ where: { id }, data });
     }
 

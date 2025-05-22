@@ -1,3 +1,4 @@
+import { IBooking } from "./booking";
 
 export enum TransactionStatus {
     pending = "pending",
@@ -22,37 +23,7 @@ export interface Transaction {
     status: TransactionStatus;
     createdAt: string;
     updatedAt: string;
-    booking: Booking | null;
-}
-
-export interface Booking {
-    id: string;
-    name: string;
-    email: string;
-    phoneNumber: string;
-    roomId: string;
-    checkIn: string;
-    checkOut: string;
-    transactionId: string;
-    totalPrice: number;
-    createdAt: string;
-    updatedAt: string;
-    room: Room;
-}
-
-export interface Room {
-    id: string;
-    name: string;
-    description: string;
-    images: string[];
-    video: string | null;
-    available: boolean;
-    price: number;
-    parkingSpace: number;
-    size: string;
-    location: string;
-    createdAt: string;
-    updatedAt: string;
+    booking: IBooking | null;
 }
 
 export interface TransactionDetails {
@@ -69,6 +40,6 @@ export interface RentalTransaction {
     status: TransactionStatus;
     createdAt: string;
     updatedAt: string;
-    booking: Booking| null;
+    booking: IBooking | null;
     details?: TransactionDetails;
 }

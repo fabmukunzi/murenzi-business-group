@@ -19,7 +19,6 @@ export const createBooking = async (req: Request, res: Response) => {
             return
         }
         const existingRoom = await roomService.getRoomById(roomId);
-
         if (new Date(checkIn) >= new Date(checkOut)) {
             res.status(400).json({
                 status: 'error',
@@ -49,7 +48,7 @@ export const createBooking = async (req: Request, res: Response) => {
             mobilephone: phoneNumber,
             amount: totalPrice,
             requesttransactionid: generateRequestTransactionId(),
-            callbackurl: "https://fabrand.vercel.app/"
+            callbackurl: process.env.CALLBACK_URL
         };
 
         let paymentResponse;
@@ -101,6 +100,7 @@ export const createBooking = async (req: Request, res: Response) => {
             reason: "Room Booking",
             type: "incoming",
         });
+
 
         if (!transaction) {
             res.status(500).json({

@@ -1,18 +1,8 @@
-export interface IRoom {
-    id: string;
-    name: string;
-    price: number;
-    location: string;
-    parkingSpace: number;
-    size: string;
-    description: string;
-    images: string[];
-    video: string;
-    amenities: string[];
-    createdAt: string;
-    updatedAt: string;
-};
+import { Room, IBooking } from "./booking";
 
+export interface IRoom extends Room {
+    amenities: string[];
+}
 
 export interface BookingPayload {
     name: string;
@@ -24,23 +14,11 @@ export interface BookingPayload {
     totalPrice: number;
 }
 
-
-export interface Booking {
-    id: string;
-    name: string;
-    email: string;
-    phoneNumber: string;
-    roomId: string;
-    checkIn: string; 
-    checkOut: string;   
-    transactionId: string;
-    totalPrice: number;
-    createdAt: string; 
-    updatedAt: string;  
-}
+// Use IBooking from booking.ts
+export type Booking = IBooking;
 
 export interface BookingResponse {
-    status: string; 
+    status: string;
     message: string;
     data: {
         booking: Booking;
