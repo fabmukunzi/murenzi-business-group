@@ -37,37 +37,37 @@ export const menuItems = [
 ];
 
 export const tentsItems = [
-    {
-        image: "https://images.unsplash.com/photo-1740472647422-90c4e86ace08?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        title: "Luxury Tent",
-        description: "Spacious luxury tent with comfortable bedding and a scenic view.",
-        price: "$99",
-        category: "luxury",
-    },
-    {
-        image: "https://images.unsplash.com/photo-1740472647422-90c4e86ace08?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        title: "Mountain Tent",
-        description: "Durable and cozy tent perfect for mountain adventures.",
-        price: "$79",
-        category: "mountain",
-    },
-    {
-        image: "https://images.unsplash.com/photo-1740472647422-90c4e86ace08?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        title: "Beach Tent",
-        description: "Lightweight and breezy tent ideal for beach vacations.",
-        price: "$69",
-        category: "beach",
-    },
-    {
-        image: "https://images.unsplash.com/photo-1740472647422-90c4e86ace08?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        title: "Luxury Tent",
-        description: "Spacious luxury tent with comfortable bedding and a scenic view.",
-        price: "$99",
-        category: "luxury",
-    },
+  {
+    image: "https://images.unsplash.com/photo-1740472647422-90c4e86ace08?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    title: "Luxury Tent",
+    description: "Spacious luxury tent with comfortable bedding and a scenic view.",
+    price: "$99",
+    category: "luxury",
+  },
+  {
+    image: "https://images.unsplash.com/photo-1740472647422-90c4e86ace08?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    title: "Mountain Tent",
+    description: "Durable and cozy tent perfect for mountain adventures.",
+    price: "$79",
+    category: "mountain",
+  },
+  {
+    image: "https://images.unsplash.com/photo-1740472647422-90c4e86ace08?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    title: "Beach Tent",
+    description: "Lightweight and breezy tent ideal for beach vacations.",
+    price: "$69",
+    category: "beach",
+  },
+  {
+    image: "https://images.unsplash.com/photo-1740472647422-90c4e86ace08?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    title: "Luxury Tent",
+    description: "Spacious luxury tent with comfortable bedding and a scenic view.",
+    price: "$99",
+    category: "luxury",
+  },
 ];
 
 
-export const noImageUrl ="https://cp.spokanecounty.org/SCOUT/PropertyInformation/Images/NoImage.jpg"
+export const noImageUrl = "https://cp.spokanecounty.org/SCOUT/PropertyInformation/Images/NoImage.jpg"
 
 

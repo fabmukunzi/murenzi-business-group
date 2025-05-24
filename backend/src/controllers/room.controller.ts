@@ -136,15 +136,32 @@ export const getAllRooms = async (req: Request, res: Response) => {
 
 export const getRoomById = async (req: Request, res: Response) => {
     try {
-        const room = await roomService.getRoomById(req.params.id);
-        if (!room) {
+        const roomWithBookings = await roomService.getRoomById(req.params.id);
+        if (!roomWithBookings) {
             res.status(404).json({ status: 'fail', message: 'Room not found' });
-            return
+            return;
         }
+
         res.status(200).json({
             status: 'success',
             message: 'Room retrieved successfully',
-            data: { room },
+            data: {
+                room: {
+                    id: roomWithBookings.id,
+                    name: roomWithBookings.name,
+                    description: roomWithBookings.description,
+                    images: roomWithBookings.images,
+                    video: roomWithBookings.video,
+                    available: roomWithBookings.available,
+                    price: roomWithBookings.price,
+                    parkingSpace: roomWithBookings.parkingSpace,
+                    size: roomWithBookings.size,
+                    location: roomWithBookings.location,
+                    createdAt: roomWithBookings.createdAt,
+                    updatedAt: roomWithBookings.updatedAt
+                },
+                bookings: roomWithBookings.bookings
+            },
         });
     } catch (error: any) {
         res.status(500).json({ status: 'error', message: error.message });

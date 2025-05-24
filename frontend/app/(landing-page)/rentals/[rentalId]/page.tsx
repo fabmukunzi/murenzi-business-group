@@ -43,6 +43,17 @@ export default function RentalDetailPage() {
     roomId: params.rentalId as string,
   });
 
+  const bookedRanges = data?.data?.bookings?.map(booking => ({
+    start: new Date(booking.checkIn),
+    end: new Date(booking.checkOut)
+  })) || [];
+
+  const isDateBooked = (date: Date) => {
+    return bookedRanges.some(range =>
+      date >= range.start && date <= range.end
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -148,7 +159,7 @@ export default function RentalDetailPage() {
             height={14}
             className="mr-1"
           />
-          Kanombe, Kigali, Rwanda
+          {room.location || 'Kanombe, Kigali, Rwanda'}
         </p>
       </motion.div>
 
@@ -260,7 +271,10 @@ export default function RentalDetailPage() {
                       mode="single"
                       selected={checkIn}
                       onSelect={setCheckIn}
-                      disabled={(date) => isBefore(date, new Date())}
+                      disabled={(date) =>
+                        isBefore(date, new Date()) ||
+                        isDateBooked(date)
+                      }
                     />
                   </PopoverContent>
                 </Popover>
@@ -282,7 +296,8 @@ export default function RentalDetailPage() {
                       selected={checkOut}
                       onSelect={setCheckOut}
                       disabled={(date) =>
-                        isBefore(date, checkIn ? addDays(checkIn, 1) : new Date())
+                        isBefore(date, checkIn ? addDays(checkIn, 1) : new Date()) ||
+                        isDateBooked(date)
                       }
                     />
                   </PopoverContent>
@@ -307,7 +322,6 @@ export default function RentalDetailPage() {
             >
               {isBooking ? 'Processing...' : 'Proceed to Payment'}
             </Button>
-
           </Card>
         </div>
       </div>

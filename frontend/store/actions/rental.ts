@@ -1,4 +1,5 @@
-import { IRoom } from '@/lib/types/room';
+import { Room } from '@/lib/types/booking';
+import { IRoom, RoomApiResponse } from '@/lib/types/room';
 import { baseAPI } from '@/store/api';
 
 const roomsEndpoints = baseAPI.injectEndpoints({
@@ -18,7 +19,7 @@ const roomsEndpoints = baseAPI.injectEndpoints({
       }),
       providesTags: ['room'],
     }),
-    getSingleRental: builder.query<{ data: { room: IRoom } }, { roomId: string }>({
+    getSingleRental: builder.query<{ data: RoomApiResponse }, { roomId: string }>({
       query: ({ roomId }) => ({
         url: `/rooms/${roomId}`,
         method: 'GET',

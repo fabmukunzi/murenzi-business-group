@@ -1,3 +1,4 @@
+import { IBooking } from "./booking";
 
 export enum TransactionStatus {
     pending = "pending",

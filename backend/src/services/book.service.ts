@@ -3,18 +3,25 @@ const prisma = new PrismaClient();
 
 class BookingService {
     async create(data: any) {
-        const overlappingBooking = await prisma.booking.findFirst({
+        const bookings = await prisma.booking.findMany({
             where: {
                 roomId: data.roomId,
                 checkIn: { lte: new Date(data.checkOut) },
                 checkOut: { gte: new Date(data.checkIn) },
-                transaction: {
-                    is: { status: 'Successfull' },
-                },
+            },
+            include: {
+                transaction: true,
             },
         });
-        if (overlappingBooking) {
-            throw new Error('The selected room is already booked for the given dates.');
+        console.log('bookings', bookings);
+        const hasSuccess = bookings.some(
+            (booking) =>
+                booking.transaction &&
+                ['success'].includes(booking.transaction.status)
+        );
+        console.log('hasSuccess', hasSuccess);
+        if (hasSuccess) {
+            throw new Error(`The selected room is already booked for the given dates.`);
         }
 
         return await prisma.booking.create({ data });
