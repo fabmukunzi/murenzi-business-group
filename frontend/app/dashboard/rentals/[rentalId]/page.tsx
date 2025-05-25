@@ -45,7 +45,6 @@ export default function UpdateRentalPage() {
   const router = useRouter();
   const params = useParams()
   const { rentalId } = params as { rentalId: string };
-  console.log(rentalId);
   const { data: rental, isLoading } = useGetSingleRentalQuery({ roomId: rentalId || "" }, {
     skip: !rentalId,
   });
@@ -86,7 +85,6 @@ export default function UpdateRentalPage() {
 
   const onSubmit = async (data: RentalFormData) => {
     const formData = new FormData();
-    console.log(formData);
 
     try {
       Object.entries(data).forEach(([key, value]) => {
