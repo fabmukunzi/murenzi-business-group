@@ -19,7 +19,6 @@ class BookingService {
                 booking.transaction &&
                 ['success'].includes(booking.transaction.status)
         );
-        console.log('hasSuccess', hasSuccess);
         if (hasSuccess) {
             throw new Error(`The selected room is already booked for the given dates.`);
         }

@@ -5,15 +5,14 @@ import { pusher } from '../config/pusher';
 const prisma = new PrismaClient();
 
 export class TransactionService {
-    static async getTransactionById(id: string | undefined) {
+    static async getTransactionById(id: string|undefined) {
         return prisma.transaction.findUnique({ where: { id } });
     }
     static async gellAllTransactions() {
         return prisma.transaction.findMany({
             orderBy: {
                 createdAt: 'desc',
-            }, include: { booking: { include: { room: true } } }
-        });
+            }, include: { booking: { include: { room: true } } } });
     }
     static async createTransaction(data: any) {
         return prisma.transaction.create({ data });
@@ -38,8 +37,9 @@ export class TransactionService {
             throw new Error("Missing transactionid or requesttransactionid");
         }
 
-        const normalizedStatus = status.toLowerCase() === "successfull" ? "success" : "failed";
-        const updatedTransaction = await prisma.transaction.updateMany({
+        const normalizedStatus = ["successfull", "success"].includes(status.toLowerCase())
+            ? "successfull"
+            : "failed";        const updatedTransaction = await prisma.transaction.updateMany({
             where: {
                 transactionid,
                 requesttransactionid,
@@ -61,6 +61,6 @@ export class TransactionService {
         });
 
         return updatedTransaction;
-    }
+      }
 
 }

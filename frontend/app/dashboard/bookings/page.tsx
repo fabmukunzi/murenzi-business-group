@@ -15,20 +15,19 @@ import { bookingEndpoints, useGetBookingsQuery } from '@/store/actions/booking';
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import * as XLSX from 'xlsx';
-import Image from 'next/image';
 import { Loader2 } from 'lucide-react';
 import Pusher from 'pusher-js';
 import { useDispatch } from 'react-redux';
 
 function StatusBadge({ status }: { status: string }) {
   const statusColor = {
-    completed: 'bg-green-100 text-green-800',
+    success: 'bg-green-100 text-green-800',
     pending: 'bg-yellow-100 text-yellow-800',
     failed: 'bg-red-100 text-red-800',
     unknown: 'bg-gray-100 text-gray-800',
   };
 
-  
+
   const color =
     statusColor[status?.toLowerCase() as keyof typeof statusColor] ||
     statusColor.unknown;
@@ -44,40 +43,53 @@ function StatusBadge({ status }: { status: string }) {
 interface StatusUpdatedEventData {
   transactionid: string;
   requesttransactionid: string;
-  status: string; // You can narrow this if you use specific status values like: 'pending' | 'Successful' | 'Failed'
+  status: string;
 }
 
 export default function BookingsTable() {
   const { data, isLoading, isError } = useGetBookingsQuery();
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(7);
 
-    const dispatch = useDispatch();
-  
-    useEffect(() => {
-      const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
-        cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
-        forceTLS: true,
-      });
-  
-      const channel = pusher.subscribe('transactions');
-  
-      channel.bind('status-updated', (data: StatusUpdatedEventData) => {
-        console.log('Pusher event received:', data);
-        dispatch(bookingEndpoints.util.invalidateTags(["booking"]));
-      });
-  
-      return () => {
-        channel.unbind_all();
-        channel.unsubscribe();
-      };
-    }, [dispatch]);
 
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
+      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
+      forceTLS: true,
+    });
+
+    const channel = pusher.subscribe('transactions');
+
+    channel.bind('status-updated', (data: StatusUpdatedEventData) => {
+      console.log('Pusher event received:', data);
+      dispatch(bookingEndpoints.util.invalidateTags(["booking"]));
+    });
+
+    return () => {
+      channel.unbind_all();
+      channel.unsubscribe();
+    };
+  }, [dispatch]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, pageSize])
   const filtered = data?.data?.bookings?.filter(
     (b) =>
       b.name.toLowerCase().includes(search.toLowerCase()) ||
       b.email.toLowerCase().includes(search.toLowerCase()) ||
       b.phoneNumber.includes(search)
-  );
+  ) || [];
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
+
+  const handlePrev = () => setPage((p) => Math.max(1, p - 1));
+  const handleNext = () => setPage((p) => Math.min(totalPages, p + 1));
+
 
   const handleExport = () => {
     const rows =
@@ -119,10 +131,9 @@ export default function BookingsTable() {
           <TableHeader className="bg-gray-50">
             <TableRow>
               <TableHead className="text-gray-600">Guest</TableHead>
-              <TableHead className="text-gray-600">Email</TableHead>
-              <TableHead className="text-gray-600">Phone</TableHead>
+              <TableHead className="text-gray-600">Contacts</TableHead>
               <TableHead className="text-gray-600">Room</TableHead>
-              <TableHead className="text-gray-600">Image</TableHead>
+              <TableHead className="text-gray-600">Booked Date</TableHead>
               <TableHead className="text-gray-600">Check-In</TableHead>
               <TableHead className="text-gray-600">Check-Out</TableHead>
               <TableHead className="text-gray-600">Total Price</TableHead>
@@ -173,7 +184,7 @@ export default function BookingsTable() {
             )}
 
             {!isLoading &&
-              filtered?.map((booking, i) => (
+              paginated?.map((booking, i) => (
                 <TableRow
                   key={booking.id}
                   className={
@@ -181,23 +192,20 @@ export default function BookingsTable() {
                   }
                 >
                   <TableCell className="font-medium">{booking.name}</TableCell>
-                  <TableCell>{booking.email}</TableCell>
-                  <TableCell>{booking.phoneNumber}</TableCell>
+                  <TableCell>
+                    <div className='flex flex-col gap-1'>
+                      <span>{booking.email}</span>
+                      <span className='text-gray-500'>{booking.phoneNumber}</span>
+                    </div>
+                  </TableCell>
                   <TableCell>{booking.room?.name || '-'}</TableCell>
                   <TableCell>
-                    {booking.room?.images?.length > 0 ? (
-                      <Image
-                        src={booking.room.images[0]}
-                        alt={booking.room.name}
-                        width={100}
-                        height={100}
-                        className="h-10 w-16 object-cover rounded"
-                      />
-                    ) : (
-                      <span className="text-xs text-gray-400 italic">
-                        No image
+                    <div className='flex gap-2'>
+                      <span>{dayjs(booking.createdAt).format('YYYY-MM-DD')}</span>
+                      <span className="text-gray-500">
+                        {dayjs(booking.createdAt).format('HH:mm')}
                       </span>
-                    )}
+                    </div>
                   </TableCell>
                   <TableCell>
                     {dayjs(booking.checkIn).format('YYYY-MM-DD')}
@@ -217,6 +225,46 @@ export default function BookingsTable() {
               ))}
           </TableBody>
         </Table>
+      </div>
+      <div>
+        <div className="flex items-center gap-2">
+          <label htmlFor="pageSize" className="text-sm text-gray-600">
+            Page Size:
+          </label>
+          <select
+            id="pageSize"
+            className="border rounded px-2 py-1 text-sm"
+            value={pageSize}
+            onChange={(e) => setPageSize(Number(e.target.value))}
+          >
+            {[4,7,10, 13, 16, 19, 22].map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="flex justify-end items-center gap-2 mt-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handlePrev}
+            disabled={page === 1}
+          >
+            Prev
+          </Button>
+          <span className="text-sm">
+            Page {page} of {totalPages || 1}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleNext}
+            disabled={page === totalPages || totalPages === 0}
+          >
+            Next
+          </Button>
+        </div>
       </div>
     </div>
   );

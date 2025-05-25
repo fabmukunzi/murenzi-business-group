@@ -200,7 +200,10 @@ export default function RestaurantPage() {
         <Button
           className="bg-primary hover:bg-primary/90 flex gap-2 items-center"
           onClick={() => {
-            setFormData(initialFormState);
+            setFormData({
+              ...initialFormState,
+              categoryId: activeTab || categories[0]?.id || "",
+            });
             setIsAddDialogOpen(true);
           }}
         >

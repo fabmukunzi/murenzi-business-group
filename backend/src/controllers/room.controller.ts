@@ -176,12 +176,17 @@ export const updateRoom = async (req: Request, res: Response) => {
             return
         }
 
-        const { name, description, price, sizeOfBeds, sizeOfBaths, parkingSpace, meters } = req.body;
+        const { name, description, pricePerNight: price, parkingSlots: parkingSpace, size: meters, location } = req.body;
+
         const files = req.files as { [fieldname: string]: Express.Multer.File[] };
         let updatedData: Record<string, any> = {};
 
         if (name && name !== existingRoom.name) updatedData.name = name;
         if (description && description !== existingRoom.description) updatedData.description = description;
+
+        if (meters) {
+            updatedData.size = meters;
+        }
 
         if (price !== undefined) {
             const parsedPrice = parseFloat(price);
@@ -189,6 +194,7 @@ export const updateRoom = async (req: Request, res: Response) => {
                 updatedData.price = parsedPrice;
             }
         }
+        if (location && location !== existingRoom.location) updatedData.location = location;
 
 
 

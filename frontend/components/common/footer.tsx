@@ -36,13 +36,10 @@ const FooterComponent = () => {
           <h3 className='font-semibold text-black'>Help</h3>
           <ul className='mt-2 space-y-2 text-sm'>
             <li>
-              <Link href='#contact' className='hover:underline'>Contact Us</Link>
+              <Link href='terms' className='hover:underline'>Terms & Conditions</Link>
             </li>
             <li>
-              <Link href='#' className='hover:underline'>Terms & Conditions</Link>
-            </li>
-            <li>
-              <Link href='#' className='hover:underline'>Privacy Policy</Link>
+              <Link href='privacy' className='hover:underline'>Privacy Policy</Link>
             </li>
           </ul>
         </div>

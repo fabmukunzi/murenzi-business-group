@@ -1,9 +1,30 @@
+'use client';
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { exterior2 } from '@/lib/images';
+import { exterior2, SaunaImg1 } from '@/lib/images';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { tentsItems } from '@/lib/data';
 
 const Explore = () => {
+  const router = useRouter();
+  const exploreItems = [
+    {
+      title: 'Rentals',
+      image: exterior2,
+      url: '/rentals',
+    },
+    {
+      title: 'Tents',
+      image: tentsItems[0].image,
+      url: '/restaurant#tents',
+    },
+    {
+      title: 'Sauna massage',
+      image: SaunaImg1,
+      url: '/sauna-and-massage',
+    },
+  ];
   const imageUrl =
     'https://plutproperties.com/wp-content/uploads/2021/09/apartment-in-kigali-plut-properties-3.jpg';
 
@@ -25,24 +46,25 @@ const Explore = () => {
                 restaurant booths. Experience comfort, convenience, and top-tier
                 hospitality tailored to your needs.
               </p>
-              <Button variant="secondary" className="text-primary w-fit">
-                Explore now
+              <Button variant="secondary" className="text-white bg-white/30 border border-white hover:bg-bg-white/30 w-fit px-10">
+                Click on images to explore more
               </Button>
             </div>
             <div className="flex justify-center md:justify-start gap-2 h-80 max-md:h-40 items-end sm:gap-3 md:gap-4">
-              {['Apartment', 'Booth', 'Sauna massage'].map((item, index) => (
+              {exploreItems.map((item, index) => (
                 <div
                   key={index}
-                  className="relative w-20 sm:w-24 md:w-28 h-24 sm:h-28 md:h-32 rounded-2xl overflow-hidden"
+                  className="relative w-20 sm:w-24 md:w-28 h-24 sm:h-28 md:h-32 rounded-2xl overflow-hidden hover:scale-105 transition-transform duration-300 cursor-pointer"
+                  onClick={() => router.push(item.url)}
                 >
                   <Image
-                    src={exterior2}
-                    alt={item}
+                    src={item.image}
+                    alt={item.title}
                     fill
                     className="object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex items-end p-2 text-white text-xs sm:text-sm">
-                    {item}
+                    {item.title}
                   </div>
                 </div>
               ))}

@@ -10,7 +10,7 @@ export const getAllTransactions = async (req: Request, res: Response) => {
     try {
         const transactions = await TransactionService.gellAllTransactions();
         res.status(200).json({ success: true, transactions });
-    } catch (error:any) {
+    } catch (error: any) {
         res.status(500).json({ success: false, message: error.message || 'Internal server error' });
     }
 }
@@ -26,7 +26,7 @@ export const getTransactionById = async (req: Request, res: Response) => {
         }
 
         res.status(200).json({ success: true, transaction });
-    } catch (error:any) {
+    } catch (error: any) {
         res.status(500).json({ success: false, message: error.message || 'Internal server error' });
     }
 }
@@ -35,8 +35,8 @@ export const createTransaction = async (req: Request, res: Response) => {
     try {
         const newTransaction = await TransactionService.createTransaction(req.body);
         res.status(201).json({ success: true, transaction: newTransaction });
-    } catch (error:any) {
-        res.status(500).json({ success: false, message: error.message||'Internal server error' });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: error.message || 'Internal server error' });
     }
 }
 
@@ -45,8 +45,8 @@ export const updateTransaction = async (req: Request, res: Response) => {
         const { id } = req.params;
         const updated = await TransactionService.updateTransaction(id, req.body);
         res.status(200).json({ success: true, transaction: updated });
-    } catch (error:any) {
-        res.status(500).json({ success: false, message: error.message||'Internal server error' });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: error.message || 'Internal server error' });
     }
 }
 
@@ -55,14 +55,14 @@ export const deleteTransaction = async (req: Request, res: Response) => {
         const { id } = req.params;
         await TransactionService.deleteTransaction(id);
         res.status(200).json({ success: true, message: 'Transaction deleted' });
-    } catch (error:any) {
-        res.status(500).json({ success: false, message: error.message|| 'Internal server error' });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: error.message || 'Internal server error' });
     }
 }
 
 export const webhook = async (req: Request, res: Response) => {
     try {
-        const payload: TransactionWebhookPayload = req.body.jsonpayload;
+        const payload: TransactionWebhookPayload = req.body;
         console.log("webhook payload", payload);
         if (!payload) {
             res.status(400).json({ success: false, message: 'Missing payload' });
@@ -80,13 +80,13 @@ export const withdraw = async (req: Request, res: Response) => {
     const { phoneNumber, totalPrice, reason } = req.body;
     try {
         if (!phoneNumber || !totalPrice) {
-             res.status(400).json({
+            res.status(400).json({
                 status: "error",
                 message: "Missing phoneNumber or totalPrice in request body.",
             });
             return
         }
-        const requesttransactionid= generateRequestTransactionId();
+        const requesttransactionid = generateRequestTransactionId();
 
         const payload = {
             username: process.env.INTOUCHPAY_USERNAME,
@@ -112,7 +112,7 @@ export const withdraw = async (req: Request, res: Response) => {
         const message = responseMessages[responseCode] || paymentResponse.message || paymentResponse.statusdesc || paymentResponse.detail || "Unknown error";
 
         if (responseCode !== "2001") {
-             res.status(400).json({
+            res.status(400).json({
                 status: "error",
                 message,
                 responsecode: responseCode,
@@ -120,7 +120,7 @@ export const withdraw = async (req: Request, res: Response) => {
             });
             return
         }
-        
+
 
         const transaction = await TransactionService.createTransaction({
             amount: parseFloat(totalPrice),
@@ -131,10 +131,10 @@ export const withdraw = async (req: Request, res: Response) => {
             requesttransactionid: `${requesttransactionid}`,
             status: paymentResponse.status,
             reason: payload.reason,
-            type:"Outgoing"
+            type: "Outgoing"
         });
 
-         res.status(200).json({
+        res.status(200).json({
             status: "success",
             message,
             responsecode: responseCode,
