@@ -23,14 +23,14 @@ import {
 } from "@/components/ui/alert-dialog"
 import { handleError } from "@/lib/functions/handle-error";
 import { noImageUrl } from "@/lib/data";
-
-
-
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function RentalsPage() {
   const router = useRouter();
-  const { data: rentals, isLoading } = useGetRentalsQuery();
-  const [deleteRental] = useDeleteRentalMutation();
+  const { data: rentals, isLoading, refetch } = useGetRentalsQuery();
+  const [deleteRental, { isLoading: isDeleting }] = useDeleteRentalMutation();
+  const [openDialogId, setOpenDialogId] = useState<string | null>(null);
 
   if (isLoading) {
     return (
@@ -42,14 +42,16 @@ export default function RentalsPage() {
 
   const handleDeleteRental = async (roomId: string) => {
     try {
-      await deleteRental({ roomId: roomId }).unwrap();
-      console.log('Rental deleted');
+      await deleteRental({ roomId }).unwrap();
+      toast.success("Rental deleted successfully");
+      refetch(); // Refresh the rentals list
+      setOpenDialogId(null);
     } catch (err) {
       console.error('Failed to delete rental:', err);
       handleError(err);
+      toast.error("Failed to delete rental");
     }
   };
-
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-10">
@@ -96,9 +98,24 @@ export default function RentalsPage() {
                   >
                     <PenLine size={16} strokeWidth={3} className="text-primary" />
                   </Button>
-                  <AlertDialog>
+
+                  <AlertDialog
+                    open={openDialogId === rental.id}
+                    onOpenChange={(open) => {
+                      if (!open && !isDeleting) {
+                        setOpenDialogId(null);
+                      } else if (open) {
+                        setOpenDialogId(rental.id);
+                      }
+                    }}
+                  >
                     <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size={"icon"} className="bg-red-500">
+                      <Button
+                        variant="destructive"
+                        size={"icon"}
+                        className="bg-red-500"
+                        onClick={() => setOpenDialogId(rental.id)}
+                      >
                         <Trash size={16} strokeWidth={3} className="text-white" />
                       </Button>
                     </AlertDialogTrigger>
@@ -106,13 +123,29 @@ export default function RentalsPage() {
                       <AlertDialogHeader>
                         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          This action cannot be undone. This will permanently delete your
-                          account and remove your data from our servers.
+                          This will permanently delete this rental property and all its data.
+                          This action cannot be undone.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction className="bg-red-500 hover:border-red-500 hover:border-2 hover:bg-white hover:text-red-500" onClick={()=>handleDeleteRental(rental.id)}><Trash size={16} strokeWidth={3} className="" /> Delete</AlertDialogAction>
+                        <AlertDialogCancel disabled={isDeleting}>
+                          Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          className="bg-red-500 hover:border-red-500 hover:border-2 hover:bg-white hover:text-red-500"
+                          onClick={() => handleDeleteRental(rental.id)}
+                          disabled={isDeleting}
+                        >
+                          {isDeleting ? (
+                            <span className="flex items-center gap-2">
+                              <Loader loading  /> Deleting...
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-2">
+                              <Trash size={16} strokeWidth={3} /> Delete
+                            </span>
+                          )}
+                        </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
@@ -124,7 +157,7 @@ export default function RentalsPage() {
                   <div className="flex justify-between w-full flex-wrap gap-2">
                     <div>
                       <p className="text-primary font-bold text-lg">
-                        {rental.price}{" "}RWF
+                        {rental.price} RWF
                         <span className="text-gray-500 font-medium text-sm">
                           /night
                         </span>

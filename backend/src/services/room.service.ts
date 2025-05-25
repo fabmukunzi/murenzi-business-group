@@ -8,7 +8,11 @@ export class RoomService {
     }
 
     async getAllRooms() {
-        const rooms = await prisma.room.findMany();
+        const rooms = await prisma.room.findMany({
+            where:{
+                isDeleted: false
+            }
+        });
         const today = new Date();
 
         const roomsWithAvailability = await Promise.all(
@@ -115,6 +119,6 @@ export class RoomService {
     }
 
     async deleteRoom(id: string) {
-        return await prisma.room.delete({ where: { id } });
+        return await prisma.room.update({ where: { id },data: { isDeleted: true } });
     }
 }

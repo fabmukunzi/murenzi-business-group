@@ -35,6 +35,7 @@ export type Booking = IBooking;
 export interface BookingResponse {
     status: string;
     message: string;
+    transactionId: string;
     data: {
         booking: Booking;
     };

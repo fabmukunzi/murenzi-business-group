@@ -280,7 +280,9 @@ export default function TransactionsPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <span className="text-xs text-gray-500">{transaction.type}</span>
+                        <Badge variant="outline" className={`capitalize ${transaction.type == "incoming" ? "bg-blue-100 text-blue-500 border-blue-200" : "bg-orange-100 text-orange-500 border-orange-200"}`}>
+                          {transaction.type || "N/A"}
+                        </Badge>
                       </TableCell>
                       <TableCell>${transaction.amount}</TableCell>
                       <TableCell>
@@ -315,6 +317,7 @@ export default function TransactionsPage() {
           </DialogHeader>
           <ScrollArea className="max-h-[calc(85vh-110px)]">
             <div className="px-6 py-4 space-y-6">
+              {/* Transaction Overview */}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center justify-between">
