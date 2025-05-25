@@ -160,9 +160,9 @@ export default function UpdateRentalPage() {
                 <ArrowLeft />
               </Button>
               <div>
-                <h1 className="text-3xl font-bold text-gray-800">Add New Rental</h1>
+                <h1 className="text-3xl font-bold text-gray-800">Update Rental Details</h1>
                 <p className="text-gray-500 mt-1">
-                  Create a new property listing for guests to book
+                  Edit your property information to ensure accurate and appealing listings.
                 </p>
               </div>
             </div>
@@ -176,7 +176,7 @@ export default function UpdateRentalPage() {
                 Rental Details
               </CardTitle>
               <CardDescription className="text-gray-500">
-                Fill in the information below to create a new rental property
+                Update the information below to modify this rental property listing.
               </CardDescription>
             </CardHeader>
             <CardContent className="p-6">

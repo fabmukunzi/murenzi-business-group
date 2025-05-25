@@ -12,10 +12,21 @@ export interface Room {
   price: number;
   parkingSpace: number;
   size: string;
-  location: string | undefined;
+  location: string |undefined;
   createdAt: string;
   updatedAt: string;
+  bookings?: IBookingResponse[];
 }
+
+export interface IBookingResponse {
+  checkIn: string;
+  checkOut: string;
+  guestName: string;
+  guestEmail: string;
+  guestPhone: string;
+  status: string;
+}
+
 
 export interface IBooking {
   id: string;

@@ -37,50 +37,19 @@ interface StatusUpdatedEventData {
   status: string; // You can narrow this if you use specific status values like: 'pending' | 'Successful' | 'Failed'
 }
 
-
-// interface RentalTransaction {
-//   id: string;
-//   amount: number;
-//   name:string;
-//   email:string;
-//   phoneNumber:number,
-//   type:string,
-//   transactionid: string;
-//   requesttransactionid: string;
-//   status: "Pending" | "Failed" | "Successfull";
-//   createdAt: string;
-//   updatedAt: string;
-//   booking: {
-//     id: string;
-//     name: string;
-//     email: string;
-//     phoneNumber: string;
-//     roomId: string;
-//     checkIn: string;
-//     checkOut: string;
-//     totalPrice: number;
-//     room: {
-//       id: string;
-//       name: string;
-//       description: string;
-//       price: number;
-//       location: string;
-//     };
-//   } | null;
-//   details?: TransactionDetails;
-// }
-
 const StatusBadge = ({ status }: { status: string }) => {
   const statusStyles = {
-    Success: "bg-green-100 text-green-800 border-green-200",
-    Pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
-    Failed: "bg-red-100 text-red-800 border-red-200",
+    success: "bg-green-100 text-green-800 border-green-200",
+    pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
+    failed: "bg-red-100 text-red-800 border-red-200",
+    successfull: "bg-green-100 text-green-800 border-green-200",
   };
 
   const statusIcons = {
-    Success: <Check size={14} className="mr-1" />,
-    Pending: <AlertCircle size={14} className="mr-1" />,
-    Failed: <X size={14} className="mr-1" />,
+    success: <Check size={14} className="mr-1" />,
+    successfull: <Check size={14} className="mr-1" />,
+    pending: <AlertCircle size={14} className="mr-1" />,
+    failed: <X size={14} className="mr-1" />,
   };
 
   const style =
@@ -89,7 +58,7 @@ const StatusBadge = ({ status }: { status: string }) => {
   const icon = statusIcons[status as keyof typeof statusIcons] || null;
 
   return (
-    <Badge variant="outline" className={`flex items-center ${style}`}>
+    <Badge variant="outline" className={`flex items-center justify-center w-fit ${style}`}>
       {icon}
       <span className="capitalize">{status}</span>
     </Badge>
@@ -216,7 +185,7 @@ export default function TransactionsPage() {
                   <TableHead className="w-[80px]">ID</TableHead>
                   <TableHead>Customer</TableHead>
                   <TableHead className="hidden sm:table-cell">Contact</TableHead>
-                  <TableHead>Property</TableHead>
+                  <TableHead>Flow</TableHead>
                   <TableHead className="hidden xs:table-cell">Date</TableHead>
                   <TableHead>Amount</TableHead>
                   <TableHead>Status</TableHead>
@@ -257,7 +226,7 @@ export default function TransactionsPage() {
                     </TableCell>
                     <TableCell>${transaction.amount}</TableCell>
                     <TableCell>
-                      <StatusBadge status={transaction.status} />
+                      <StatusBadge status={transaction.status.toLowerCase()} />
                     </TableCell>
                     <TableCell className="text-right">
                       <Button

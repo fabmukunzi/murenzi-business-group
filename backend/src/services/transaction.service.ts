@@ -37,8 +37,9 @@ export class TransactionService {
             throw new Error("Missing transactionid or requesttransactionid");
         }
 
-        const normalizedStatus = status.toLowerCase() === "successfull" ? "success" : "failed";
-        const updatedTransaction = await prisma.transaction.updateMany({
+        const normalizedStatus = ["successfull", "success"].includes(status.toLowerCase())
+            ? "successfull"
+            : "failed";        const updatedTransaction = await prisma.transaction.updateMany({
             where: {
                 transactionid,
                 requesttransactionid,

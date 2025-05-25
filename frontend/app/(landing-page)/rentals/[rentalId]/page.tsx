@@ -19,6 +19,7 @@ import { handleError } from '@/lib/functions/handle-error';
 import { BookingResponse } from '@/lib/types/room';
 import Loader from '@/components/common/loader';
 import { formatMoney } from '@/lib/functions/format-number';
+import { Badge } from '@/components/ui/badge';
 
 export default function RentalDetailPage() {
   const params = useParams();
@@ -43,6 +44,17 @@ export default function RentalDetailPage() {
     roomId: params.rentalId as string,
   });
 
+  const bookedRanges = data?.data?.bookings?.map(booking => ({
+    start: new Date(booking.checkIn),
+    end: new Date(booking.checkOut)
+  })) || [];
+
+  const isDateBooked = (date: Date) => {
+    return bookedRanges.some(range =>
+      date >= range.start && date <= range.end
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -62,6 +74,7 @@ export default function RentalDetailPage() {
 
   const room = data.data.room;
   const basePrice = room.price || 0;
+  const bookings = data?.data?.bookings || [];
 
   const isValidRange = checkIn && checkOut && isBefore(checkIn, checkOut);
   const totalNights = isValidRange
@@ -139,8 +152,10 @@ export default function RentalDetailPage() {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Rentals
         </Button>
-        <h1 className="text-3xl font-bold">{room.name}</h1>
-        <p className="text-gray-600 flex items-center mt-1">
+        <div>
+          <h1 className="text-3xl font-bold">{room.name}</h1>
+        </div>
+        <div className="text-gray-600 flex items-center mt-1">
           <Image
             src={icons.locationPin}
             alt=""
@@ -148,8 +163,8 @@ export default function RentalDetailPage() {
             height={14}
             className="mr-1"
           />
-          Kanombe, Kigali, Rwanda
-        </p>
+          <p>{room.location || 'Kanombe, Kigali, Rwanda'}</p>
+        </div>
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -260,7 +275,10 @@ export default function RentalDetailPage() {
                       mode="single"
                       selected={checkIn}
                       onSelect={setCheckIn}
-                      disabled={(date) => isBefore(date, new Date())}
+                      disabled={(date) =>
+                        isBefore(date, new Date()) ||
+                        isDateBooked(date)
+                      }
                     />
                   </PopoverContent>
                 </Popover>
@@ -282,7 +300,8 @@ export default function RentalDetailPage() {
                       selected={checkOut}
                       onSelect={setCheckOut}
                       disabled={(date) =>
-                        isBefore(date, checkIn ? addDays(checkIn, 1) : new Date())
+                        isBefore(date, checkIn ? addDays(checkIn, 1) : new Date()) ||
+                        isDateBooked(date)
                       }
                     />
                   </PopoverContent>
@@ -307,12 +326,36 @@ export default function RentalDetailPage() {
             >
               {isBooking ? 'Processing...' : 'Proceed to Payment'}
             </Button>
-
           </Card>
         </div>
       </div>
 
       <div className="mt-8">
+        {bookings.length > 0 && (
+          <div className="mb-8 border rounded-lg p-4 bg-gray-50">
+            <div className="flex items-center gap-2 mb-3">
+              <CalendarIcon className="h-5 w-5 text-gray-600" />
+              <h2 className="text-lg font-semibold text-gray-800">
+                Booked Date Ranges
+              </h2>
+            </div>
+            <p className="text-sm text-gray-600 mb-3">
+              This rental is unavailable during the following periods:
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {bookings.map((booking, index) => (
+                <Badge
+                  key={index}
+                  variant="outline"
+                  className="px-3 py-1 bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100"
+                >
+                  <CalendarIcon className="h-3 w-3 mr-1" />
+                  {format(new Date(booking.checkIn), 'MMM dd')} – {format(new Date(booking.checkOut), 'MMM dd, yyyy')}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
         <h2 className="text-2xl font-semibold mb-4">About this rental</h2>
         <p className="text-gray-700 leading-relaxed">{room.description}</p>
       </div>

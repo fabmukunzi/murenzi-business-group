@@ -39,7 +39,7 @@ export const login = async (req: UserRequest, res: Response): Promise<void> => {
         if (!req.user.verified) {
             const token = await generateToken(req.user, '1h');
             const verificationLink = `${process.env.FRONTEND_URL}api/auth/verify?token=${token}`;
-           await sendVerificationEmail(req.user.email, verificationLink);
+            await sendVerificationEmail(req.user.email, verificationLink);
         }
 
         const token = await generateToken(req.user);
@@ -50,8 +50,8 @@ export const login = async (req: UserRequest, res: Response): Promise<void> => {
             message: 'Login successful',
             data: { token, role: role?.name, user: userWithoutPassword },
         });
-    } catch (error:any) {
-        res.status(500).json({ status: 'fail', message:error.message|| 'An error occurred during login' });
+    } catch (error: any) {
+        res.status(500).json({ status: 'fail', message: error.message || 'An error occurred during login' });
     }
 };
 export const signup = async (req: Request, res: Response) => {
@@ -86,16 +86,16 @@ export const signup = async (req: Request, res: Response) => {
                 user: userWithoutPassword,
             },
         });
-    } catch (error:any) {
+    } catch (error: any) {
         res.status(500).json({
             status: 'fail',
-            message: error.message||'Error creating user',
+            message: error.message || 'Error creating user',
         });
     }
 };
 
 
-export const verifyUser =async (req: Request, res: Response) => {
+export const verifyUser = async (req: Request, res: Response) => {
     const token = req.query.token as string;
     if (!token) {
         res.status(400).json({
@@ -120,10 +120,10 @@ export const verifyUser =async (req: Request, res: Response) => {
                 user,
             },
         });
-    } catch (error:any) {
+    } catch (error: any) {
         res.status(500).json({
             status: 'fail',
-            message: error.message||'Error verifying user',
+            message: error.message || 'Error verifying user',
         });
     }
 
@@ -131,31 +131,31 @@ export const verifyUser =async (req: Request, res: Response) => {
 
 
 export const resendVerification = async (req: Request, res: Response) => {
-  const { email } = req.body;
+    const { email } = req.body;
 
-  try {
-    const result = await resendVerificationEmail(email);
-    res.status(200).json({
-      status: result.status,
-      message: result.message,
-      data: result.data,
-    });
-  } catch (error:any) {
-    if (error.message === 'User not found') {
-      res.status(404).json({
-        status: 'error',
-        message: 'User not found',
-      });
-    } else if (error.message === 'User is already verified') {
-      res.status(400).json({
-        status: 'error',
-        message: 'User is already verified',
-      });
-    } else {
-      res.status(500).json({
-        status: 'error',
-          message: error.message||'Error resending verification email',
-      });
+    try {
+        const result = await resendVerificationEmail(email);
+        res.status(200).json({
+            status: result.status,
+            message: result.message,
+            data: result.data,
+        });
+    } catch (error: any) {
+        if (error.message === 'User not found') {
+            res.status(404).json({
+                status: 'error',
+                message: 'User not found',
+            });
+        } else if (error.message === 'User is already verified') {
+            res.status(400).json({
+                status: 'error',
+                message: 'User is already verified',
+            });
+        } else {
+            res.status(500).json({
+                status: 'error',
+                message: error.message || 'Error resending verification email',
+            });
+        }
     }
-  }
 };

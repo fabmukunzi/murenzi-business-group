@@ -67,7 +67,6 @@ export const createBooking = async (req: Request, res: Response) => {
             });
             const data = await response.json();
             paymentResponse = await data;
-
         }
         if (paymentResponse.responsecode == 2300) {
             res.status(400).json({
