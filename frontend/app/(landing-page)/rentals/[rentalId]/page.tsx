@@ -129,7 +129,7 @@ export default function RentalDetailPage() {
       };
       const res: BookingResponse = await bookRoom(payload).unwrap();
       if (res?.status === "Pending") {
-        router.push(`/confirm`);
+        router.push(`/confirm/${res.transactionId}`);
       }
     } catch (err) {
       handleError(err);
