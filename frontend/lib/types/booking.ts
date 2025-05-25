@@ -12,7 +12,7 @@ export interface Room {
   price: number;
   parkingSpace: number;
   size: string;
-  location: string | null;
+  location: string | undefined;
   createdAt: string;
   updatedAt: string;
 }
