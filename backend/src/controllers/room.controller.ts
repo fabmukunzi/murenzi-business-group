@@ -244,14 +244,14 @@ export const deleteRoom = async (req: Request, res: Response) => {
             });
             return
         }
-        const booking = await bookingService.getBookingByRoomId(id);
-        if (booking) {
-            res.status(400).json({
-                status: "failed",
-                message: "First delete the booking before deleting the room"
-            });
-            return
-        }
+        // const booking = await bookingService.getBookingByRoomId(id);
+        // if (booking) {
+        //     res.status(400).json({
+        //         status: "failed",
+        //         message: "First delete the booking before deleting the room"
+        //     });
+        //     return
+        // }
 
         await roomService.deleteRoom(id);
         res.status(200).json({

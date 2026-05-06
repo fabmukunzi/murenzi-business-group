@@ -122,6 +122,7 @@ export const createBooking = async (req: Request, res: Response) => {
         res.status(201).json({
             status: paymentResponse.status,
             message: paymentResponse.message,
+            transactionId: paymentResponse.requesttransactionid,
             data: { booking },
         });
     } catch (error: any) {
